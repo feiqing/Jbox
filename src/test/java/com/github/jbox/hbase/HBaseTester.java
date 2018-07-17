@@ -88,7 +88,8 @@ public class HBaseTester {
 
     @Test
     public void testColumnFilter() throws IOException {
-        Get get = com.github.jbox.hbase.params.Get.newInstance("key1");
+        Get get  = new Get(Bytes.toBytes("key1"));
+        get.setMaxVersions(1);
         get.setFilter(new QualifierFilter(EQUAL, new BinaryComparator("fq2".getBytes())));
         Result result = table.get(get);
         printAllMap(result.getRow(), result.getMap(), Bytes::toString);

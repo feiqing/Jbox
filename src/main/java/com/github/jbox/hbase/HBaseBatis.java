@@ -1,8 +1,9 @@
 package com.github.jbox.hbase;
 
-import com.github.jbox.hbase.params.Delete;
-import com.github.jbox.hbase.params.Get;
-import com.github.jbox.hbase.params.Put;
+//import com.github.jbox.hbase.params.Delete;
+//import com.github.jbox.hbase.params.Get;
+//import com.github.jbox.hbase.params.Put;
+
 import com.github.jbox.serializer.ISerializer;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
@@ -10,9 +11,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.reflect.FieldUtils;
 import org.apache.commons.lang3.tuple.Pair;
-import org.apache.hadoop.hbase.client.Increment;
-import org.apache.hadoop.hbase.client.Result;
-import org.apache.hadoop.hbase.client.Scan;
+import org.apache.hadoop.hbase.client.*;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.springframework.data.hadoop.hbase.HbaseTemplate;
 import org.springframework.data.hadoop.hbase.RowMapper;
@@ -171,7 +170,9 @@ public class HBaseBatis<T extends HBaseMode> {
 
     public Map<String, Map<String, Object>> get(String rowKey, Object none) {
         return invokeOnTable(table -> {
-            Result result = table.get(Get.newInstance(rowKey, 1));
+            Get get = new Get(Bytes.toBytes(rowKey));
+            get.setMaxVersions(1);
+            Result result = table.get(get);
             return rowMapper.mapRow(result, 0);
         });
     }
@@ -187,7 +188,9 @@ public class HBaseBatis<T extends HBaseMode> {
         return invokeOnTable(table -> {
             List<org.apache.hadoop.hbase.client.Get> gets = new ArrayList<>(rowKeys.size());
             for (String rowKey : rowKeys) {
-                gets.add(Get.newInstance(rowKey, 1));
+                Get get = new Get(Bytes.toBytes(rowKey));
+                get.setMaxVersions(1);
+                gets.add(get);
             }
 
             Result[] results = table.get(gets);
@@ -239,7 +242,7 @@ public class HBaseBatis<T extends HBaseMode> {
 
     public void delete(String rowKey) {
         invokeOnTable(table -> {
-            table.delete(Delete.newInstance(rowKey));
+            table.delete(new Delete(Bytes.toBytes(rowKey)));
             return null;
         });
     }
