@@ -35,9 +35,9 @@ import static com.github.jbox.hbase.HBaseHelper.*;
  */
 @Slf4j
 @SuppressWarnings("unchecked")
-public abstract class HBaseBatis<T extends HBaseMode> {
+public class HBaseBatis<T extends HBaseMode> {
 
-    private Class<T> type;
+    private Class<?> type;
 
     private String tableName;
 
@@ -60,7 +60,7 @@ public abstract class HBaseBatis<T extends HBaseMode> {
 
         @Override
         public T mapObject(String rowKey, Map<String, Map<String, Object>> columnMap) throws Exception {
-            T instance = type.newInstance();
+            T instance = (T) type.newInstance();
             instance.setRowKey(rowKey);
 
             for (Map.Entry<String, Map<String, Object>> familyEntry : columnMap.entrySet()) {
@@ -85,24 +85,20 @@ public abstract class HBaseBatis<T extends HBaseMode> {
         }
     };
 
-    private HBaseBatis() {
-        Type superclass = this.getClass().getGenericSuperclass();
-        while (!superclass.equals(Object.class) && !(superclass instanceof ParameterizedType)) {
-            superclass = ((Class) superclass).getGenericSuperclass();
-        }
-
-        if (!(superclass instanceof ParameterizedType)) {
-            throw new RuntimeException(String.format("class:%s extends HBaseBatis<T> not replace generic type <T>", this.getClass().getName()));
-        }
-
-        this.type = (Class<T>) ((ParameterizedType) superclass).getActualTypeArguments()[0];
-        this.tableName = getTableName(type);
+    public HBaseBatis(String tableName, String defaultFamily, HbaseTemplate hbaseTemplate, Class<?> type, ISerializer serializer) {
+        this.tableName = tableName;
+        this.defaultFamily = defaultFamily;
+        this.template = hbaseTemplate;
+        this.type = type;
+        this.serializer = serializer;
     }
 
-    public HBaseBatis(HbaseTemplate hbaseTemplate, String defaultFamily, ISerializer serializer) {
-        this();
-        this.template = hbaseTemplate;
+    public HBaseBatis(String defaultFamily, HbaseTemplate hbaseTemplate, ISerializer serializer) {
+        Class<T> type = getType();
+        this.tableName = getTableName(type);
         this.defaultFamily = defaultFamily;
+        this.template = hbaseTemplate;
+        this.type = type;
         this.serializer = serializer;
     }
 
@@ -273,7 +269,7 @@ public abstract class HBaseBatis<T extends HBaseMode> {
             byte[] newValBytes = serializer.serialize(newVal);
 
             Put put = new Put(rowKeyBytes);
-            put.addColumn(familyBytes, qualifierBytes, newValBytes);
+            put.add(familyBytes, qualifierBytes, newValBytes);
 
             return table.checkAndPut(rowKeyBytes, familyBytes, qualifierBytes, oldValBytes, put);
         });
@@ -350,6 +346,19 @@ public abstract class HBaseBatis<T extends HBaseMode> {
 
 
     // --- helpers ---
+    private Class<T> getType() {
+        Type superclass = this.getClass().getGenericSuperclass();
+        while (!superclass.equals(Object.class) && !(superclass instanceof ParameterizedType)) {
+            superclass = ((Class) superclass).getGenericSuperclass();
+        }
+
+        if (!(superclass instanceof ParameterizedType)) {
+            throw new RuntimeException(String.format("class:%s extends HBaseBatis<T> not replace generic type <T>", this.getClass().getName()));
+        }
+
+        return (Class<T>) ((ParameterizedType) superclass).getActualTypeArguments()[0];
+    }
+
     private Put qualifierMapToPut(String rowKey, Map<String, Map<String, Object>> qualifierMap) {
         Put put = new Put(Bytes.toBytes(rowKey));
         for (Map.Entry<String, Map<String, Object>> familyEntry : qualifierMap.entrySet()) {
@@ -357,7 +366,7 @@ public abstract class HBaseBatis<T extends HBaseMode> {
             for (Map.Entry<String, Object> qualifierEntry : familyEntry.getValue().entrySet()) {
                 String qualifier = qualifierEntry.getKey();
                 byte[] value = serializer.serialize(qualifierEntry.getValue());
-                put.addColumn(family, Bytes.toBytes(qualifier), value);
+                put.add(family, Bytes.toBytes(qualifier), value);
             }
         }
 
