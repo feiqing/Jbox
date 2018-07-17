@@ -40,6 +40,7 @@
         <url>http://code.alibabatech.com/</url>
     </organization>
 
+    <!--
     <distributionManagement>
         <snapshotRepository>
             <id>ossrh</id>
@@ -49,6 +50,17 @@
             <id>ossrh</id>
             <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
         </repository>
+    </distributionManagement>
+    -->
+    <distributionManagement>
+        <repository>
+            <id>releases</id>
+            <url>http://mvnrepo.alibaba-inc.com/mvn/releases</url>
+        </repository>
+        <snapshotRepository>
+            <id>snapshots</id>
+            <url>http://mvnrepo.alibaba-inc.com/mvn/snapshots</url>
+        </snapshotRepository>
     </distributionManagement>
 
     <properties>
@@ -81,8 +93,8 @@
         <hbase.version>1.3.1</hbase.version>
         <spring.data.hbase.version>2.5.0.RELEASE</spring.data.hbase.version>
 
-        <javadoc.skip>false</javadoc.skip>
-        <gpg.skip>false</gpg.skip>
+        <javadoc.skip>true</javadoc.skip>
+        <gpg.skip>true</gpg.skip>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
