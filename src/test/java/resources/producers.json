@@ -1,0 +1,12 @@
+[
+  {
+    "class": "com.tmall.crp.cf.controller.TrackController",
+    "method": "getLastTracksByStore",
+    "converter": "com.tmall.crp.cf.socket.Converters.LONG_ARGS_CONVERT"
+  },
+  {
+    "class": "com.tmall.crp.cf.controller.HeatMapController",
+    "method": "getLive",
+    "converter": "com.tmall.crp.cf.socket.Converters.LONG_ARGS_CONVERT"
+  }
+]

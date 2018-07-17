@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<traces xmlns="http://www.github.com/jbox/trace"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.github.com/jbox/trace
+       http://localhost:8080/jbox/trace.xsd">
+
+    <define name="service" value="com.cainiao.webapp.service.impl.HelloWorldServiceImpl"/>
+
+    <trace method="${service}:sayHello">
+        <expression key="#args[0]"/>
+        <expression key="#result"/>
+        <expression key="#ph"/>
+    </trace>
+
+    <trace method="${service}::userWrapperV2" ref="${service}:userWrapper"/>
+
+    <trace method="com.alibaba.oic.inventory.gateway.proxy.ipo.IpoBackendPoStoreServiceProxyImpl:ipo">
+        <expression key="#parseIpoOverloaded(#args[0])"/>
+    </trace>
+
+    <trace method="${service}:user">
+        <expression key="#args[0].id"/>
+        <expression key="#args[0].name"/>
+    </trace>
+
+    <trace method="${service}:users">
+        <expression key="#args[0]" multi="true">
+            <field value="name"/>
+            <field value="id"/>
+        </expression>
+    </trace>
+
+    <trace method="${service}:strs">
+        <expression key="#args[0]" multi="true"/>
+    </trace>
+
+    <trace method="${service}:userWrapper">
+        <expression key="#args[0].prefix"/>
+        <expression key="#args[0].users" multi="true">
+            <field value="id"/>
+            <field value="name"/>
+        </expression>
+        <expression key="#args[0].suffix"/>
+    </trace>
+
+
+</traces>

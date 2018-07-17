@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xsd:schema xmlns="http://www.github.com/jbox/trace"
+            xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+            targetNamespace="http://www.github.com/jbox/trace"
+            elementFormDefault="qualified">
+
+    <!-- traces root config -->
+    <xsd:element name="traces">
+        <xsd:annotation>
+            <xsd:documentation>全局trace定义, XML root</xsd:documentation>
+        </xsd:annotation>
+        <xsd:complexType>
+            <xsd:sequence>
+                <xsd:element ref="define" minOccurs="0" maxOccurs="unbounded"/>
+                <xsd:element ref="trace" minOccurs="1" maxOccurs="unbounded"/>
+            </xsd:sequence>
+        </xsd:complexType>
+    </xsd:element>
+
+    <!-- define config -->
+    <xsd:element name="define">
+        <xsd:annotation>
+            <xsd:documentation>定义properties, 会将引用${name}自动替换为value值</xsd:documentation>
+        </xsd:annotation>
+        <xsd:complexType>
+            <xsd:attributeGroup ref="defineAttributes"/>
+        </xsd:complexType>
+    </xsd:element>
+
+    <xsd:attributeGroup name="defineAttributes">
+        <xsd:attribute name="name" type="xsd:string" use="required">
+            <xsd:annotation>
+                <xsd:documentation>占位符key</xsd:documentation>
+            </xsd:annotation>
+        </xsd:attribute>
+
+        <xsd:attribute name="value" type="xsd:string" use="required">
+            <xsd:annotation>
+                <xsd:documentation>占位符value</xsd:documentation>
+            </xsd:annotation>
+        </xsd:attribute>
+    </xsd:attributeGroup>
+
+    <!-- trace config -->
+    <xsd:element name="trace">
+        <xsd:annotation>
+            <xsd:documentation>trace配置, 对应一个method的日志打印(类似AOP拦截一个方法)</xsd:documentation>
+        </xsd:annotation>
+        <xsd:complexType>
+            <xsd:sequence minOccurs="0" maxOccurs="unbounded">
+                <xsd:element ref="expression"/>
+            </xsd:sequence>
+            <xsd:attributeGroup ref="traceAttributes"/>
+        </xsd:complexType>
+    </xsd:element>
+
+    <xsd:attributeGroup name="traceAttributes">
+        <xsd:attribute name="method" type="xsd:string" use="required">
+            <xsd:annotation>
+                <xsd:documentation><![CDATA[
+                    追踪method配置, 形式: <trace method="class:method"/>
+                    ]]></xsd:documentation>
+            </xsd:annotation>
+        </xsd:attribute>
+
+        <xsd:attribute name="ref" type="xsd:string" use="optional">
+            <xsd:annotation>
+                <xsd:documentation><![CDATA[
+                    引用其他的method配置, 形式: <trace method="xxx" ref="class:method"/>
+                    ]]></xsd:documentation>
+            </xsd:annotation>
+        </xsd:attribute>
+
+        <xsd:attribute name="template" type="xsd:boolean" use="optional" default="false">
+            <xsd:annotation>
+                <xsd:documentation><![CDATA[
+                    模板配置: 当被拦截的ConfigKey(Class:Method)找不到关联的配置时, 默认使用该配置,
+                    限制:
+                        1. 一个config文件只能有一个template配置, 否则会在启动时报错
+                        2. 与ref属性互斥
+                    ]]></xsd:documentation>
+            </xsd:annotation>
+        </xsd:attribute>
+    </xsd:attributeGroup>
+
+    <xsd:element name="expression">
+        <xsd:annotation>
+            <xsd:documentation>expression元素, 每一条expression对应log内的一个占位符(multi=true除外, 见下)</xsd:documentation>
+        </xsd:annotation>
+        <xsd:complexType>
+            <xsd:sequence minOccurs="0" maxOccurs="unbounded">
+                <xsd:element ref="field"/>
+            </xsd:sequence>
+            <xsd:attributeGroup ref="expressionAttributes"/>
+        </xsd:complexType>
+    </xsd:element>
+
+    <xsd:attributeGroup name="expressionAttributes">
+        <xsd:attribute name="key" type="xsd:string" use="required">
+            <xsd:annotation>
+                <xsd:documentation>expression元素要定义的表达式(如: SpEL、Groovy ...)</xsd:documentation>
+            </xsd:annotation>
+        </xsd:attribute>
+        <xsd:attribute name="multi" type="xsd:boolean" default="false">
+            <xsd:annotation>
+                <xsd:documentation>用于指定该key所指定的元素是否为一个collection实例(如: List、Set Object ...)</xsd:documentation>
+            </xsd:annotation>
+        </xsd:attribute>
+    </xsd:attributeGroup>
+
+    <xsd:element name="field">
+        <xsd:complexType>
+            <xsd:attribute name="value" type="xsd:string" use="required">
+                <xsd:annotation>
+                    <xsd:documentation><![CDATA[
+                        如果multi=true, 且包含该<filed/>元素, 则TLogManger则将会取出<expression key=""/>
+                        内的指定的元素值, 并将计算结果转换为一个collection, 然后for循环计算该<field value=""/>
+                        内指定的元素值, 将其打印到log中.
+                        ]]></xsd:documentation>
+                </xsd:annotation>
+            </xsd:attribute>
+        </xsd:complexType>
+    </xsd:element>
+</xsd:schema>
