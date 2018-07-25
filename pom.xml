@@ -99,7 +99,7 @@
     </properties>
 
     <dependencies>
-        <!-- commons -->
+        <!-- commons: 必选依赖 -->
         <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
@@ -115,6 +115,8 @@
             <artifactId>fastjson</artifactId>
             <version>${fastjson.version}</version>
         </dependency>
+
+        <!-- commons: 可选依赖 -->
         <dependency>
             <groupId>org.apache.httpcomponents</groupId>
             <artifactId>httpclient</artifactId>
