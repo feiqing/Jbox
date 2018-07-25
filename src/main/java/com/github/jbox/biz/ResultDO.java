@@ -53,6 +53,10 @@ public class ResultDO<T> implements Serializable {
         return errorOf(error.getCode(), error.getMsg());
     }
 
+    public static <T> ResultDO<T> errorOf(String msg) {
+        return errorOf("500", msg);
+    }
+
     public static <T> ResultDO<T> successOf(T data) {
         ResultDO<T> resultDO = new ResultDO<>();
 
