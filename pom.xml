@@ -94,7 +94,7 @@
 
         <eagleeye.version>1.5.2.5</eagleeye.version>
         <diamond.version>3.7.8</diamond.version>
-        <sentinel.version>2.12.0</sentinel.version>
+        <sentinel.version>2.15.0</sentinel.version>
 
         <javadoc.skip>true</javadoc.skip>
         <gpg.skip>true</gpg.skip>
@@ -298,6 +298,12 @@
             <artifactId>sentinel</artifactId>
             <version>${sentinel.version}</version>
             <optional>true</optional>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.springframework</groupId>
+                    <artifactId>spring</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
     </dependencies>
