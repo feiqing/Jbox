@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+       http://www.springframework.org/schema/beans/spring-beans.xsd
+          http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd">
+
+    <!--<import resource="spring/applicationTLogComposite.xml"/>-->
+
+    <bean id="ipoTraceAspect" class="com.github.jbox.trace.TraceLauncher">
+        <property name="invokerChain">
+            <list>
+                <bean class="com.github.jbox.trace.nodes.EagleEyeInvokerNode"/>
+                <bean class="com.github.jbox.trace.nodes.ArgsValidateInvokerNode"/>
+                <bean class="com.github.jbox.trace.nodes.LogRootErrorInvokerNode"/>
+                <bean class="com.github.jbox.trace.nodes.MethodInvokeInvokerNode"/>
+            </list>
+        </property>
+    </bean>
+
+    <aop:config proxy-target-class="true">
+        <aop:pointcut id="ipoProxyPt" expression="
+                    execution(* com.github.jbox.caces.service.impl.HelloWorldServiceImpl.*(..)))                        "/>
+        <aop:aspect ref="ipoTraceAspect">
+            <aop:around method="emit" pointcut-ref="ipoProxyPt"/>
+        </aop:aspect>
+    </aop:config>
+
+    <context:component-scan base-package="com.github.jbox"/>
+
+    <bean class="com.github.jbox.caces.service.impl.HelloWorldServiceImpl"/>
+</beans>

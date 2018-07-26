@@ -11,30 +11,32 @@
     <bean class="com.github.jbox.script.ScriptExecutor"/>
 
 
-    <bean id="ipoTraceAspect" class="com.github.jbox.trace.TraceAspect">
-        <property name="tLogManager">
-            <bean class="com.github.jbox.trace.tlog.TLogManager">
-                <property name="charset" value="UTF-8"/>
-                <property name="maxHistory" value="1"/>
-                <property name="minPoolSize" value="5"/>
-                <property name="maxPoolSize" value="15"/>
-                <property name="resource" value="classpath:tlog-config.xml"/>
-                <property name="filePath" value="/home/admin/logs/tlog/ipo-monitor.log"/>
-                <property name="excludeResults">
-                    <set>
-                        <value>successResultMap</value>
-                        <value>errorResultMap</value>
-                    </set>
-                </property>
-            </bean>
-        </property>
+    <!--<property name="tlogManager">-->
+    <!--<bean class="com.github.jbox.trace.tlog.TlogManager">-->
+    <!--<property name="charset" value="UTF-8"/>-->
+    <!--<property name="maxHistory" value="1"/>-->
+    <!--<property name="minPoolSize" value="5"/>-->
+    <!--<property name="maxPoolSize" value="15"/>-->
+    <!--<property name="resource" value="classpath:tlog-config.xml"/>-->
+    <!--<property name="filePath" value="/home/admin/logs/tlog/ipo-monitor.log"/>-->
+    <!--<property name="excludeResults">-->
+    <!--<set>-->
+    <!--<value>successResultMap</value>-->
+    <!--<value>errorResultMap</value>-->
+    <!--</set>-->
+    <!--</property>-->
+    <!--</bean>-->
+    <!--</property>-->
+
+    <bean id="ipoTraceAspect" class="com.github.jbox.trace.TraceLauncher">
+
     </bean>
 
     <aop:config proxy-target-class="true">
         <aop:pointcut id="ipoProxyPt" expression="
                     execution(* com.github.jbox.caces.service.impl.HelloWorldServiceImpl.*(..)))                        "/>
         <aop:aspect ref="ipoTraceAspect">
-            <aop:around method="invoke" pointcut-ref="ipoProxyPt"/>
+            <aop:around method="emit" pointcut-ref="ipoProxyPt"/>
         </aop:aspect>
     </aop:config>
 

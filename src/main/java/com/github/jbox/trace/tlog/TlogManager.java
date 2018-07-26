@@ -25,7 +25,7 @@ import static java.util.stream.Collectors.toList;
  * @version 1.2
  * @since 2017/9/22 15:50:00.
  */
-public class TLogManager extends AbstractTLogConfig implements InitializingBean {
+public class TlogManager extends AbstractTlogConfig implements InitializingBean {
 
     private static final long serialVersionUID = -4553832981389212025L;
 
@@ -33,7 +33,7 @@ public class TLogManager extends AbstractTLogConfig implements InitializingBean 
 
     private Logger tLogger;
 
-    public TLogManager() {
+    public TlogManager() {
         super();
     }
 
@@ -41,10 +41,10 @@ public class TLogManager extends AbstractTLogConfig implements InitializingBean 
     public void afterPropertiesSet() throws Exception {
         // init executor
         if (executor == null) {
-            ExecutorManager.setSyncInvoke(TLogConstants.TLOG_EXECUTOR_GROUP, isSync());
-            RejectedExecutionHandler rejected = new DiscardPolicy(TLogConstants.TLOG_EXECUTOR_GROUP);
+            ExecutorManager.setSyncInvoke(TlogConstants.TLOG_EXECUTOR_GROUP, isSync());
+            RejectedExecutionHandler rejected = new DiscardPolicy(TlogConstants.TLOG_EXECUTOR_GROUP);
             executor = ExecutorManager.newFixedMinMaxThreadPool(
-                    TLogConstants.TLOG_EXECUTOR_GROUP,
+                    TlogConstants.TLOG_EXECUTOR_GROUP,
                     getMinPoolSize(), getMaxPoolSize(),
                     getRunnableQSize(), rejected
             );
@@ -213,7 +213,7 @@ public class TLogManager extends AbstractTLogConfig implements InitializingBean 
         }
 
         private void doLogger(List<Object> logEntities) {
-            String content = Joiner.on(TLogConstants.SEPARATOR).useForNull(getPlaceHolder()).join(logEntities);
+            String content = Joiner.on(TlogConstants.SEPARATOR).useForNull(getPlaceHolder()).join(logEntities);
             tLogger.trace("{}", content);
         }
 

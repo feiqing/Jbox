@@ -20,12 +20,12 @@ class ELResolveHelpers {
      * @return
      */
     static String replaceRefToRealString(String original, Map<String, String> definitions) {
-        int prefixIdx = original.indexOf(TLogConstants.DEF_PREFIX);
-        int suffixIdx = original.indexOf(TLogConstants.DEF_SUFFIX);
+        int prefixIdx = original.indexOf(TlogConstants.DEF_PREFIX);
+        int suffixIdx = original.indexOf(TlogConstants.DEF_SUFFIX);
 
         if (prefixIdx != -1 && suffixIdx != -1) {
-            String ref = original.substring(prefixIdx, suffixIdx + TLogConstants.DEF_SUFFIX.length());
-            String trimmedRef = JboxUtils.trimPrefixAndSuffix(ref, TLogConstants.DEF_PREFIX, TLogConstants.DEF_SUFFIX);
+            String ref = original.substring(prefixIdx, suffixIdx + TlogConstants.DEF_SUFFIX.length());
+            String trimmedRef = JboxUtils.trimPrefixAndSuffix(ref, TlogConstants.DEF_PREFIX, TlogConstants.DEF_SUFFIX);
             String refValue = definitions.computeIfAbsent(trimmedRef, (k) -> {
                 throw new TraceException("relative def '" + ref + "' is not defined.");
             });

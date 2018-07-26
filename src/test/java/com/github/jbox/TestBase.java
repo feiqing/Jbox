@@ -10,6 +10,6 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
  * @since 2017/10/28 04:22:00.
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations = "classpath:applicationContext.xml")
+@ContextConfiguration(locations = "classpath*:applicationContext.xml")
 public abstract class TestBase {
 }

@@ -1,10 +1,10 @@
 package com.github.jbox.trace.tlog;
 
+import ch.qos.logback.classic.spi.ILoggingEvent;
+
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-
-import ch.qos.logback.classic.spi.ILoggingEvent;
 
 /**
  * @author jifang.zjf@alibaba-inc.com
@@ -12,12 +12,12 @@ import ch.qos.logback.classic.spi.ILoggingEvent;
  * @since 2017/09/25 17:03:00.
  */
 @FunctionalInterface
-public interface TLogFilter {
+public interface TlogFilter {
 
     /**
      * determine the LogEvent do log or not.
      *
-     * @param context       : logging context {@link TLogContext}.
+     * @param context : logging context {@link TLogContext}.
      * @return FilterReply  : {@link FilterReply}.
      */
     FilterReply decide(TLogContext context);

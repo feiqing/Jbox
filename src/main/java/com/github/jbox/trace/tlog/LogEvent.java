@@ -27,7 +27,7 @@ public class LogEvent {
     private String invokeThread;
 
     /**
-     * need generate from TraceAspect invoke
+     * need generate from TraceLauncher invoke
      */
     private long startTime;
 

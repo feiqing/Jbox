@@ -9,10 +9,7 @@ import com.github.jbox.executor.ExecutorManager;
 import com.github.jbox.trace.Trace;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.InitializingBean;
-import org.springframework.stereotype.Service;
 
-import javax.annotation.PostConstruct;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import java.util.Collections;
@@ -23,18 +20,16 @@ import java.util.concurrent.ExecutorService;
  * Created by jifang.zjf
  * Since 2017/5/9 上午9:34.
  */
-@Service("helloWorldServiceImpl")
-public class HelloWorldServiceImpl implements HelloWorldService, InitializingBean {
+public class HelloWorldServiceImpl implements HelloWorldService {
 
     private static final Logger logger = LoggerFactory.getLogger(HelloWorldService.class);
-
-    public HelloWorldServiceImpl() {
-        System.out.println("construct");
-    }
 
     @Trace
     @Override
     public String sayHello(String name) {
+        if (true) {
+            throw new RuntimeException("woca");
+        }
         return "hello : " + name;
     }
 
@@ -80,15 +75,5 @@ public class HelloWorldServiceImpl implements HelloWorldService, InitializingBea
                 throw new RuntimeException("hh");
             }
         });
-    }
-
-    @Override
-    public void afterPropertiesSet() throws Exception {
-        System.out.println("afterPropertiesSet");
-    }
-
-    @PostConstruct
-    public void setUp() {
-        System.out.println("@PostConstruct");
     }
 }

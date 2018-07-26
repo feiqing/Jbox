@@ -5,11 +5,11 @@ package com.github.jbox.trace.tlog;
  * @version 1.0
  * @since 2017/11/11 17:05:00.
  */
-interface TLogConstants {
+interface TlogConstants {
 
     String SEPARATOR = "|";
 
-    String TLOG_EXECUTOR_GROUP = "com.github.jbox:TLogManager";
+    String TLOG_EXECUTOR_GROUP = "com.github.jbox:TlogManager";
 
     String PLACEHOLDER = "";
 
@@ -46,11 +46,7 @@ interface TLogConstants {
 
     String REF_SUFFIX = "}";
 
-    String JSON_FILE_SUFFIX = ".json";
-
     String XML_FILE_SUFFIX = ".xml";
-
-    String GROOVY_FILE_SUFFIX = ".groovy";
 
     String LOGGER_FILE_PATTERN = ".%d{yyyy-MM-dd}.gz";
 }

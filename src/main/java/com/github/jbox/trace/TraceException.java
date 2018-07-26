@@ -6,6 +6,7 @@ package com.github.jbox.trace;
  * @since 2017/8/7 下午5:43.
  */
 public class TraceException extends RuntimeException {
+
     public TraceException() {
         super();
     }

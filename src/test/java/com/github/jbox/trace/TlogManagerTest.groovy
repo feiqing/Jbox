@@ -1,6 +1,6 @@
 package com.github.jbox.trace
 
-import com.github.jbox.trace.tlog.TLogManager
+import com.github.jbox.trace.tlog.TlogManager
 import org.springframework.core.io.FileSystemResource
 
 /**
@@ -8,10 +8,10 @@ import org.springframework.core.io.FileSystemResource
  * @version 1.0
  * @since 2017/10/20 15:50:00.
  */
-class TLogManagerTest extends GroovyTestCase {
+class TlogManagerTest extends GroovyTestCase {
 
     public static void main(String[] args) throws IOException {
-        TLogManager tLogManager = new TLogManager()
+        TlogManager tLogManager = new TlogManager()
         tLogManager.setResource(new FileSystemResource("/Users/jifang.zjf/IdeaProjects/jbox/src/test/java/resources/tlog-config.xml"))
         System.out.println(tLogManager.getMethodELMap())
         assertTrue tLogManager.methodELMap.size() == 7

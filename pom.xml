@@ -9,7 +9,7 @@
     <groupId>com.github.jbox</groupId>
     <artifactId>jbox</artifactId>
     <packaging>jar</packaging>
-    <version>1.7.0-SNAPSHOT</version>
+    <version>1.7.1-SNAPSHOT</version>
 
     <name>${project.groupId}:${project.artifactId}</name>
     <description>Jbox: business utils collection</description>
@@ -75,6 +75,7 @@
         <spring.version>4.3.3.RELEASE</spring.version>
         <aspectj.version>1.8.10</aspectj.version>
         <slf4j.version>1.7.25</slf4j.version>
+        <eagleeye.version>1.5.2.5</eagleeye.version>
         <diamond.version>3.7.8</diamond.version>
         <lombok.version>1.16.16</lombok.version>
         <validation.api.version>2.0.0.Final</validation.api.version>
@@ -282,6 +283,12 @@
             <groupId>com.taobao.diamond</groupId>
             <artifactId>diamond-client</artifactId>
             <version>${diamond.version}</version>
+            <optional>true</optional>
+        </dependency>
+        <dependency>
+            <groupId>com.taobao.eagleeye</groupId>
+            <artifactId>eagleeye-core</artifactId>
+            <version>${eagleeye.version}</version>
             <optional>true</optional>
         </dependency>
 

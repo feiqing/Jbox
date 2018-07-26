@@ -10,14 +10,13 @@ import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.expression.spel.standard.SpelExpressionParser;
 import org.springframework.expression.spel.support.StandardEvaluationContext;
 
-import static com.github.jbox.trace.tlog.TLogConstants.KEY_ARGS;
-import static com.github.jbox.trace.tlog.TLogConstants.KEY_PH;
-import static com.github.jbox.trace.tlog.TLogConstants.KEY_PLACEHOLDER;
-import static com.github.jbox.trace.tlog.TLogConstants.KEY_RESULT;
+import static com.github.jbox.trace.tlog.TlogConstants.KEY_ARGS;
+import static com.github.jbox.trace.tlog.TlogConstants.KEY_PH;
+import static com.github.jbox.trace.tlog.TlogConstants.KEY_PLACEHOLDER;
+import static com.github.jbox.trace.tlog.TlogConstants.KEY_RESULT;
 
 /**
  * @author jifang.zjf@alibaba-inc.com

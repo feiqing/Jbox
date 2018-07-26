@@ -4,7 +4,7 @@ import java.nio.charset.Charset;
 import java.util.List;
 
 import com.github.jbox.script.ScriptExecutor;
-import com.github.jbox.trace.tlog.TLogFilter.TLogContext;
+import com.github.jbox.trace.tlog.TlogFilter.TLogContext;
 
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.encoder.PatternLayoutEncoder;
@@ -20,7 +20,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import static ch.qos.logback.core.spi.FilterReply.DENY;
-import static com.github.jbox.trace.tlog.TLogConstants.LOGGER_FILE_PATTERN;
+import static com.github.jbox.trace.tlog.TlogConstants.LOGGER_FILE_PATTERN;
 
 /**
  * @author jifang.zjf@alibaba-inc.com
@@ -32,7 +32,7 @@ class LogBackHelper {
     private static final Logger tracer = LoggerFactory.getLogger("com.github.jbox.trace");
 
     static Logger initTLogger(String loggerName, String filePath, String charset, int maxHistory, long totalSizeCapKb,
-                              List<TLogFilter> filters) {
+                              List<TlogFilter> filters) {
         Preconditions.checkArgument(!Strings.isNullOrEmpty(loggerName), "log name can't be empty!");
         Preconditions.checkArgument(!Strings.isNullOrEmpty(filePath), "log file can't be empty!");
 
@@ -97,17 +97,17 @@ class LogBackHelper {
         return logger;
     }
 
-    private static void registerCustomFilters(RollingFileAppender<ILoggingEvent> appender, List<TLogFilter> filters) {
+    private static void registerCustomFilters(RollingFileAppender<ILoggingEvent> appender, List<TlogFilter> filters) {
         if (filters == null || filters.isEmpty()) {
             return;
         }
 
-        for (TLogFilter filter : filters) {
+        for (TlogFilter filter : filters) {
             appender.addFilter(new Filter<ILoggingEvent>() {
                 @Override
                 public FilterReply decide(ILoggingEvent event) {
                     TLogContext context = new TLogContext(event, event.getFormattedMessage());
-                    TLogFilter.FilterReply reply = filter.decide(context);
+                    TlogFilter.FilterReply reply = filter.decide(context);
                     if (reply == null) {
                         return DENY;
                     } else {

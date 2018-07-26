@@ -6,7 +6,7 @@ import groovy.util.slurpersupport.GPathResult
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
-import static com.github.jbox.trace.tlog.AbstractTLogConfig.ELConfig
+import static AbstractTlogConfig.ELConfig
 
 /**
  * @author jifang.zjf@alibaba-inc.com
@@ -15,7 +15,7 @@ import static com.github.jbox.trace.tlog.AbstractTLogConfig.ELConfig
  */
 class ELXmlResolver {
 
-    private static final Logger logger = LoggerFactory.getLogger(TLogManager.class)
+    private static final Logger logger = LoggerFactory.getLogger(TlogManager.class)
 
     protected static void resolve(def fileName, def xmlIs, def methodELMap, def templateELs) {
         GPathResult traces = new XmlSlurper().parse(xmlIs)

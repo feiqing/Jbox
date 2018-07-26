@@ -1,20 +1,22 @@
 package com.github.jbox.trace;
 
-import javax.annotation.Resource;
-
-import com.github.jbox.TestBase;
 import com.github.jbox.caces.service.HelloWorldService;
-
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 /**
  * @author jifang.zjf@alibaba-inc.com
  * @version 1.0
  * @since 2017/10/28 04:25:00.
  */
-public class TLogCompositeTest extends TestBase {
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration(locations = "classpath*:applicationContext.xml")
+public class TLogCompositeTest {
 
-    @Resource
+    @Autowired
     private HelloWorldService helloWorldService;
 
     @Test
@@ -26,6 +28,6 @@ public class TLogCompositeTest extends TestBase {
         //HelloWorldService bean = applicationContext.getBean(HelloWorldService.class);
 
 
-        helloWorldService.limit(1, 2);
+        System.out.println(helloWorldService.sayHello("ff"));
     }
 }
