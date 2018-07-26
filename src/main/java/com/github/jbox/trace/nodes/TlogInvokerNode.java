@@ -10,6 +10,7 @@ import org.springframework.util.CollectionUtils;
 
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * @author jifang.zjf@alibaba-inc.com (FeiQing)
@@ -22,25 +23,24 @@ public class TlogInvokerNode implements InvokerNode {
 
     private String configKeyPattern = "%s:%s";
 
-    private List<TlogManager> tlogManagers;
+    private List<TlogManager> tlogManagers = new CopyOnWriteArrayList<>();
 
     @Override
     public void invoke(NodeContext context) throws Throwable {
         LogEvent logEvent = new LogEvent();
         try {
-            long start = System.currentTimeMillis();
-            logEvent.setStartTime(start);
             logEvent.setMethod(context.getMethod());
             logEvent.setClassName(context.getClazz().getName());
             logEvent.setMethodName(context.getMethod().getName());
             logEvent.setConfigKey(getConfigKey(context));
             logEvent.setArgs(context.getArgs());
 
+            logEvent.setStartTime(System.currentTimeMillis());
             context.next();
+            logEvent.setRt(System.currentTimeMillis() - logEvent.getStartTime());
+
             logEvent.setResult(context.getResult());
 
-            long rt = System.currentTimeMillis() - start;
-            logEvent.setRt(rt);
         } catch (Throwable t) {
             logEvent.setException(t);
             throw t;
@@ -49,9 +49,14 @@ public class TlogInvokerNode implements InvokerNode {
         }
     }
 
+    private AtomicBoolean isFirst = new AtomicBoolean(false);
+
     private void sendLogEvent(LogEvent event) {
         if (CollectionUtils.isEmpty(tlogManagers)) {
-            log.warn("tlogManagers is empty.");
+            if (isFirst.compareAndSet(false, true)) {
+                log.warn("tlogManagers is empty.");
+            }
+
             return;
         }
 
@@ -65,12 +70,5 @@ public class TlogInvokerNode implements InvokerNode {
         String className = context.getClazz().getName();
         String methodName = context.getMethod().getName();
         return String.format(configKeyPattern, className, methodName);
-    }
-
-    public void addTLogManager(TlogManager tlogManager) {
-        if (tlogManagers == null) {
-            tlogManagers = new CopyOnWriteArrayList<>();
-        }
-        tlogManagers.add(tlogManager);
     }
 }

@@ -1,6 +1,7 @@
 package com.github.jbox.trace.tlog
 
 import com.github.jbox.trace.TraceException
+import com.github.jbox.utils.JboxUtils
 import com.google.common.base.Strings
 import groovy.util.slurpersupport.GPathResult
 import org.slf4j.Logger
@@ -18,7 +19,7 @@ class ELXmlResolver {
     private static final Logger logger = LoggerFactory.getLogger(TlogManager.class)
 
     protected static void resolve(def fileName, def xmlIs, def methodELMap, def templateELs) {
-        GPathResult traces = new XmlSlurper().parse(xmlIs)
+        GPathResult traces = new XmlSlurper().parse(xmlIs as InputStream)
 
         // 1. read definitions
         Map<String, String> definitions = [:]
@@ -30,8 +31,8 @@ class ELXmlResolver {
         boolean usedTemplate = false
         Map<String, String> references = [:]
         traces.trace.each {
-            String method = ELResolveHelpers.replaceRefToRealString(it.@method.toString(), definitions)
-            String ref = ELResolveHelpers.replaceRefToRealString(it.@ref.toString(), definitions)
+            String method = replaceRefToRealString(it.@method.toString(), definitions)
+            String ref = replaceRefToRealString(it.@ref.toString(), definitions)
             boolean isTemplate = Boolean.valueOf(it.@template.toString())
 
             // ref conflict default
@@ -63,28 +64,8 @@ class ELXmlResolver {
         logConfigs(fileName, "methodELMap", methodELMap)
     }
 
-    private static void logConfigs(def fileName, def configName, Map<String, ?> methodELMap) {
-
-        // find max key length
-        int maxLength = Integer.MIN_VALUE
-        methodELMap.each { key, value -> maxLength = key.length() > maxLength ? key.length() : maxLength }
-
-        // sort map
-        StringBuilder sb = new StringBuilder()
-        Map<String, ?> sortedMap = methodELMap.sort { entry1, entry2 -> entry2.key.length() - entry1.key.length() }
-
-        // append log msg
-        sortedMap.each { key, value ->
-            sb.append(String.format(" %-${maxLength + 2}s", "'${key}'"))
-            sb.append(" -> ")
-            sb.append(value)
-            sb.append("\n")
-        }
-
-        logger.info("read from [{}] {}:\n{}", fileName, configName, sb)
-    }
-
-    private static void resolveExpressions(boolean isDefault, String method, def expressions, def methodELMap, def defaultELs) {
+    private static void resolveExpressions(boolean isDefault, String method,
+                                           def expressions, def methodELMap, def defaultELs) {
         expressions.each {
             iterator ->
                 String key = iterator.@key
@@ -111,5 +92,46 @@ class ELXmlResolver {
             inListParamEL.add(it.@value.toString())
         }
         new ELConfig(key, inListParamEL)
+    }
+
+    /**
+     * 将ref引用的def替换为实际值
+     */
+    private static String replaceRefToRealString(String original, Map<String, String> definitions) {
+        int prefixIdx = original.indexOf(TlogConstants.DEF_PREFIX)
+        int suffixIdx = original.indexOf(TlogConstants.DEF_SUFFIX)
+
+        if (prefixIdx != -1 && suffixIdx != -1) {
+            String ref = original.substring(prefixIdx, suffixIdx + TlogConstants.DEF_SUFFIX.length())
+            String trimmedRef = JboxUtils.trimPrefixAndSuffix(ref, TlogConstants.DEF_PREFIX, TlogConstants.DEF_SUFFIX)
+            String refValue = definitions.computeIfAbsent(trimmedRef, { k ->
+                throw new TraceException("relative def '" + ref + "' is not defined.")
+            })
+
+            original = original.replace(ref, refValue)
+        }
+
+        return original
+    }
+
+    private static void logConfigs(def fileName, def configName, Map<String, ?> methodELMap) {
+
+        // find max key length
+        int maxLength = Integer.MIN_VALUE
+        methodELMap.each { key, value -> maxLength = key.length() > maxLength ? key.length() : maxLength }
+
+        // sort map
+        StringBuilder sb = new StringBuilder()
+        Map<String, ?> sortedMap = methodELMap.sort { entry1, entry2 -> entry2.key.length() - entry1.key.length() }
+
+        // append log msg
+        sortedMap.each { key, value ->
+            sb.append(String.format(" %-${maxLength + 2}s", "'${key}'"))
+            sb.append(" -> ")
+            sb.append(value)
+            sb.append("\n")
+        }
+
+        logger.info("read from [{}] {}:\n{}", fileName, configName, sb)
     }
 }

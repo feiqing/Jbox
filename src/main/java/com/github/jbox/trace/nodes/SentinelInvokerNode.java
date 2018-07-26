@@ -30,10 +30,8 @@ public class SentinelInvokerNode implements InvokerNode {
         try {
             if (!Modifier.isPrivate(method.getModifiers()) && !Modifier.isProtected(method.getModifiers())) {
                 entry = SphU.entry(method);
-                context.next();
-            } else {
-                context.next();
             }
+            context.next();
         } catch (BlockException e) {
             String msg = "method: [" + getSimplifiedMethodName(method) + "] invoke was blocked by sentinel.";
             rootLogger.warn(msg, e);

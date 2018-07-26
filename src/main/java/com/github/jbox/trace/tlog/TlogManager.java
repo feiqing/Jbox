@@ -10,6 +10,7 @@ import com.github.jbox.utils.DateUtils;
 import com.google.common.base.Function;
 import com.google.common.base.Joiner;
 import com.google.common.base.Preconditions;
+import lombok.NonNull;
 import org.slf4j.Logger;
 import org.slf4j.helpers.MessageFormatter;
 import org.springframework.beans.factory.InitializingBean;
@@ -38,7 +39,7 @@ public class TlogManager extends AbstractTlogConfig implements InitializingBean 
     }
 
     @Override
-    public void afterPropertiesSet() throws Exception {
+    public void afterPropertiesSet() {
         // init executor
         if (executor == null) {
             ExecutorManager.setSyncInvoke(TlogConstants.TLOG_EXECUTOR_GROUP, isSync());
@@ -59,6 +60,7 @@ public class TlogManager extends AbstractTlogConfig implements InitializingBean 
         }
     }
 
+    @NonNull
     public void postLogEvent(LogEvent event) {
         executor.submit(new LogEventParser(event));
     }

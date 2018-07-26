@@ -38,7 +38,7 @@ public class ArgsValidateInvokerNode implements InvokerNode {
             StringBuilder msgBuilder = new StringBuilder(128);
             for (ConstraintViolation violation : violationSet) {
                 msgBuilder
-                        .append("path: ")
+                        .append("### path: ")
                         .append(violation.getPropertyPath())
                         .append(", err msg:")
                         .append(violation.getMessage())

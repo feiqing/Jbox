@@ -1,10 +1,6 @@
 package com.github.jbox.trace;
 
-import java.lang.annotation.Documented;
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import java.lang.annotation.*;
 
 /**
  * @author jifang.zjf@alibaba-inc.com
@@ -25,5 +21,5 @@ public @interface Trace {
      * method invoke total cost threshold, dependent logger config.
      * if ${method invoke cost time} > ${threshold} then append an 'cost time' log.
      */
-    long threshold() default -1;
+    long threshold() default 0;
 }
