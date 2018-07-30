@@ -97,6 +97,14 @@ public class Collections3 {
         }
     }
 
+    public static <Input, Output> Output transfer(Input input, Function<Input, Output> function) {
+        if (input == null) {
+            return null;
+        }
+
+        return function.apply(input);
+    }
+
     public static <Input, Output> List<Output> transfer(Collection<Input> inputs, Function<Input, Output> function) {
         return transfer(inputs, function, ArrayList::new);
     }
