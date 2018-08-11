@@ -7,6 +7,76 @@ package com.github.jbox.utils;
  */
 public class Tony {
 
+    public static void main(String[] args) {
+        printMe();
+    }
+
+    public static void printMe() {
+        System.out.println("/--------------------------------------------------\\");
+        System.out.println("|             `/ssos+`       `oo/+s/`              |");
+        System.out.println("|             +Ms``/Ny       yN-  /M/              |");
+        System.out.println("|             hM`   +M-     .Mo    dd              |");
+        System.out.println("|             hM.   -M+     :M:    dm              |");
+        System.out.println("|             /M+   -M/     -M:    mh              |");
+        System.out.println("|             `mm`  /M-     .M+   -M+              |");
+        System.out.println("|              :M+  oMyhhhhhhNy   oM.              |");
+        System.out.println("|           `/ymd/  `-.`    ``    -sddo-           |");
+        System.out.println("|        `+dms:`                     `:ydo.        |");
+        System.out.println("|      .sNy:                            `+ms.      |");
+        System.out.println("|    `omo`                                `+m+     |");
+        System.out.println("|   .mh.                                    .dh`   |");
+        System.out.println("|  -No                                       `dd`  |");
+        System.out.println("| `mh`    ::::::://////-    -+++++++++++++`   .Ns  |");
+        System.out.println("| +M-`   `++++++///////-    .:::::::::::::     oN` |");
+        System.out.println("| hm..                                         -M- |");
+        System.out.println("| hd...                                        -M- |");
+        System.out.println("| sN-..`                                       +N` |");
+        System.out.println("| -My....                                     `dy  |");
+        System.out.println("|  +Ms-...`                                   sN.  |");
+        System.out.println("|   /Nh:----.`                              `sN-   |");
+        System.out.println("|    `sNy:-----.``                         :dh.    |");
+        System.out.println("|      .omh+--------.....`````````.....-:sdh-      |");
+        System.out.println("|         :ymds+:------------------:+shdy/`        |");
+        System.out.println("|            :dyyys+/:-....../+osyyyd/.            |");
+        System.out.println("\\--------------------------------------------------/");
+    }
+
+    public static void printDog() {
+        System.out.println("                       ::");
+        System.out.println("                      :;J7, :,                        ::;7:");
+        System.out.println("                      ,ivYi, ,                       ;LLLFS:");
+        System.out.println("                      :iv7Yi                       :7ri;j5PL");
+        System.out.println("                     ,:ivYLvr                    ,ivrrirrY2X,");
+        System.out.println("                     :;r@Wwz.7r:                :ivu@kexianli.");
+        System.out.println("                    :iL7::,:::iiirii:ii;::::,,irvF7rvvLujL7ur");
+        System.out.println("                   ri::,:,::i:iiiiiii:i:irrv177JX7rYXqZEkvv17");
+        System.out.println("                ;i:, , ::::iirrririi:i:::iiir2XXvii;L8OGJr71i");
+        System.out.println("              :,, ,,:   ,::ir@mingyi.irii:i:::j1jri7ZBOS7ivv,");
+        System.out.println("                 ,::,    ::rv77iiiriii:iii:i::,rvLq@huhao.Li");
+        System.out.println("             ,,      ,, ,:ir7ir::,:::i;ir:::i:i::rSGGYri712:");
+        System.out.println("           :::  ,v7r:: ::rrv77:, ,, ,:i7rrii:::::, ir7ri7Lri");
+        System.out.println("          ,     2OBBOi,iiir;r::        ,irriiii::,, ,iv7Luur:");
+        System.out.println("        ,,     i78MBBi,:,:::,:,  :7FSL: ,iriii:::i::,,:rLqXv::");
+        System.out.println("        :      iuMMP: :,:::,:ii;2GY7OBB0viiii:i:iii:i:::iJqL;::");
+        System.out.println("       ,     ::::i   ,,,,, ::LuBBu BBBBBErii:i:i:i:i:i:i:r77ii");
+        System.out.println("      ,       :       , ,,:::rruBZ1MBBqi, :,,,:::,::::::iiriri:");
+        System.out.println("     ,               ,,,,::::i:  @arqiao.       ,:,, ,:::ii;i7:");
+        System.out.println("    :,       rjujLYLi   ,,:::::,:::::::::,,   ,:i,:,,,,,::i:iii");
+        System.out.println("    ::      BBBBBBBBB0,    ,,::: , ,:::::: ,      ,,,, ,,:::::::");
+        System.out.println("    i,  ,  ,8BMMBBBBBBi     ,,:,,     ,,, , ,   , , , :,::ii::i::");
+        System.out.println("    :      iZMOMOMBBM2::::::::::,,,,     ,,,,,,:,,,::::i:irr:i:::,");
+        System.out.println("    i   ,,:;u0MBMOG1L:::i::::::  ,,,::,   ,,, ::::::i:i:iirii:i:i:");
+        System.out.println("    :    ,iuUuuXUkFu7i:iii:i:::, :,:,: ::::::::i:i:::::iirr7iiri::");
+        System.out.println("    :     :rk@Yizero.i:::::, ,:ii:::::::i:::::i::,::::iirrriiiri::,");
+        System.out.println("     :      5BMBBBBBBSr:,::rv2kuii:::iii::,:i:,, , ,,:,:i@petermu.,");
+        System.out.println("          , :r50EZ8MBBBBGOBBBZP7::::i::,:::::,: :,:,::i;rrririiii::");
+        System.out.println("              :jujYY7LS0ujJL7r::,::i::,::::::::::::::iirirrrrrrr:ii:");
+        System.out.println("           ,:  :@kevensun.:,:,,,::::i:i:::::,,::::::iir;ii;7v77;ii;i,");
+        System.out.println("           ,,,     ,,:,::::::i:iiiii:i::::,, ::::iiiir@xingjief.r;7:i,");
+        System.out.println("        , , ,,,:,,::::::::iiiiiiiiii:,:,:::::::::iiir;ri7vL77rrirri::");
+        System.out.println("         :,, , ::::::::i:::i:::i:i::,,,,,:,::i:i:::iir;@Secbone.ii:::");
+    }
+
     public static void printGoku() {
         System.out.println("                                                MMMMMMM");
         System.out.println("                                                   .MMMMMMMMH");
