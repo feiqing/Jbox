@@ -137,9 +137,7 @@ class HBaseHelper {
             Map<String, Map<String, Object>> columnMap = columnMaps.get(i);
 
             T obj = mapObject(rowKey, columnMap, mapper);
-            if (obj != null) {
-                results.add(obj);
-            }
+            results.add(obj);
         }
 
         return results;
