@@ -1,4 +1,5 @@
 # Jbox 工具集合
+> 1.7.1-SNAPSHOT
 
 ## biz-业务对象包
 - `com.github.jbox.biz.ResultDO`: HTTP/RPC接口Result统一封装
