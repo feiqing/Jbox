@@ -118,7 +118,11 @@ class HBaseHelper {
         }
     }
 
-    public static <T> T mapObject(String rowKey, Map<String, Map<String, Object>> columnMap, ObjectMapper<T> mapper) {
+    static <T> T mapObject(String rowKey, Map<String, Map<String, Object>> columnMap, ObjectMapper<T> mapper) {
+        if (CollectionUtils.isEmpty(columnMap)) {
+            return null;
+        }
+
         try {
             return mapper.mapObject(rowKey, columnMap);
         } catch (Exception e) {
@@ -126,13 +130,16 @@ class HBaseHelper {
         }
     }
 
-    public static <T> List<T> mapObject(List<String> rowKeys, List<Map<String, Map<String, Object>>> columnMaps, ObjectMapper<T> mapper) {
+    static <T> List<T> mapObject(List<String> rowKeys, List<Map<String, Map<String, Object>>> columnMaps, ObjectMapper<T> mapper) {
         List<T> results = new ArrayList<>(rowKeys.size());
         for (int i = 0; i < rowKeys.size(); ++i) {
             String rowKey = rowKeys.get(i);
             Map<String, Map<String, Object>> columnMap = columnMaps.get(i);
 
-            results.add(mapObject(rowKey, columnMap, mapper));
+            T obj = mapObject(rowKey, columnMap, mapper);
+            if (obj != null) {
+                results.add(obj);
+            }
         }
 
         return results;
