@@ -117,7 +117,7 @@
 | `JsonAppender` | append json string |
 | `Collections3` | `Collections`扩展 |
 | `Objects2` | `Objects`扩展 |
-| `Performer` | 性能测试工具, 监控如***RT***、***QPS*** |
+| `Performer` | 性能测试工具, 监控如 ***RT***、***QPS*** |
 | `ProxyTargetUtils` | 获取Proxy target(仅支持Proxy实现包含`target`属性的情况) |
 | `SizeOf` | 精确测量内存内Java对象大小(`-javaagent`) |
 | `Tony` | 玩具工具 |
