@@ -109,13 +109,13 @@
 | `AESUtils`   | AES加解密 |
 | `AopTargetUtils`   | 获取AOP target |
 | `BeanCopyUtil` | Bean属性对拷, 忽略属性类型 |
-| `Collections3` | `Collections`工具扩展 |
 | `DateUtils` | 日期时间格式化/解析 |
 | `HexStr` | 16进制与`byte`转换 |
 | `IPv4` | IPv4地址获取 |
 | `Mac` | Mac地址获取 |
 | `MapBuilder` | Map构建器 |
 | `JsonAppender` | append json string |
+| `Collections3` | `Collections`扩展 |
 | `Objects2` | `Objects`扩展 |
 | `Performer` | 性能测试工具, 监控如***RT***、***QPS*** |
 | `ProxyTargetUtils` | 获取Proxy target(仅支持Proxy实现包含`target`属性的情况) |
