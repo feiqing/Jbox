@@ -60,7 +60,7 @@ public interface AsyncCallable<V> extends java.util.concurrent.Callable<V>, Exec
      * default implements Callable<V>, you should not change this implementation !!!
      *
      * @return null
-     * @throws Exception detail: {@code com.github.jbox.executor.ExecutorException}
+     * @throws Exception
      */
     @Override
     default V call() throws Exception {
