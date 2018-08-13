@@ -11,9 +11,9 @@ import org.slf4j.LoggerFactory;
  * @author jifang
  * @since 2016/11/3 下午2:36.
  */
-public abstract class AbFloodExperiment {
+public abstract class FloodABExperiment {
 
-    protected static final Logger FLOOD_LOGGER = LoggerFactory.getLogger(AbFloodExperiment.class);
+    protected static final Logger FLOOD_LOGGER = LoggerFactory.getLogger(FloodABExperiment.class);
 
     @SuppressWarnings("unchecked")
     public <T> T doExperiment(Object param) {
