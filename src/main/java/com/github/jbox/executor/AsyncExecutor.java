@@ -7,10 +7,10 @@ import com.google.common.util.concurrent.Futures;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 
-import java.util.*;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Future;
-import java.util.concurrent.RejectedExecutionHandler;
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.concurrent.*;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
@@ -31,7 +31,7 @@ public class AsyncExecutor<T> {
 
     private static final RejectedExecutionHandler handler = new DiscardOldestPolicy(group);
 
-    private static final ExecutorService defaultWorker = ExecutorManager.newFixedMinMaxThreadPool(group, 1, 10, 1024, handler);
+    private static final ExecutorService defaultWorker = ExecutorManager.newFixedMinMaxThreadPool(group, 5, 10, 1024, handler);
 
     private ExecutorService worker;
 
@@ -39,9 +39,13 @@ public class AsyncExecutor<T> {
     private List<Supplier<T>> tasks;
 
     @Getter
+    private int remain;
+
     private List<Future<T>> futures;
 
     private List<T> results;
+
+    private CountDownLatch latch;
 
     public AsyncExecutor() {
         this(defaultWorker);
@@ -68,9 +72,17 @@ public class AsyncExecutor<T> {
             return this;
         }
 
+        this.latch = new CountDownLatch(tasks.size());
         this.futures = new ArrayList<>(tasks.size());
         for (Supplier<T> task : tasks) {
-            Future<T> future = worker.submit((AsyncCallable<T>) context -> task.get());
+            Future<T> future = worker.submit((AsyncCallable<T>) context -> {
+
+                T result = task.get();
+                latch.countDown();
+
+                return result;
+            });
+
             futures.add(future);
         }
 
@@ -86,66 +98,28 @@ public class AsyncExecutor<T> {
             return this;
         }
 
-        if (fullyCompletes) {
-            waitingAsFullyComplete(millisTimeout);
-        } else {
-            waitingAsPartlyComplete(millisTimeout);
+        try {
+            latch.await(millisTimeout, TimeUnit.MILLISECONDS);
+        } catch (InterruptedException e) {
+            log.error("task await error.", e);
+        }
+
+        this.remain = (int) latch.getCount();
+        this.results = new ArrayList<>(futures.size() - remain);
+        if (remain == 0 || !fullyCompletes) {
+            this.doGetResult(this.futures, this.results);
         }
 
         return this;
     }
 
-    private void waitingAsFullyComplete(long millisTimeout) {
-        long start = System.currentTimeMillis();
-        Collections.shuffle(futures);
-        int waitingSize = futures.size();
-        this.results = new ArrayList<>(waitingSize);
-
-        while (results.size() != waitingSize) {
-            if (isTimeout(start, millisTimeout)) {
-                this.results = Collections.emptyList();
-                log.warn("waiting timeout.");
-                return;
-            }
-
-            doWaiting(futures, results);
-        }
-    }
-
-
-    private void waitingAsPartlyComplete(long millisTimeout) {
-        long start = System.currentTimeMillis();
-        Collections.shuffle(futures);
-        int waitingSize = futures.size();
-        this.results = new ArrayList<>(waitingSize);
-
-        while (results.size() != waitingSize) {
-            if (isTimeout(start, millisTimeout)) {
-                log.warn("waiting timeout, partly return.");
-                return;
-            }
-
-            doWaiting(futures, results);
-        }
-    }
-
-    private void doWaiting(List<Future<T>> futures, List<T> results) {
-        Iterator<Future<T>> futureIter = futures.iterator();
-        while (futureIter.hasNext()) {
-            Future<T> future = futureIter.next();
+    private void doGetResult(List<Future<T>> futures, List<T> results) {
+        for (Future<T> future : futures) {
             if (future.isDone()) {
                 T result = Futures.getUnchecked(future);
                 results.add(result);
-                futureIter.remove();
-            } else if (future.isCancelled()) {
-                futureIter.remove();
             }
         }
-    }
-
-    private boolean isTimeout(long start, long limit) {
-        return System.currentTimeMillis() - start > limit;
-
     }
 
     public List<T> getResults() {
