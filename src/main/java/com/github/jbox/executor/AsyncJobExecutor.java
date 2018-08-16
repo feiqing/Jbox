@@ -42,6 +42,7 @@ public class AsyncJobExecutor<T> {
     @Getter
     private int remain;
 
+    @Getter
     private List<Future<T>> futures;
 
     private List<T> results;
