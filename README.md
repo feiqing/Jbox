@@ -69,11 +69,11 @@
 - `@Value`注解动态配置支持: `com.github.jbox.spring.DynamicPropertySourcesPlaceholder`
     - 默认支持淘宝Diamond: `DiamondPropertySourcesPlaceholder`;
 ---
-### stream: Stream并发多级利用
+## stream: Stream并发多级利用
 - 详见: `com.github.jbox.stream.StreamForker`
 
 ---
-### trace: 业务层统一AOP框架
+## trace: 业务层统一AOP框架
 - 主控器: `com.github.jbox.trace.TraceLauncher`
 - spi
     - 可执行节点: `com.github.jbox.trace.InvokerNode`
@@ -103,7 +103,7 @@
     | `client ip`     | 调用方IP |
 
 ---
-### utils- 通用工具
+## utils- 通用工具
 
 | utils | desc |
 | :------: | :-------- |
@@ -123,3 +123,9 @@
 | `SizeOf` | 精确测量内存内Java对象大小(`-javaagent`) |
 | `Tony` | 玩具工具 |
 | `JboxUtils` | 通用工具集: `getFieldValue`、`getAbstractMethod`、`getImplMethod`、`getStackTrace`、`getServerIp`、`trimPrefixAndSuffix`、`getSimplifiedMethodName` |
+
+
+---
+# todo
+- 可持久化缓存
+- Shell执行Service
