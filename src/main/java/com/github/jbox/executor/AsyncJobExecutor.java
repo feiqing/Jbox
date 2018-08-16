@@ -137,7 +137,7 @@ public class AsyncJobExecutor<T> {
         return getResults().stream().map(map).collect(toList());
     }
 
-    public JobStatus getStatus() {
+    public JobStatus getJobStatus() {
         if (Collections3.isEmpty(futures)) {
             return INIT;
         }
