@@ -11,11 +11,11 @@ import static org.apache.hadoop.hbase.util.Threads.sleep;
  * @version 1.0
  * @since 2018-08-15 20:50:00.
  */
-public class AsyncExecutorTest {
+public class AsyncJobExecutorTest {
 
     @Test
     public void test() {
-        AsyncExecutor<Object> executor = new AsyncExecutor<>()
+        AsyncJobExecutor<Object> executor = new AsyncJobExecutor<>()
                 .addTask(() -> {
                     sleep(80 );
                     return 1;

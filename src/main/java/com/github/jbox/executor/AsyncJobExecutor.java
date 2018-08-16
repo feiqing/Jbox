@@ -15,6 +15,7 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 
+import static com.github.jbox.executor.AsyncJobExecutor.JobStatus.*;
 import static java.util.stream.Collectors.toList;
 
 /**
@@ -23,7 +24,7 @@ import static java.util.stream.Collectors.toList;
  * @since 2018-05-22 02:57:00.
  */
 @Slf4j
-public class AsyncExecutor<T> {
+public class AsyncJobExecutor<T> {
 
     private static final long timeout = 10 * 1000;
 
@@ -47,27 +48,27 @@ public class AsyncExecutor<T> {
 
     private CountDownLatch latch;
 
-    public AsyncExecutor() {
+    public AsyncJobExecutor() {
         this(defaultWorker);
     }
 
-    public AsyncExecutor(ExecutorService worker) {
+    public AsyncJobExecutor(ExecutorService worker) {
         Preconditions.checkNotNull(worker);
         this.worker = worker;
         this.tasks = new LinkedList<>();
     }
 
-    public AsyncExecutor<T> addTask(Supplier<T> task) {
+    public AsyncJobExecutor<T> addTask(Supplier<T> task) {
         this.tasks.add(task);
         return this;
     }
 
-    public AsyncExecutor<T> addTasks(List<Supplier<T>> tasks) {
+    public AsyncJobExecutor<T> addTasks(List<Supplier<T>> tasks) {
         this.tasks.addAll(tasks);
         return this;
     }
 
-    public AsyncExecutor<T> execute() {
+    public AsyncJobExecutor<T> execute() {
         if (Collections3.isEmpty(tasks)) {
             return this;
         }
@@ -89,11 +90,11 @@ public class AsyncExecutor<T> {
         return this;
     }
 
-    public AsyncExecutor<T> waiting() {
+    public AsyncJobExecutor<T> waiting() {
         return waiting(timeout, true);
     }
 
-    public AsyncExecutor<T> waiting(long millisTimeout, boolean fullyCompletes) {
+    public AsyncJobExecutor<T> waiting(long millisTimeout, boolean fullyCompletes) {
         if (Collections3.isEmpty(futures)) {
             return this;
         }
@@ -134,5 +135,27 @@ public class AsyncExecutor<T> {
     public <R> List<R> getResults(Function<T, R> map) {
         // todo : 同上
         return getResults().stream().map(map).collect(toList());
+    }
+
+    public JobStatus getStatus() {
+        if (Collections3.isEmpty(futures)) {
+            return INIT;
+        }
+
+        boolean allDone = true;
+        for (Future future : futures) {
+            if (!future.isDone() || !future.isCancelled()) {
+                return DOING;
+            }
+
+            if (future.isCancelled()) {
+                allDone = false;
+            }
+        }
+        return allDone ? DONE : HALF_DONE;
+    }
+
+    public enum JobStatus {
+        INIT, DOING, HALF_DONE, DONE
     }
 }
