@@ -6,7 +6,7 @@
 - `com.github.jbox.biz.BizException`、`com.github.jbox.biz.IErrorCode`: 业务异常封装
 
 ## executor-线程池扩展
-- `AsyncJobExecutor`: 异步任务执行/等待框架
+- `AsyncJobExecutor`: 异步任务并发execute/waiting框架
 - `ExecutorsManager`: 线程池管理
     1. 优势:
         - 每个分组`group`中的线程默认都是单例的, 防止出现在方法内部循环创建线程池的错误写法;
