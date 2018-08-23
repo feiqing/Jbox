@@ -3,6 +3,7 @@ package com.github.jbox.executor;
 import com.github.jbox.executor.policy.DiscardOldestPolicy;
 import com.github.jbox.utils.Collections3;
 import com.google.common.base.Preconditions;
+import com.google.common.base.Strings;
 import com.google.common.util.concurrent.Futures;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
@@ -44,6 +45,9 @@ public class AsyncJobExecutor<T> {
 
     @Getter
     private List<Future<T>> futures;
+
+    @Getter
+    private String jobDesc;
 
     private List<T> results;
 
@@ -115,6 +119,12 @@ public class AsyncJobExecutor<T> {
         return this;
     }
 
+    public AsyncJobExecutor<T> appendJobDesc(String jobDesc) {
+        this.jobDesc = jobDesc;
+
+        return this;
+    }
+
     private void doGetResult(List<Future<T>> futures, List<T> results) {
         for (Future<T> future : futures) {
             if (future.isDone()) {
@@ -145,7 +155,7 @@ public class AsyncJobExecutor<T> {
 
         boolean allDone = true;
         for (Future future : futures) {
-            if (!future.isDone() || !future.isCancelled()) {
+            if (!future.isDone() && !future.isCancelled()) {
                 return DOING;
             }
 
@@ -154,6 +164,10 @@ public class AsyncJobExecutor<T> {
             }
         }
         return allDone ? DONE : HALF_DONE;
+    }
+
+    public String getJobDesc() {
+        return Strings.nullToEmpty(this.jobDesc);
     }
 
     public enum JobStatus {
