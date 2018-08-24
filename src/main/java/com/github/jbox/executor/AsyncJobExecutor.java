@@ -46,7 +46,6 @@ public class AsyncJobExecutor<T> {
     @Getter
     private List<Future<T>> futures;
 
-    @Getter
     private String jobDesc;
 
     private List<T> results;
@@ -120,7 +119,7 @@ public class AsyncJobExecutor<T> {
     }
 
     public AsyncJobExecutor<T> appendJobDesc(String jobDesc) {
-        if (Strings.isNullOrEmpty(this.jobDesc)) {
+        if (this.jobDesc == null) {
             this.jobDesc = jobDesc;
         } else {
             this.jobDesc = this.jobDesc + ',' + jobDesc;
