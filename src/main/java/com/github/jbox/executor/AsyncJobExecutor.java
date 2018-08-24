@@ -120,7 +120,11 @@ public class AsyncJobExecutor<T> {
     }
 
     public AsyncJobExecutor<T> appendJobDesc(String jobDesc) {
-        this.jobDesc = jobDesc;
+        if (Strings.isNullOrEmpty(this.jobDesc)) {
+            this.jobDesc = jobDesc;
+        } else {
+            this.jobDesc = this.jobDesc + ',' + jobDesc;
+        }
 
         return this;
     }
