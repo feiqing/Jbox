@@ -27,7 +27,7 @@ import static java.util.stream.Collectors.toList;
 @Slf4j
 public class AsyncJobExecutor<T> {
 
-    private static final long timeout = 10 * 1000;
+    private static final long defaultTimeout = 10 * 1000;
 
     private static final String group = "ParallelsJobWorker";
 
@@ -45,6 +45,8 @@ public class AsyncJobExecutor<T> {
 
     @Getter
     private List<Future<T>> futures;
+
+    private boolean hasRunningException;
 
     private String jobDesc;
 
@@ -81,11 +83,14 @@ public class AsyncJobExecutor<T> {
         this.futures = new ArrayList<>(tasks.size());
         for (Supplier<T> task : tasks) {
             Future<T> future = worker.submit((AsyncCallable<T>) context -> {
-
-                T result = task.get();
-                latch.countDown();
-
-                return result;
+                try {
+                    return task.get();
+                } catch (Throwable t) {
+                    hasRunningException = true;
+                    throw t;
+                } finally {
+                    latch.countDown();
+                }
             });
 
             futures.add(future);
@@ -95,7 +100,7 @@ public class AsyncJobExecutor<T> {
     }
 
     public AsyncJobExecutor<T> waiting() {
-        return waiting(timeout, true);
+        return waiting(defaultTimeout, true);
     }
 
     public AsyncJobExecutor<T> waiting(long millisTimeout, boolean fullyCompletes) {
@@ -156,6 +161,10 @@ public class AsyncJobExecutor<T> {
             return INIT;
         }
 
+        if (hasRunningException) {
+            return BROKEN;
+        }
+
         boolean allDone = true;
         for (Future future : futures) {
             if (!future.isDone() && !future.isCancelled()) {
@@ -174,6 +183,6 @@ public class AsyncJobExecutor<T> {
     }
 
     public enum JobStatus {
-        INIT, DOING, HALF_DONE, DONE
+        INIT, DOING, BROKEN, HALF_DONE, DONE
     }
 }
