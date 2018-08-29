@@ -1,9 +1,5 @@
 package com.github.jbox.hbase;
 
-//import com.github.jbox.hbase.params.Delete;
-//import com.github.jbox.hbase.params.Get;
-//import com.github.jbox.hbase.params.Put;
-
 import com.github.jbox.serializer.ISerializer;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
