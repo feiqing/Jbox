@@ -9,7 +9,7 @@
     <groupId>com.github.jbox</groupId>
     <artifactId>jbox</artifactId>
     <packaging>jar</packaging>
-    <version>1.7.1-SNAPSHOT</version>
+    <version>1.8.0-SNAPSHOT</version>
 
     <name>${project.groupId}:${project.artifactId}</name>
     <description>Jbox: business utils collection</description>
@@ -91,6 +91,8 @@
 
         <hbase.version>1.3.1</hbase.version>
         <spring.data.hbase.version>2.5.0.RELEASE</spring.data.hbase.version>
+
+        <spring.data.mongo.version>1.10.9.RELEASE</spring.data.mongo.version>
 
         <eagleeye.version>1.5.2.5</eagleeye.version>
         <diamond.version>3.7.8</diamond.version>
@@ -269,6 +271,14 @@
             <groupId>org.springframework</groupId>
             <artifactId>spring-tx</artifactId>
             <version>${spring.version}</version>
+            <optional>true</optional>
+        </dependency>
+
+        <!-- MongoBatis -->
+        <dependency>
+            <groupId>org.springframework.data</groupId>
+            <artifactId>spring-data-mongodb</artifactId>
+            <version>${spring.data.mongo.version}</version>
             <optional>true</optional>
         </dependency>
 
