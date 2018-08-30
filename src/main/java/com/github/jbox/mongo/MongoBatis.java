@@ -22,7 +22,8 @@ import java.util.Optional;
 
 import static com.github.jbox.biz.BizException.bizException;
 import static com.github.jbox.mongo.BatisUtils.*;
-import static com.github.jbox.mongo.TableConstant.*;
+import static com.github.jbox.mongo.TableConstant.ID;
+import static com.github.jbox.mongo.TableConstant.SERIAL_VERSION_ID;
 
 
 /**
@@ -246,7 +247,7 @@ public class MongoBatis<T extends MBaseModel> {
         return mongoTemplate;
     }
 
-    private String getCName() {
+    protected String getCName() {
         return getMongo().getCollectionName(type);
     }
 
