@@ -251,7 +251,7 @@ public class MongoBatis<T extends MBaseModel> {
         return getMongo().getCollectionName(type);
     }
 
-    private Class<T> asType() {
+    protected Class<T> asType() {
         return type;
     }
 
