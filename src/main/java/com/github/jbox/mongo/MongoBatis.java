@@ -159,6 +159,17 @@ public class MongoBatis<T extends MBaseModel> {
         return object.getId();
     }
 
+    public void insert(Collection<T> objects) {
+        this.insert(objects, getCName());
+    }
+
+    private void insert(Collection<T> objects, String collection) {
+        for (T object : objects) {
+            insertInit(object, collection, sequenceDAO);
+        }
+        getMongo().insert(objects, collection);
+    }
+
     /* ------- updateOne ------- */
     public WriteResult updateOne(Map<String, Object> where, Map<String, Object> update) {
         return updateOne(where, update, getCName());
