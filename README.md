@@ -30,8 +30,18 @@
 - 详见: `com.github.jbox.flood.FloodABExperiment`
 
 ---
-## hbase: 基于HBase(HbaseTemplate)的ORM框架
+## hbase: 基于HBase(HbaseTemplate)的ORM框架: HBaseBatis
 - 详见: `com.github.jbox.hbase.HBaseBatis`
+
+---
+## mongo: 基于MongoDB(MongoTemplate)的ORM框架: MongoBatis
+- 提供的能力:
+    - SequenceDAO: 将MongoDB的`ObjectId _id`属性转换为递增的`long _id`
+    - `insert`方法添加`gmt_create`、`gmt_modified`属性.
+    - `update`方法自动更新`gmt_modified`属性为当前系统时间.
+    - `find`、`update`、`remove`等方法以的`Map<String, Object>`作为**查询**、**更新**参数, 屏蔽Mongo特殊的语法.
+    - 添加`findById`、分页`find`、`updateById`、`removeById`、`distinct`等帮助方法.
+- 详见: `com.github.jbox.mongo.MongoBatis`
 
 ---
 ## http: 针对HttpClient `GET`/`POST`的统一请求/处理封装
