@@ -13,6 +13,7 @@ import org.springframework.util.ReflectionUtils;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
+import java.nio.charset.Charset;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -108,13 +109,13 @@ class HBaseHelper {
     // ---- invokeOnTable ----
     @SuppressWarnings("all")
     public static <T> T invokeOnTable(String tableName, HbaseTemplate template, TableInvoker<T> tableInvoker) {
-        HTableInterface table = HbaseUtils.getHTable(tableName, template.getConfiguration());
+        HTableInterface table = HbaseUtils.getHTable(tableName, template.getConfiguration(), Charset.forName("UTF-8"), template.getTableFactory());
         try {
             return tableInvoker.invoke(table);
         } catch (Exception e) {
             throw HbaseUtils.convertHbaseException(e);
         } finally {
-            HbaseUtils.releaseTable(tableName, table);
+            HbaseUtils.releaseTable(tableName, table, template.getTableFactory());
         }
     }
 
