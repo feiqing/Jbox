@@ -5,19 +5,17 @@ import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.reflect.MethodSignature;
+import org.slf4j.MDC;
 import org.springframework.util.ReflectionUtils;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
-import java.net.Inet4Address;
-import java.net.InetAddress;
-import java.net.NetworkInterface;
-import java.net.SocketException;
-import java.util.Enumeration;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.function.Supplier;
 
 /**
  * Jbox内部调用Util方法
@@ -119,45 +117,6 @@ public class JboxUtils {
         }
 
         return "";
-    }
-
-    /* ------- #4 --------- get current server local IP(IPv4) --------------- */
-
-    private static String localIP = null;
-
-    /**
-     * replace with {@link IPv4#getLocalIp()}
-     */
-    @Deprecated
-    public static String getLocalIp() {
-        return localIP == null ? (localIP = doGetLocalIp()) : localIP;
-    }
-
-    private static final String DEFAULT_IP = "127.0.0.1";
-
-    private static String doGetLocalIp() {
-        try {
-            Enumeration<NetworkInterface> networkInterfaces = NetworkInterface.getNetworkInterfaces();
-            while (networkInterfaces.hasMoreElements()) {
-                NetworkInterface networkInterface = networkInterfaces.nextElement();
-                Enumeration<InetAddress> inetAddresses = networkInterface.getInetAddresses();
-
-                while (inetAddresses.hasMoreElements()) {
-                    InetAddress inetAddress = inetAddresses.nextElement();
-                    if (inetAddress instanceof Inet4Address
-                            && !inetAddress.isLoopbackAddress()
-                        /*&& !inetAddress.isSiteLocalAddress()*/) {
-
-                        return inetAddress.getHostAddress();
-                    }
-                }
-            }
-        } catch (SocketException e) {
-            LoggerUtils.error("get local ip error:", e);
-            localIP = DEFAULT_IP;
-        }
-
-        return DEFAULT_IP;
     }
 
     /* ------- #5 --------- String utils, trim prefix and suffix --------------- */
@@ -282,5 +241,21 @@ public class JboxUtils {
         }
 
         return instance;
+    }
+
+    public <T> T runWithNewMdcContext(Supplier<T> supplier, Map<String, String> newMdcContext) {
+        Map<String, String> copyOfContextMap = MDC.getCopyOfContextMap();
+        if (Collections3.isNotEmpty(newMdcContext)) {
+            MDC.setContextMap(newMdcContext);
+        }
+
+        try {
+            return supplier.get();
+        } finally {
+            MDC.clear();
+            if (Collections3.isNotEmpty(copyOfContextMap)) {
+                MDC.setContextMap(copyOfContextMap);
+            }
+        }
     }
 }
