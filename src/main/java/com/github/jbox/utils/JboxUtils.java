@@ -243,7 +243,7 @@ public class JboxUtils {
         return instance;
     }
 
-    public <T> T runWithNewMdcContext(Supplier<T> supplier, Map<String, String> newMdcContext) {
+    public static <T> T runWithNewMdcContext(Supplier<T> supplier, Map<String, String> newMdcContext) {
         Map<String, String> copyOfContextMap = MDC.getCopyOfContextMap();
         if (Collections3.isNotEmpty(newMdcContext)) {
             MDC.setContextMap(newMdcContext);
