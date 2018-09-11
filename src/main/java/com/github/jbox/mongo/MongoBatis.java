@@ -6,6 +6,7 @@ import com.mongodb.BasicDBObject;
 import com.mongodb.CommandResult;
 import com.mongodb.DBObject;
 import com.mongodb.WriteResult;
+import lombok.Getter;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoOperations;
 import org.springframework.data.mongodb.core.query.Criteria;
@@ -34,6 +35,7 @@ import static com.github.jbox.mongo.TableConstant.SERIAL_VERSION_ID;
 @SuppressWarnings("unchecked")
 public class MongoBatis<T extends MBaseModel> {
 
+    @Getter
     private SequenceDAO sequenceDAO;
 
     private MongoOperations mongoTemplate;
@@ -146,6 +148,10 @@ public class MongoBatis<T extends MBaseModel> {
             insert(object);
         }
         return object.getId();
+    }
+
+    public WriteResult upsert(Query query, Update update) {
+        return getMongo().upsert(query, update, asType(), getCName());
     }
 
     /* ------- insert ------- */
