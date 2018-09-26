@@ -1,6 +1,7 @@
 package com.github.jbox.utils;
 
 import com.alibaba.fastjson.JSON;
+import com.github.jbox.helpers.ThrowableSupplier;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import org.aspectj.lang.JoinPoint;
@@ -244,6 +245,22 @@ public class JboxUtils {
     }
 
     public static <T> T runWithNewMdcContext(Supplier<T> supplier, Map<String, String> newMdcContext) {
+        Map<String, String> copyOfContextMap = MDC.getCopyOfContextMap();
+        if (Collections3.isNotEmpty(newMdcContext)) {
+            MDC.setContextMap(newMdcContext);
+        }
+
+        try {
+            return supplier.get();
+        } finally {
+            MDC.clear();
+            if (Collections3.isNotEmpty(copyOfContextMap)) {
+                MDC.setContextMap(copyOfContextMap);
+            }
+        }
+    }
+
+    public static <T> T runWithNewMdcContext(ThrowableSupplier<T> supplier, Map<String, String> newMdcContext) throws Throwable {
         Map<String, String> copyOfContextMap = MDC.getCopyOfContextMap();
         if (Collections3.isNotEmpty(newMdcContext)) {
             MDC.setContextMap(newMdcContext);
