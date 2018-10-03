@@ -276,6 +276,19 @@ public class JboxUtils {
         }
     }
 
+    public static <T> T runWithMdcContext(Supplier<T> supplier, Map<String, String> mdcContext) {
+        if (Collections3.isNotEmpty(mdcContext)) {
+            mdcContext.forEach(MDC::put);
+        }
+        try {
+            return supplier.get();
+        } finally {
+            if (Collections3.isNotEmpty(mdcContext)) {
+                mdcContext.keySet().forEach(MDC::remove);
+            }
+        }
+    }
+
     public static <T> T runWithMdcContext(ThrowableSupplier<T> supplier, Map<String, String> mdcContext) throws Throwable {
         if (Collections3.isNotEmpty(mdcContext)) {
             mdcContext.forEach(MDC::put);
