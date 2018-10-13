@@ -34,12 +34,7 @@ public class TaskScheduler implements ApplicationContextAware, DisposableBean {
 
     @Override
     public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
-        Map<String, ScheduleTask> beans = applicationContext.getBeansOfType(ScheduleTask.class);
-        if (CollectionUtils.isEmpty(beans)) {
-            return;
-        }
-
-        Collection<ScheduleTask> scheduleTasks = beans.values();
+        Collection<ScheduleTask> scheduleTasks = getNeedRegisterTask(applicationContext);
         List<ScheduleTask> needInvokeOnStart = new LinkedList<>();
         for (ScheduleTask scheduleTask : scheduleTasks) {
             taskRegisters.add(TaskRegister.newRegister(scheduleTask));
@@ -94,6 +89,23 @@ public class TaskScheduler implements ApplicationContextAware, DisposableBean {
                 return task.taskDesc();
             }
         });
+    }
+
+    private List<ScheduleTask> getNeedRegisterTask(ApplicationContext applicationContext) {
+        Map<String, ScheduleTask> beans = applicationContext.getBeansOfType(ScheduleTask.class);
+        if (CollectionUtils.isEmpty(beans)) {
+            return Collections.emptyList();
+        }
+
+        Collection<ScheduleTask> scheduleTasks = beans.values();
+        List<ScheduleTask> needRegisterTasks = new ArrayList<>(scheduleTasks.size());
+        for (ScheduleTask task : scheduleTasks) {
+            if (task.autoRegistered()) {
+                needRegisterTasks.add(task);
+            }
+        }
+
+        return needRegisterTasks;
     }
 
     @Override

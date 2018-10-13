@@ -49,6 +49,10 @@ public interface ScheduleTask {
         return false;
     }
 
+    default boolean autoRegistered() {
+        return true;
+    }
+
     default String taskDesc() {
         return this.getClass().getName();
     }

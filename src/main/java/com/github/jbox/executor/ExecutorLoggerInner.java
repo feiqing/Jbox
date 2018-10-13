@@ -16,7 +16,7 @@ public interface ExecutorLoggerInner {
 
     Logger executorLogger = LoggerFactory.getLogger("com.github.jbox.executor");
 
-    Logger monitorLogger = LoggerFactory.getLogger("executor-monitor");
+    Logger monitorLogger = LoggerFactory.getLogger("com.github.jbox.executor.ExecutorMonitor");
 
     default String generatePolicyLoggerContent(String group, Object policy, BlockingQueue<?> queue,
                                                String taskInfo, int taskHash) {
