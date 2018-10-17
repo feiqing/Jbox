@@ -122,7 +122,7 @@ public class ExecutorMonitor implements ScheduleTask, ExecutorLoggerInner {
 
     private int getMaxGroupSize(List<Entry<String, ExecutorService>> groupEntries) {
         if (maxGroupSize == null) {
-            maxGroupSize = groupEntries.get(0).getKey().length() + "'' ".length();
+            maxGroupSize = groupEntries.get(0).getKey().length();
         }
         return maxGroupSize;
     }
