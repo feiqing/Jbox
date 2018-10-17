@@ -47,73 +47,77 @@ public class ExecutorMonitor implements ScheduleTask, ExecutorLoggerInner {
     private Integer maxGroupSize;
 
     @Override
-    public void schedule() throws Exception {
-        List<Entry<String, ExecutorService>> executorSortedSet = executors.entrySet()
+    public void schedule() {
+
+        List<Entry<String, ExecutorService>> jBoxExecutors = executors.entrySet()
                 .stream()
                 .filter(entry -> !(entry.getValue() instanceof SyncInvokeExecutorService))
+                .filter(entry -> entry.getKey().startsWith("com.github.jbox"))
                 .sorted((e1, e2) -> e2.getKey().length() - e1.getKey().length())
                 .collect(Collectors.toList());
 
-        StringBuilder logBuilder = new StringBuilder(128);
+        List<Entry<String, ExecutorService>> bizExecutors = executors.entrySet()
+                .stream()
+                .filter(entry -> !(entry.getValue() instanceof SyncInvokeExecutorService))
+                .filter(entry -> !entry.getKey().startsWith("com.github.jbox"))
+                .sorted((e1, e2) -> e2.getKey().length() - e1.getKey().length())
+                .collect(Collectors.toList());
+
+
+        int size = jBoxExecutors.size() + bizExecutors.size();
+
+        StringBuilder logBuilder = new StringBuilder(36 * size);
         // append group size:
-        logBuilder.append("executor group size [").append(executorSortedSet.size()).append("]:\n");
+        logBuilder.append("executors size:")
+                .append(size)
+                .append(", details:(")
+                .append("|pool,active,core,max|success,failed|rt,tps|queued,remain|")
+                .append(")\n");
 
-        for (Map.Entry<String, ExecutorService> entry : executorSortedSet) {
-            String group = entry.getKey();
-            ThreadPoolExecutor executor = getThreadPoolExecutor(entry.getValue());
-            if (executor == null) {
-                continue;
-            }
+        int maxGroupSize = Math.max(getMaxGroupSize(jBoxExecutors), getMaxGroupSize(bizExecutors));
+        for (Map.Entry<String, ExecutorService> entry : jBoxExecutors) {
+            buildLog(entry.getKey(), entry.getValue(), logBuilder, maxGroupSize);
+        }
 
-            Object[] recorder = getFlightRecorder(group);
-
-            // append group detail:
-            BlockingQueue<Runnable> queue = executor.getQueue();
-            logBuilder.append(String.format(
-                    "%-" + getMaxGroupSize(executorSortedSet) + "s > pool:[%s], active:[%d], core:[%d], max:[%d], "
-                            + "success:[%s], failure:[%s], "
-                            + "rt:[%s], tps:[%s], "
-                            + "queued:[%d], remains:[%d]\n",
-
-                    /*
-                     * group
-                     */
-                    "'" + group + "'",
-                    /*
-                     *  pool detail
-                     */
-                    executor.getPoolSize(),
-                    executor.getActiveCount(),
-                    executor.getCorePoolSize(),
-                    executor.getMaximumPoolSize(),
-
-                    /*
-                     * success, failure
-                     */
-                    numberFormat(recorder[0]),
-                    numberFormat(recorder[1]),
-
-                    /*
-                     * rt, tps
-                     */
-                    String.format("%.2f", (double) recorder[2]),
-                    numberFormat(calcTps(group, (long) recorder[3])),
-
-                    /*
-                     * runnable queue
-                     */
-                    queue.size(),
-                    queue.remainingCapacity()
-            ));
-
-            // append task detail:
-            StringBuilder[] taskDetailBuilder = getTaskDetail(queue);
-            for (StringBuilder sb : taskDetailBuilder) {
-                logBuilder.append(sb);
-            }
+        for (Map.Entry<String, ExecutorService> entry : bizExecutors) {
+            buildLog(entry.getKey(), entry.getValue(), logBuilder, maxGroupSize);
         }
 
         monitorLogger.info(logBuilder.toString());
+    }
+
+    // group |pool,active,core,max|success,failed|rt,tps|queued,remain|
+    // com.github.jbox.scheduler:TaskScheduler |1,0,1,2147483647|613,0|0.03,10|1,2147483647|
+    // JobDispatcher2                          |1,0,1,2147483647|613,0|0.03,10|1,2147483647|
+    private void buildLog(String group, ExecutorService executorService, StringBuilder logBuilder, int maxGroupSize) {
+        ThreadPoolExecutor executor = getThreadPoolExecutor(executorService);
+        if (executor == null) {
+            return;
+        }
+
+        logBuilder.append(String.format("%-" + maxGroupSize + "s", group));
+        logBuilder.append(" |").append(executor.getPoolSize())
+                .append(",").append(executor.getActiveCount())
+                .append(",").append(executor.getCorePoolSize())
+                .append(",").append(executor.getMaximumPoolSize());
+
+
+        Object[] recorder = getFlightRecorder(group);
+        logBuilder.append("|").append(numberFormat(recorder[0]))
+                .append(",").append(numberFormat(recorder[1]))
+                .append("|").append(String.format("%.2f", (double) recorder[2]))
+                .append(",").append(numberFormat(calcTps(group, (long) recorder[3])));
+
+        BlockingQueue<Runnable> queue = executor.getQueue();
+        logBuilder.append("|").append(queue.size())
+                .append(",").append(queue.remainingCapacity())
+                .append("|\n");
+
+        // append task detail:
+        StringBuilder[] taskDetailBuilder = getTaskDetail(queue);
+        for (StringBuilder sb : taskDetailBuilder) {
+            logBuilder.append(sb);
+        }
     }
 
     private int getMaxGroupSize(List<Entry<String, ExecutorService>> groupEntries) {
@@ -207,18 +211,19 @@ public class ExecutorMonitor implements ScheduleTask, ExecutorLoggerInner {
         @Override
         public BiConsumer<StringBuilder, Object> accumulator() {
             return (stringBuilder, object) -> {
-                stringBuilder.append("  -> ");
+                stringBuilder.append(" -> ");
                 if (object != null) {
                     if (object instanceof AsyncRunnable || object instanceof AsyncCallable) {
                         Method taskInfoMethod = ReflectionUtils.findMethod(object.getClass(), "taskInfo");
                         ReflectionUtils.makeAccessible(taskInfoMethod);
                         stringBuilder
-                                .append("task: ")
                                 .append(ReflectionUtils.invokeMethod(taskInfoMethod, object))
-                                .append(", obj: ")
-                                .append(Objects.hashCode(object));
+                                .append("(")
+                                .append(Objects.hashCode(object))
+                                .append(")");
+
                     } else {
-                        stringBuilder.append("task: ").append(ToStringBuilder.reflectionToString(object));
+                        stringBuilder.append(ToStringBuilder.reflectionToString(object));
                     }
                 } else {
                     stringBuilder.append("null");
@@ -265,40 +270,4 @@ public class ExecutorMonitor implements ScheduleTask, ExecutorLoggerInner {
     public long period() {
         return period;
     }
-
-
-    /*
-    @Override
-    public void postProcessBeanDefinitionRegistry(BeanDefinitionRegistry registry) throws BeansException {
-        Map<String, TaskScheduler> beans = applicationContext.getBeansOfType(TaskScheduler.class);
-        if (beans == null || beans.isEmpty()) {
-            RootBeanDefinition taskScheduler = new RootBeanDefinition(TaskScheduler.class);
-            taskScheduler.setInitMethodName("start");
-            taskScheduler.setDestroyMethodName("shutdown");
-            taskScheduler.setScope(SCOPE_SINGLETON);
-            taskScheduler.getConstructorArgumentValues().addIndexedArgumentValue(0, true);
-            registry.registerBeanDefinition(getUsableBeanName("com.github.jbox.scheduler.TaskScheduler", registry),
-                    taskScheduler);
-        }
-    }
-
-    @Override
-    public void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory) throws BeansException {
-    }
-
-
-    public void setPeriod(long period) {
-        this.period = period;
-    }
-
-    private static String getUsableBeanName(String initBeanName, BeanDefinitionRegistry registry) {
-        String beanName;
-        int index = 0;
-        do {
-            beanName = initBeanName + "#" + index++;
-        } while (registry.isBeanNameInUse(beanName));
-
-        return beanName;
-    }
-    */
 }
