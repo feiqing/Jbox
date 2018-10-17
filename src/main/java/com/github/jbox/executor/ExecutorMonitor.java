@@ -44,8 +44,6 @@ public class ExecutorMonitor implements ScheduleTask, ExecutorLoggerInner {
 
     private long period = _1M_INTERVAL;
 
-    private Integer maxGroupSize;
-
     @Override
     public void schedule() {
 
@@ -121,10 +119,7 @@ public class ExecutorMonitor implements ScheduleTask, ExecutorLoggerInner {
     }
 
     private int getMaxGroupSize(List<Entry<String, ExecutorService>> groupEntries) {
-        if (maxGroupSize == null) {
-            maxGroupSize = groupEntries.get(0).getKey().length();
-        }
-        return maxGroupSize;
+        return groupEntries.get(0).getKey().length();
     }
 
     private long calcTps(String group, long invoked) {
