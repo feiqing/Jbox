@@ -2,7 +2,7 @@ package com.github.jbox.executor;
 
 import com.github.jbox.executor.policy.DiscardOldestPolicy;
 import com.github.jbox.utils.Collections3;
-import com.google.common.base.Preconditions;
+import com.github.jbox.utils.Objects2;
 import com.google.common.base.Strings;
 import com.google.common.util.concurrent.Futures;
 import lombok.Getter;
@@ -29,11 +29,7 @@ public class AsyncJobExecutor<T> {
 
     private static final long defaultTimeout = 10 * 1000;
 
-    private static final String group = "ParallelsJobWorker";
-
-    private static final RejectedExecutionHandler handler = new DiscardOldestPolicy(group);
-
-    private static final ExecutorService defaultWorker = ExecutorManager.newFixedMinMaxThreadPool(group, 5, 10, 1024, handler);
+    private static final String defaultGroup = "AsyncJobExecutor";
 
     private ExecutorService worker;
 
@@ -55,13 +51,17 @@ public class AsyncJobExecutor<T> {
     private CountDownLatch latch;
 
     public AsyncJobExecutor() {
-        this(defaultWorker);
+        this(null);
     }
 
     public AsyncJobExecutor(ExecutorService worker) {
-        Preconditions.checkNotNull(worker);
-        this.worker = worker;
+        this.worker = Objects2.nullToDefault(worker, getWorker());
         this.tasks = new LinkedList<>();
+    }
+
+    protected ExecutorService getWorker() {
+        RejectedExecutionHandler handler = new DiscardOldestPolicy(defaultGroup);
+        return ExecutorManager.newFixedMinMaxThreadPool(defaultGroup, 5, 10, 1024, handler);
     }
 
     public AsyncJobExecutor<T> addTask(Supplier<T> task) {
