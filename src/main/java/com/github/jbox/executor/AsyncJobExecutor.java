@@ -82,16 +82,28 @@ public class AsyncJobExecutor<T> {
         this.latch = new CountDownLatch(tasks.size());
         this.futures = new ArrayList<>(tasks.size());
         for (Supplier<T> task : tasks) {
-            Future<T> future = worker.submit((AsyncCallable<T>) context -> {
-                try {
-                    return task.get();
-                } catch (Throwable t) {
-                    hasRunningException = true;
-                    throw t;
-                } finally {
-                    latch.countDown();
-                }
-            });
+            Future<T> future = worker.submit(
+                    new AsyncCallable<T>() {
+
+                        @Override
+                        public T execute(AsyncContext context) {
+                            try {
+                                return task.get();
+                            } catch (Throwable t) {
+                                hasRunningException = true;
+                                throw t;
+                            } finally {
+                                latch.countDown();
+                            }
+                        }
+
+                        @Override
+                        public String taskInfo() {
+                            String jobDesc = getJobDesc();
+                            return Strings.isNullOrEmpty(jobDesc) ? this.getClass().getName() : jobDesc;
+                        }
+                    }
+            );
 
             futures.add(future);
         }
