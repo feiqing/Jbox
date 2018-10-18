@@ -6,6 +6,7 @@ import com.github.jbox.stream.StreamForker;
 import com.github.jbox.utils.Collections3;
 import com.github.jbox.utils.JboxUtils;
 import com.github.jbox.utils.ProxyTargetUtils;
+import lombok.Setter;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.springframework.util.ReflectionUtils;
 
@@ -43,6 +44,7 @@ public class ExecutorMonitor implements ScheduleTask, ExecutorLoggerInner {
 
     private static final String CALLABLE_KEY = "callable";
 
+    @Setter
     private long period = _1M_INTERVAL;
 
     @Override
@@ -67,9 +69,9 @@ public class ExecutorMonitor implements ScheduleTask, ExecutorLoggerInner {
 
         StringBuilder logBuilder = new StringBuilder(36 * size);
         // append group size:
-        logBuilder.append("executors size:")
+        logBuilder.append("executors size [")
                 .append(size)
-                .append(", details:(")
+                .append("] details:(")
                 .append("|pool,active,core,max|success,failed|rt,tps|queued,remain|")
                 .append(")\n");
 
