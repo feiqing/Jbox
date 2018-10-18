@@ -3,6 +3,7 @@ package com.github.jbox.executor;
 import com.github.jbox.executor.ExecutorManager.FlightRecorder;
 import com.github.jbox.scheduler.ScheduleTask;
 import com.github.jbox.stream.StreamForker;
+import com.github.jbox.utils.Collections3;
 import com.github.jbox.utils.JboxUtils;
 import com.github.jbox.utils.ProxyTargetUtils;
 import org.apache.commons.lang3.builder.ToStringBuilder;
@@ -101,10 +102,10 @@ public class ExecutorMonitor implements ScheduleTask, ExecutorLoggerInner {
 
 
         Object[] recorder = getFlightRecorder(group);
-        logBuilder.append("|").append(numberFormat(recorder[0]))
-                .append(",").append(numberFormat(recorder[1]))
+        logBuilder.append("|").append(recorder[0])
+                .append(",").append(recorder[1])
                 .append("|").append(String.format("%.2f", (double) recorder[2]))
-                .append(",").append(numberFormat(calcTps(group, (long) recorder[3])));
+                .append(",").append(calcTps(group, (long) recorder[3]));
 
         BlockingQueue<Runnable> queue = executor.getQueue();
         logBuilder.append("|").append(queue.size())
@@ -119,7 +120,7 @@ public class ExecutorMonitor implements ScheduleTask, ExecutorLoggerInner {
     }
 
     private int getMaxGroupSize(List<Entry<String, ExecutorService>> groupEntries) {
-        return groupEntries.get(0).getKey().length();
+        return Collections3.isNotEmpty(groupEntries) ? groupEntries.get(0).getKey().length() : 0;
     }
 
     private long calcTps(String group, long invoked) {
@@ -255,10 +256,6 @@ public class ExecutorMonitor implements ScheduleTask, ExecutorLoggerInner {
             }
         }
         return null;
-    }
-
-    private String numberFormat(Object obj) {
-        return new DecimalFormat("##,###").format(obj);
     }
 
     @Override
