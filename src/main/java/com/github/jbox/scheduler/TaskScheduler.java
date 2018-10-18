@@ -28,7 +28,9 @@ public class TaskScheduler implements ApplicationContextAware, DisposableBean {
      */
     private static final int BASE_TIME_FRAGMENT = 100;
 
-    private static final ScheduledExecutorService scheduleExecutor = ExecutorManager.newSingleThreadScheduledExecutor("com.github.jbox.scheduler:TaskScheduler");
+    private static final String group = "com.github.jbox.scheduler:TaskScheduler";
+
+    private static final ScheduledExecutorService scheduleExecutor = ExecutorManager.newSingleThreadScheduledExecutor(group);
 
     private static final List<TaskRegister> taskRegisters = new ArrayList<>();
 
