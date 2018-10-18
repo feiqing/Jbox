@@ -11,13 +11,20 @@ import java.util.concurrent.ExecutorService;
  * 实现该接口并注册为SpringBean由{@link TaskScheduler}自动发现并注册, 自动调度.
  *
  * @author jifang
- * @version 1.2:自动注册
+ * @version 1.2:自动注册, 1.3:可以选择不自动注册
  * @since 16/10/20 上午8:15.
  */
 public interface ScheduleTask {
 
-    ExecutorService singleExecutor = ExecutorManager.newFixedMinMaxThreadPool("com.github.jbox.scheduler:ScheduleTask",
-            1, 5, 36, DiscardOldestPolicy.instance);
+    String group = "com.github.jbox.scheduler:ScheduleTask";
+
+    int minSize = 3;
+
+    int maxSize = 5;
+
+    int queueSize = 36;
+
+    ExecutorService defaultExecutor = ExecutorManager.newFixedMinMaxThreadPool(group, minSize, maxSize, queueSize, new DiscardOldestPolicy(group));
 
     Logger SCHEDULE_TASK_LOGGER = LoggerFactory.getLogger("task-scheduler");
 
@@ -42,7 +49,7 @@ public interface ScheduleTask {
     long period();
 
     default ExecutorService executor() {
-        return singleExecutor;
+        return defaultExecutor;
     }
 
     default boolean invokeAtStart() {
