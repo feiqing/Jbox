@@ -72,7 +72,7 @@ public class ExecutorMonitor implements ScheduleTask, ExecutorLoggerInner {
         logBuilder.append("executors size [")
                 .append(size)
                 .append("] details:(")
-                .append("|pool,active,core,max|success,failed|rt,tps|queued,remain|")
+                .append("|active,core,pool,max|success,failed|rt,tps|queued,remain|")
                 .append(")\n");
 
         int maxGroupSize = Math.max(getMaxGroupSize(jBoxExecutors), getMaxGroupSize(bizExecutors));
@@ -97,9 +97,9 @@ public class ExecutorMonitor implements ScheduleTask, ExecutorLoggerInner {
         }
 
         logBuilder.append(String.format("%-" + maxGroupSize + "s", group));
-        logBuilder.append(" |").append(executor.getPoolSize())
-                .append(",").append(executor.getActiveCount())
+        logBuilder.append(" |").append(executor.getActiveCount())
                 .append(",").append(executor.getCorePoolSize())
+                .append(",").append(executor.getPoolSize())
                 .append(",").append(executor.getMaximumPoolSize());
 
 
