@@ -1,6 +1,6 @@
 package com.github.jbox.executor;
 
-import com.github.jbox.executor.policy.DiscardOldestPolicy;
+import com.github.jbox.executor.policy.CallerRunsPolicy;
 import com.github.jbox.utils.Collections3;
 import com.github.jbox.utils.Objects2;
 import com.google.common.base.Strings;
@@ -27,7 +27,10 @@ import static java.util.stream.Collectors.toList;
 @Slf4j
 public class AsyncJobExecutor<T> {
 
-    private static final long defaultTimeout = 10 * 1000;
+    /**
+     * 如果不设置超时时间, 默认等待1小时, 防止任务没处理完就退出的场景
+     */
+    private static final long defaultTimeout = 60 * 60 * 1000;
 
     private static final String defaultGroup = "AsyncJobExecutor";
 
@@ -60,8 +63,8 @@ public class AsyncJobExecutor<T> {
     }
 
     protected ExecutorService getWorker() {
-        RejectedExecutionHandler handler = new DiscardOldestPolicy(defaultGroup);
-        return ExecutorManager.newFixedMinMaxThreadPool(defaultGroup, 5, 10, 1024, handler);
+        RejectedExecutionHandler handler = new CallerRunsPolicy(defaultGroup);
+        return ExecutorManager.newFixedMinMaxThreadPool(defaultGroup, 20, 20, Integer.MAX_VALUE, handler);
     }
 
     public AsyncJobExecutor<T> addTask(Supplier<T> task) {
