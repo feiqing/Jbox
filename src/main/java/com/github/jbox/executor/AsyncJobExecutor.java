@@ -64,7 +64,7 @@ public class AsyncJobExecutor<T> {
 
     protected ExecutorService getWorker() {
         RejectedExecutionHandler handler = new CallerRunsPolicy(defaultGroup);
-        return ExecutorManager.newFixedMinMaxThreadPool(defaultGroup, 20, 20, Integer.MAX_VALUE, handler);
+        return ExecutorManager.newFixedMinMaxThreadPool(defaultGroup, 20, 20, 1024, handler);
     }
 
     public AsyncJobExecutor<T> addTask(Supplier<T> task) {
