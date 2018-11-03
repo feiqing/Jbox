@@ -1,8 +1,9 @@
 package com.github.jbox.mongo;
 
+import com.google.common.base.Preconditions;
+import com.google.common.base.Strings;
 import lombok.Data;
 import lombok.Getter;
-import lombok.Setter;
 import org.springframework.data.mongodb.core.FindAndModifyOptions;
 import org.springframework.data.mongodb.core.MongoOperations;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -13,6 +14,7 @@ import org.springframework.data.mongodb.core.query.Update;
 
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.atomic.AtomicLong;
 
 import static com.github.jbox.mongo.TableConstant.*;
 
@@ -24,62 +26,135 @@ import static com.github.jbox.mongo.TableConstant.*;
  **/
 public class SequenceDAO {
 
-    @Setter
-    @Getter
-    private int sequenceStep = 1000;
+    private static final ConcurrentMap<String, SequenceRange> ranges = new ConcurrentHashMap<>();
+
+    private static final long DEFAULT_STEP = 1000L;
+
+    private long step;
 
     private MongoOperations mongoTemplate;
 
-    private ConcurrentMap<String, Integer> nextIncStep = new ConcurrentHashMap<>();
-
     public SequenceDAO(MongoOperations mongoTemplate) {
+        this(DEFAULT_STEP, mongoTemplate);
+    }
+
+    public SequenceDAO(long step, MongoOperations mongoTemplate) {
+        this.step = step;
         this.mongoTemplate = mongoTemplate;
     }
 
     /**
-     * 生成一个自增ID(有副作用)
+     * 生成一个自增ID
      *
      * @param type: 表名
      */
     public long generateId(String type) {
-        return generateSequence(type).getSeq();
+        Preconditions.checkArgument(!Strings.isNullOrEmpty(type), "sequence name can not be empty.");
+
+        SequenceRange range = getRange(type);
+        long value = range.getAndIncrement();
+
+        if (value == -1) {
+            synchronized (ranges) {
+                for (; ; ) {
+                    if (range.isOver()) {
+                        range = nextRange(type);
+                        ranges.put(type, range);
+                    }
+
+                    value = range.getAndIncrement();
+                    if (value == -1) {
+                        continue;
+                    }
+
+                    break;
+                }
+            }
+        }
+
+        if (value < 0) {
+            throw new SequenceException("Sequence value overflow, value = " + value);
+        }
+
+        return value;
+
     }
 
-    /**
-     * 查找最新的自增ID(无副作用)
-     *
-     * @param type: 表名
-     */
-    public long getSequence(String type) {
-        Query where = new Query(Criteria.where(ID).is(type));
-        return mongoTemplate.findOne(where, Sequence.class).getSeq();
+    private SequenceRange getRange(String type) {
+        SequenceRange range = ranges.get(type);
+        if (range == null) {
+            synchronized (ranges) {
+                if ((range = ranges.get(type)) == null) {
+                    range = nextRange(type);
+                    ranges.put(type, range);
+                }
+            }
+        }
+
+        return range;
     }
 
-    private Sequence generateSequence(String type) {
+    private SequenceRange nextRange(String type) {
         Query where = new Query(Criteria.where(ID).is(type));
-
-        Update inc = new Update().inc(SEQ, nextStep(type));
+        Update inc = new Update().inc(SEQ, step);
 
         FindAndModifyOptions options = new FindAndModifyOptions();
         options.returnNew(true);
         options.upsert(true);
 
-        return mongoTemplate.findAndModify(where, inc, options, Sequence.class);
-    }
-
-    private int nextStep(String type) {
-        Integer nextStep = nextIncStep.get(type);
-        if (nextStep == null) {
-            nextIncStep.put(type, 1);
-            return sequenceStep;
+        SequenceDO sequence = mongoTemplate.findAndModify(where, inc, options, SequenceDO.class);
+        if (sequence == null) {
+            throw new SequenceException("could not find new Sequence.");
         }
 
-        return nextStep;
+        long newValue = sequence.getSeq();
+        long oldValue = newValue - step + 1;
+
+        return new SequenceRange(oldValue, newValue);
+    }
+
+    public class SequenceRange {
+
+        @Getter
+        private final long min;
+
+        @Getter
+        private final long max;
+
+        private final AtomicLong seq;
+
+        @Getter
+        private volatile boolean over = false;
+
+        SequenceRange(long min, long max) {
+            this.min = min;
+            this.max = max;
+            this.seq = new AtomicLong(min);
+        }
+
+        long getAndIncrement() {
+            if (over) {
+                return -1;
+            }
+
+            long currentValue = seq.getAndIncrement();
+            if (currentValue > max) {
+                over = true;
+                return -1;
+            }
+
+            return currentValue;
+        }
+
+        @Override
+        public String toString() {
+            return "max: " + max + ", min: " + min + ", seq: " + seq;
+        }
     }
 
     @Data
     @Document(collection = SEQ_COL)
-    private static class Sequence {
+    private static class SequenceDO {
 
         @Field(ID)
         private String type;

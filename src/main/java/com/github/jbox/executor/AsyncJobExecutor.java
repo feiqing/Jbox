@@ -1,11 +1,11 @@
 package com.github.jbox.executor;
 
-import com.github.jbox.executor.policy.CallerRunsPolicy;
 import com.github.jbox.utils.Collections3;
 import com.github.jbox.utils.Objects2;
 import com.google.common.base.Strings;
 import com.google.common.util.concurrent.Futures;
 import lombok.Getter;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.ArrayList;
@@ -32,8 +32,7 @@ public class AsyncJobExecutor<T> {
      */
     private static final long defaultTimeout = 60 * 60 * 1000;
 
-    private static final String defaultGroup = "AsyncJobExecutor";
-
+    @Setter
     private ExecutorService worker;
 
     @Getter
@@ -63,8 +62,7 @@ public class AsyncJobExecutor<T> {
     }
 
     protected ExecutorService getWorker() {
-        RejectedExecutionHandler handler = new CallerRunsPolicy(defaultGroup);
-        return ExecutorManager.newFixedMinMaxThreadPool(defaultGroup, 20, 20, 1024, handler);
+        return ExecutorManager.newFixedMinMaxThreadPool("com.github.jbox.executor:AsyncJobExecutor", 20, 20, 1024, new ThreadPoolExecutor.AbortPolicy());
     }
 
     public AsyncJobExecutor<T> addTask(Supplier<T> task) {
