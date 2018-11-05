@@ -22,9 +22,9 @@ public class ExecutorManager implements ExecutorLoggerInner {
 
     private static final String SYNC_PATTERN = "sync-%s";
 
-    static ConcurrentMap<String, FlightRecorder> recorders = new ConcurrentHashMap<>();
+    public static final ConcurrentMap<String, FlightRecorder> recorders = new ConcurrentHashMap<>();
 
-    static ConcurrentMap<String, ExecutorService> executors = new ConcurrentHashMap<>();
+    public static final ConcurrentMap<String, ExecutorService> executors = new ConcurrentHashMap<>();
 
     // ---- * ThreadPoolExecutor * ---- //
 
@@ -140,7 +140,7 @@ public class ExecutorManager implements ExecutorLoggerInner {
 
     @Data
     @AllArgsConstructor
-    static final class FlightRecorder implements Serializable {
+    public static final class FlightRecorder implements Serializable {
 
         private static final long serialVersionUID = -8342765829706151410L;
 
