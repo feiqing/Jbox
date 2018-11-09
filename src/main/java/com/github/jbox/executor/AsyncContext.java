@@ -43,6 +43,6 @@ public class AsyncContext {
     }
 
     public Map<String, String> getMdcContext() {
-        return mdcContext == null ? mdcContext = new HashMap<>() : mdcContext;
+        return mdcContext;
     }
 }

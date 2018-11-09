@@ -1,6 +1,8 @@
 package com.github.jbox.executor;
 
 import com.github.jbox.executor.ExecutorManager.FlightRecorder;
+import com.github.jbox.helpers.ThrowableSupplier;
+import com.github.jbox.utils.JboxUtils;
 import com.google.common.collect.Sets;
 import lombok.NonNull;
 import org.slf4j.MDC;
@@ -11,8 +13,10 @@ import java.util.Arrays;
 import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
+import java.util.function.Supplier;
 
 import static com.github.jbox.executor.ExecutorManager.recorders;
+import static com.github.jbox.utils.JboxUtils.runWithNewMdcContext;
 
 /**
  * @author jifang@alibaba-inc.com
@@ -79,22 +83,22 @@ class RunnableDecorator implements AsyncRunnable {
 
     @Override
     public void run() {
-        MDC.setContextMap(context.getMdcContext());
-        try {
-            long start = System.currentTimeMillis();
-            runnable.run();
-            // invoke rt
-            recorder.getTotalRt().addAndGet((System.currentTimeMillis() - start));
-            // success count
-            recorder.getSuccess().incrementAndGet();
-        } catch (Throwable e) {
-            monitorLogger.error("task: '{}' in thread: [{}] execute failed:", taskInfo(), Thread.currentThread().getName(), e);
-            // failure count
-            recorder.getFailure().incrementAndGet();
-            throw e;
-        } finally {
-            MDC.clear();
-        }
+        runWithNewMdcContext((Supplier<Object>) () -> {
+            try {
+                long start = System.currentTimeMillis();
+
+                runnable.run();
+
+                recorder.getTotalRt().addAndGet((System.currentTimeMillis() - start));
+                recorder.getSuccess().incrementAndGet();
+            } catch (Throwable e) {
+                recorder.getFailure().incrementAndGet();
+                monitorLogger.error("task: '{}' exec error, thread: [{}].", taskInfo(), Thread.currentThread().getName(), e);
+                throw e;
+            }
+
+            return null;
+        }, context.getMdcContext());
     }
 
     @Override
@@ -124,30 +128,23 @@ class CallableDecorator implements AsyncCallable {
     }
 
     @Override
-    @SuppressWarnings("unchecked")
     public Object call() throws Exception {
+        return runWithNewMdcContext((ThrowableSupplier<Object>) () -> {
+            try {
+                long start = System.currentTimeMillis();
 
-        MDC.setContextMap(context.getMdcContext());
-        try {
-            long start = System.currentTimeMillis();
+                Object result = callable.call();
 
-            Object result = callable.call();
+                recorder.getTotalRt().addAndGet((System.currentTimeMillis() - start));
+                recorder.getSuccess().incrementAndGet();
 
-            // invoke rt
-            recorder.getTotalRt().addAndGet((System.currentTimeMillis() - start));
-            // success count
-            recorder.getSuccess().incrementAndGet();
-
-            return result;
-
-        } catch (Throwable e) {
-            monitorLogger.error("task: '{}' in thread: [{}] execute failed:", taskInfo(), Thread.currentThread().getName(), e);
-            // failure count
-            recorder.getFailure().incrementAndGet();
-            throw e;
-        } finally {
-            MDC.clear();
-        }
+                return result;
+            } catch (Throwable e) {
+                recorder.getFailure().incrementAndGet();
+                monitorLogger.error("task: '{}' exec error, thread: [{}].", taskInfo(), Thread.currentThread().getName(), e);
+                throw e;
+            }
+        }, context.getMdcContext());
     }
 
     @Override
@@ -169,35 +166,32 @@ class AsyncRunnableDecorator implements AsyncRunnable {
 
     private AsyncRunnable asyncRunnable;
 
-
     AsyncRunnableDecorator(@NonNull AsyncContext context,
                            @NonNull FlightRecorder recorder,
                            @NonNull AsyncRunnable asyncRunnable) {
         this.context = context;
         this.recorder = recorder;
         this.asyncRunnable = asyncRunnable;
-        this.asyncRunnable.setUp(this.context);
     }
 
     @Override
     public void run() {
-        MDC.setContextMap(context.getMdcContext());
-        try {
-            long start = System.currentTimeMillis();
-            asyncRunnable.execute(context);
-            // invoke rt
-            recorder.getTotalRt().addAndGet((System.currentTimeMillis() - start));
-            // success count
-            recorder.getSuccess().incrementAndGet();
-        } catch (Throwable e) {
-            monitorLogger.error("task: '{}' in thread: [{}] execute failed:", taskInfo(), Thread.currentThread().getName(), e);
-            // failure count
-            recorder.getFailure().incrementAndGet();
-            throw e;
-        } finally {
-            MDC.clear();
-            asyncRunnable.tearDown(context);
-        }
+        runWithNewMdcContext((Supplier<Object>) () -> {
+            try {
+                long start = System.currentTimeMillis();
+
+                asyncRunnable.execute(context);
+
+                recorder.getTotalRt().addAndGet((System.currentTimeMillis() - start));
+                recorder.getSuccess().incrementAndGet();
+            } catch (Throwable e) {
+                recorder.getFailure().incrementAndGet();
+                monitorLogger.error("task: '{}' exec error, thread: [{}].", taskInfo(), Thread.currentThread().getName(), e);
+                throw e;
+            }
+
+            return null;
+        }, context.getMdcContext());
     }
 
     @Override
@@ -228,33 +222,26 @@ class AsyncCallableDecorator implements AsyncCallable {
         this.context = context;
         this.recorder = recorder;
         this.asyncCallable = asyncCallable;
-        this.asyncCallable.setUp(this.context);
     }
 
     @Override
-    @SuppressWarnings("unchecked")
     public Object call() throws Exception {
-        MDC.setContextMap(context.getMdcContext());
-        try {
-            long start = System.currentTimeMillis();
+        return runWithNewMdcContext((ThrowableSupplier<Object>) () -> {
+            try {
+                long start = System.currentTimeMillis();
 
-            Object result = asyncCallable.execute(context);
+                Object result = asyncCallable.execute(context);
 
-            // invoke rt
-            recorder.getTotalRt().addAndGet((System.currentTimeMillis() - start));
-            // success count
-            recorder.getSuccess().incrementAndGet();
+                recorder.getTotalRt().addAndGet((System.currentTimeMillis() - start));
+                recorder.getSuccess().incrementAndGet();
 
-            return result;
-        } catch (Throwable e) {
-            monitorLogger.error("task: '{}' in thread: [{}] execute failed:", taskInfo(), Thread.currentThread().getName(), e);
-            // failure count
-            recorder.getFailure().incrementAndGet();
-            throw e;
-        } finally {
-            MDC.clear();
-            asyncCallable.tearDown(context);
-        }
+                return result;
+            } catch (Throwable e) {
+                recorder.getFailure().incrementAndGet();
+                monitorLogger.error("task: '{}' exec error, thread: [{}].", taskInfo(), Thread.currentThread().getName(), e);
+                throw e;
+            }
+        }, context.getMdcContext());
     }
 
     @Override

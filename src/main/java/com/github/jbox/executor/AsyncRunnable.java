@@ -3,9 +3,6 @@ package com.github.jbox.executor;
 /**
  * 类似{@code java.lang.Runnable}结构, 在{@code Runnable}基础上添加:
  * -  {@code taskInfo()}
- * -  {@code beforeExecute()}
- * -  {@code afterExecute()}
- * -  {@code afterThrowing()}
  * 等方法, 相比于原生的{@code Runnable}有以下优势:
  * 1.  在task执行前设置rpc context信息, 以及将traceId塞入MDC;
  * 2.  监控task执行耗时(rt);
@@ -24,25 +21,9 @@ package com.github.jbox.executor;
 public interface AsyncRunnable extends java.lang.Runnable, ExecutorLoggerInner {
 
     /**
-     * running in {@code Master Thread}.
-     *
-     * @param context
-     */
-    default void setUp(AsyncContext context) {
-    }
-
-    /**
      * implements like {@code Runnable.run()}
      */
     void execute(AsyncContext context);
-
-    /**
-     * running in {@code Sub Thread}(finally).
-     *
-     * @param context
-     */
-    default void tearDown(AsyncContext context) {
-    }
 
     /**
      * detail info of the task need to invoke.

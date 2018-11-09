@@ -2,25 +2,17 @@ package com.github.jbox.executor;
 
 import com.github.jbox.executor.ExecutorManager.FlightRecorder;
 import com.github.jbox.scheduler.ScheduleTask;
-import com.github.jbox.stream.StreamForker;
 import com.github.jbox.utils.Collections3;
 import com.github.jbox.utils.JboxUtils;
 import com.github.jbox.utils.ProxyTargetUtils;
 import lombok.Setter;
 import org.apache.commons.lang3.builder.ToStringBuilder;
-import org.springframework.util.ReflectionUtils;
 
-import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
-import java.text.DecimalFormat;
 import java.util.*;
 import java.util.Map.Entry;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicLong;
-import java.util.function.BiConsumer;
-import java.util.function.BinaryOperator;
-import java.util.function.Function;
-import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import static com.github.jbox.executor.ExecutorManager.executors;
@@ -33,33 +25,30 @@ import static com.github.jbox.executor.ExecutorManager.recorders;
  */
 public class ExecutorMonitor implements ScheduleTask, ExecutorLoggerInner {
 
-    private static final Class<?> RUNNABLE_ADAPTER_CLASS = Executors.callable(() -> {
+    private static final String placeholder = "-";
+
+    private static final Class<?> runnableAdapterType = Executors.callable(() -> {
     }, null).getClass();
 
     private static Map<String, AtomicLong> beforeInvoked = new HashMap<>();
 
-    private static final String ASYNC_KEY = "async";
-
-    private static final String FUTURE_KEY = "future";
-
-    private static final String CALLABLE_KEY = "callable";
-
     @Setter
     private long period = _1M_INTERVAL;
+
+    @Setter
+    private int taskTopN = 5;
 
     @Override
     public void schedule() {
 
         List<Entry<String, ExecutorService>> jBoxExecutors = executors.entrySet()
                 .stream()
-                .filter(entry -> !(entry.getValue() instanceof SyncInvokeExecutorService))
                 .filter(entry -> entry.getKey().startsWith("com.github.jbox"))
                 .sorted((e1, e2) -> e2.getKey().length() - e1.getKey().length())
                 .collect(Collectors.toList());
 
         List<Entry<String, ExecutorService>> bizExecutors = executors.entrySet()
                 .stream()
-                .filter(entry -> !(entry.getValue() instanceof SyncInvokeExecutorService))
                 .filter(entry -> !entry.getKey().startsWith("com.github.jbox"))
                 .sorted((e1, e2) -> e2.getKey().length() - e1.getKey().length())
                 .collect(Collectors.toList());
@@ -67,40 +56,27 @@ public class ExecutorMonitor implements ScheduleTask, ExecutorLoggerInner {
 
         int size = jBoxExecutors.size() + bizExecutors.size();
 
-        StringBuilder logBuilder = new StringBuilder(36 * size);
-        // append group size:
-        logBuilder.append("executors size [")
-                .append(size)
-                .append("] details:(")
-                .append("|active,core,pool,max|success,failed|rt,tps|queued,remain|")
-                .append(")\n");
+        monitorLogger.trace("executors size [{}], details:(|active,core,pool,max|success,failed|rt,tps|queued,remain|)", size);
 
         int maxGroupSize = Math.max(getMaxGroupSize(jBoxExecutors), getMaxGroupSize(bizExecutors));
         for (Map.Entry<String, ExecutorService> entry : jBoxExecutors) {
-            buildLog(entry.getKey(), entry.getValue(), logBuilder, maxGroupSize);
+            logGroupDetail(entry.getKey(), entry.getValue(), maxGroupSize);
         }
 
         for (Map.Entry<String, ExecutorService> entry : bizExecutors) {
-            buildLog(entry.getKey(), entry.getValue(), logBuilder, maxGroupSize);
+            logGroupDetail(entry.getKey(), entry.getValue(), maxGroupSize);
         }
-
-        monitorLogger.info(logBuilder.toString());
     }
 
-    // group |pool,active,core,max|success,failed|rt,tps|queued,remain|
-    // com.github.jbox.scheduler:TaskScheduler |1,0,1,2147483647|613,0|0.03,10|1,2147483647|
-    // JobDispatcher2                          |1,0,1,2147483647|613,0|0.03,10|1,2147483647|
-    private void buildLog(String group, ExecutorService executorService, StringBuilder logBuilder, int maxGroupSize) {
-        ThreadPoolExecutor executor = getThreadPoolExecutor(executorService);
-        if (executor == null) {
-            return;
-        }
+    private void logGroupDetail(String group, ExecutorService executorService, int maxGroupSize) {
+        Optional<ThreadPoolExecutor> executor = getThreadPoolExecutor(executorService);
 
+        StringBuilder logBuilder = new StringBuilder();
         logBuilder.append(String.format("%-" + maxGroupSize + "s", group));
-        logBuilder.append(" |").append(executor.getActiveCount())
-                .append(",").append(executor.getCorePoolSize())
-                .append(",").append(executor.getPoolSize())
-                .append(",").append(executor.getMaximumPoolSize());
+        logBuilder.append(" |").append(executor.isPresent() ? executor.get().getActiveCount() : placeholder)
+                .append(",").append(executor.isPresent() ? executor.get().getCorePoolSize() : placeholder)
+                .append(",").append(executor.isPresent() ? executor.get().getPoolSize() : placeholder)
+                .append(",").append(executor.isPresent() ? executor.get().getMaximumPoolSize() : placeholder);
 
 
         Object[] recorder = getFlightRecorder(group);
@@ -109,16 +85,14 @@ public class ExecutorMonitor implements ScheduleTask, ExecutorLoggerInner {
                 .append("|").append(String.format("%.2f", (double) recorder[2]))
                 .append(",").append(calcTps(group, (long) recorder[3]));
 
-        BlockingQueue<Runnable> queue = executor.getQueue();
-        logBuilder.append("|").append(queue.size())
-                .append(",").append(queue.remainingCapacity())
-                .append("|\n");
+        BlockingQueue<Runnable> queue = executor.map(ThreadPoolExecutor::getQueue).orElse(null);
+        logBuilder.append("|").append(queue != null ? queue.size() : placeholder)
+                .append(",").append(queue != null ? queue.remainingCapacity() : placeholder)
+                .append("|");
 
-        // append task detail:
-        StringBuilder[] taskDetailBuilder = getTaskDetail(queue);
-        for (StringBuilder sb : taskDetailBuilder) {
-            logBuilder.append(sb);
-        }
+        logBuilder.append(buildTaskDetail(queue));
+
+        monitorLogger.info("{}", logBuilder);
     }
 
     private int getMaxGroupSize(List<Entry<String, ExecutorService>> groupEntries) {
@@ -149,101 +123,60 @@ public class ExecutorMonitor implements ScheduleTask, ExecutorLoggerInner {
         return new Object[]{success, failure, rt, success + failure};
     }
 
-    private StringBuilder[] getTaskDetail(BlockingQueue<Runnable> queue) {
-        StreamForker<Runnable> forker = new StreamForker<>(queue.stream())
-                .fork(ASYNC_KEY, stream -> stream
-                        .filter(runnable -> runnable instanceof AsyncRunnable)
-                        .collect(new Collector()))
-                .fork(CALLABLE_KEY, stream -> stream
-                        .filter(callable -> callable instanceof AsyncCallable)
-                        .collect(new Collector()))
-                .fork(FUTURE_KEY, stream -> stream
-                        .filter(runnable -> runnable instanceof FutureTask)
-                        .map(this::getFutureTaskInnerAsyncObject)
-                        .collect(new Collector()));
+    private StringBuilder buildTaskDetail(BlockingQueue<Runnable> queue) {
+        StringBuilder sb = new StringBuilder();
+        if (Collections3.size(queue) == 0) {
+            return sb;
+        }
 
-        StreamForker.Results results = forker.getResults();
-        StringBuilder asyncLogBuilder = results.get(ASYNC_KEY);
-        StringBuilder callableLogBuilder = results.get(CALLABLE_KEY);
-        StringBuilder futureLogBuilder = results.get(FUTURE_KEY);
+        Iterator<Runnable> iterator = queue.iterator();
+        int topNum = 0;
 
-        return new StringBuilder[]{asyncLogBuilder, callableLogBuilder, futureLogBuilder};
-    }
 
-    /**
-     * @param executorProxy
-     * @return
-     * @since 1.1
-     */
-    private ThreadPoolExecutor getThreadPoolExecutor(ExecutorService executorProxy) {
-        ThreadPoolExecutor executor = null;
-
-        if (executorProxy instanceof ThreadPoolExecutor) {
-            executor = (ThreadPoolExecutor) executorProxy;
-        } else if (Proxy.isProxyClass(executorProxy.getClass())) {
-            Object target = ProxyTargetUtils.getJdkProxyTarget(executorProxy);
-            if (target == null) {
-                executor = null;
-            } else if (target instanceof ThreadPoolExecutor) {
-                executor = (ThreadPoolExecutor) target;
-            } else if (target instanceof SyncInvokeExecutorService) {
-                executor = null;
+        while (topNum++ < taskTopN && iterator.hasNext()) {
+            Runnable runnable = iterator.next();
+            Object task;
+            if (runnable instanceof FutureTask) {
+                task = getFutureTaskInnerAsyncObject(runnable);
             } else {
-                executor = (ThreadPoolExecutor) JboxUtils.getFieldValue(target, "e");
+                task = runnable;
+            }
+
+            sb.append('\n').append(" -> ");
+            if (task == null) {
+                sb.append(placeholder);
+            } else if (task instanceof AsyncRunnable) {
+                sb.append(((AsyncRunnable) task).taskInfo()).append("(").append(task.hashCode()).append(")");
+            } else if (task instanceof AsyncCallable) {
+                sb.append(((AsyncCallable) task).taskInfo()).append("(").append(task.hashCode()).append(")");
+            } else {
+                sb.append(ToStringBuilder.reflectionToString(task));
             }
         }
 
-        return executor;
+        return sb;
     }
 
-    /**
-     * @since 1.2
-     */
-    private class Collector implements java.util.stream.Collector<Object, StringBuilder, StringBuilder> {
+    private Map<ExecutorService, Optional<ThreadPoolExecutor>> cache = new ConcurrentHashMap<>();
 
-        @Override
-        public Supplier<StringBuilder> supplier() {
-            return StringBuilder::new;
-        }
-
-        @Override
-        public BiConsumer<StringBuilder, Object> accumulator() {
-            return (stringBuilder, object) -> {
-                stringBuilder.append(" -> ");
-                if (object != null) {
-                    if (object instanceof AsyncRunnable || object instanceof AsyncCallable) {
-                        Method taskInfoMethod = ReflectionUtils.findMethod(object.getClass(), "taskInfo");
-                        ReflectionUtils.makeAccessible(taskInfoMethod);
-                        stringBuilder
-                                .append(ReflectionUtils.invokeMethod(taskInfoMethod, object))
-                                .append("(")
-                                .append(Objects.hashCode(object))
-                                .append(")");
-
-                    } else {
-                        stringBuilder.append(ToStringBuilder.reflectionToString(object));
-                    }
+    private Optional<ThreadPoolExecutor> getThreadPoolExecutor(ExecutorService executorProxy) {
+        return cache.computeIfAbsent(executorProxy, _k -> {
+            ThreadPoolExecutor executor = null;
+            if (executorProxy instanceof ThreadPoolExecutor) {
+                executor = (ThreadPoolExecutor) executorProxy;
+            } else if (Proxy.isProxyClass(executorProxy.getClass())) {
+                Object target = ProxyTargetUtils.getJdkProxyTarget(executorProxy);
+                if (target == null) {
+                    executor = null;
+                } else if (target instanceof ThreadPoolExecutor) {
+                    executor = (ThreadPoolExecutor) target;
                 } else {
-                    stringBuilder.append("null");
+                    executor = (ThreadPoolExecutor) JboxUtils.getFieldValue(target, "e");
                 }
-                stringBuilder.append("\n");
-            };
-        }
+            }
 
-        @Override
-        public BinaryOperator<StringBuilder> combiner() {
-            return StringBuilder::append;
-        }
-
-        @Override
-        public Function<StringBuilder, StringBuilder> finisher() {
-            return Function.identity();
-        }
-
-        @Override
-        public Set<Characteristics> characteristics() {
-            return EnumSet.of(Characteristics.CONCURRENT, Characteristics.UNORDERED, Characteristics.IDENTITY_FINISH);
-        }
+            return Optional.ofNullable(executor);
+        });
     }
 
     private Object getFutureTaskInnerAsyncObject(Object futureTask) {
@@ -253,7 +186,7 @@ public class ExecutorMonitor implements ScheduleTask, ExecutorLoggerInner {
                 return callable;
             } else if (callable instanceof AsyncRunnable) {
                 return callable;
-            } else if (RUNNABLE_ADAPTER_CLASS.isAssignableFrom(callable.getClass())) {
+            } else if (runnableAdapterType.isAssignableFrom(callable.getClass())) {
                 return JboxUtils.getFieldValue(callable, "task");
             }
         }

@@ -69,8 +69,6 @@ public abstract class AbstractTlogConfig implements Serializable {
 
     private String charset = UTF_8;
 
-    private boolean sync = false;
-
     private String filePath;
 
     private long totalSizeCapKb = 0;

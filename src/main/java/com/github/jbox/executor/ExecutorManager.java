@@ -19,9 +19,7 @@ import java.util.concurrent.atomic.AtomicLong;
  * @since 2017/1/16 14:15:00.
  */
 public class ExecutorManager implements ExecutorLoggerInner {
-
-    private static final String SYNC_PATTERN = "sync-%s";
-
+    
     public static final ConcurrentMap<String, FlightRecorder> recorders = new ConcurrentHashMap<>();
 
     public static final ConcurrentMap<String, ExecutorService> executors = new ConcurrentHashMap<>();
@@ -100,31 +98,13 @@ public class ExecutorManager implements ExecutorLoggerInner {
     }
 
     private static <T> T createExecutorProxy(String group, ExecutorService target, Class<T> interfaceType) {
-        if (isSyncInvoke(group) && !(target instanceof ScheduledExecutorService)) {
-            target.shutdownNow();
-            return interfaceType.cast(new SyncInvokeExecutorService());
-        }
-
         return interfaceType.cast(
                 Proxy.newProxyInstance(
-                        interfaceType.getClass().getClassLoader(),
+                        interfaceType.getClassLoader(),
                         new Class[]{interfaceType},
                         new RunnableDecoratorInterceptor(group, target)
                 )
         );
-    }
-
-    private static boolean isSyncInvoke(String group) {
-        boolean syncAll = Boolean.getBoolean(String.format(SYNC_PATTERN, "all"));
-        if (syncAll) {
-            return true;
-        }
-
-        return Boolean.getBoolean(String.format(SYNC_PATTERN, group));
-    }
-
-    public static void setSyncInvoke(String group, boolean sync) {
-        System.setProperty(String.format(SYNC_PATTERN, group), String.valueOf(sync));
     }
 
     @PreDestroy

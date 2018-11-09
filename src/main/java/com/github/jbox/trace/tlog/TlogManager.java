@@ -42,7 +42,6 @@ public class TlogManager extends AbstractTlogConfig implements InitializingBean 
     public void afterPropertiesSet() {
         // init executor
         if (executor == null) {
-            ExecutorManager.setSyncInvoke(TlogConstants.TLOG_EXECUTOR_GROUP, isSync());
             RejectedExecutionHandler rejected = new DiscardPolicy(TlogConstants.TLOG_EXECUTOR_GROUP);
             executor = ExecutorManager.newFixedMinMaxThreadPool(
                     TlogConstants.TLOG_EXECUTOR_GROUP,

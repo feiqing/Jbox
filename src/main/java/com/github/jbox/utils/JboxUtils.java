@@ -260,7 +260,7 @@ public class JboxUtils {
         }
     }
 
-    public static <T> T runWithNewMdcContext(ThrowableSupplier<T> supplier, Map<String, String> newMdcContext) throws Throwable {
+    public static <T> T runWithNewMdcContext(ThrowableSupplier<T> supplier, Map<String, String> newMdcContext) throws Exception {
         Map<String, String> copyOfContextMap = MDC.getCopyOfContextMap();
         if (Collections3.isNotEmpty(newMdcContext)) {
             MDC.setContextMap(newMdcContext);

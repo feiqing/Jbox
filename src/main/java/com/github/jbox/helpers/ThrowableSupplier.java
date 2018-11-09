@@ -8,5 +8,5 @@ package com.github.jbox.helpers;
 @FunctionalInterface
 public interface ThrowableSupplier<T> {
 
-    T get() throws Throwable;
+    T get() throws Exception;
 }
