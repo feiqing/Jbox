@@ -7,7 +7,7 @@ import java.io.Serializable;
  * @version 1.0
  * @since 2018-09-28 20:57:00.
  */
-public interface JobSlot<T extends JobContext> extends Serializable {
+public interface JobSlot<T extends SlotContext> extends Serializable {
 
     void invoke(T context) throws Throwable;
 

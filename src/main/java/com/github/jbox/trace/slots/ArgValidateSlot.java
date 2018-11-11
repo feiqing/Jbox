@@ -1,8 +1,8 @@
-package com.github.jbox.trace.nodes;
+package com.github.jbox.trace.slots;
 
 import com.alibaba.fastjson.JSONObject;
-import com.github.jbox.trace.InvokerNode;
-import com.github.jbox.trace.NodeContext;
+import com.github.jbox.slot.JobSlot;
+import com.github.jbox.trace.TraceSlotContext;
 
 import javax.validation.ConstraintViolation;
 import javax.validation.Validation;
@@ -18,7 +18,9 @@ import java.util.Set;
  * @since 1.3 - validate arguments
  * @since 2018-07-26 08:01:00.
  */
-public class ArgsValidateInvokerNode implements InvokerNode {
+public class ArgValidateSlot implements JobSlot<TraceSlotContext> {
+
+    private static final long serialVersionUID = -6879277614572243154L;
 
     private static final ExecutableValidator validator;
 
@@ -28,7 +30,7 @@ public class ArgsValidateInvokerNode implements InvokerNode {
     }
 
     @Override
-    public void invoke(NodeContext context) throws Throwable {
+    public void invoke(TraceSlotContext context) throws Throwable {
         Object target = context.getTarget();
         Method method = context.getMethod();
         Object[] args = context.getArgs();

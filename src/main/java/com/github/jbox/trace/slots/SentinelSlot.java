@@ -1,8 +1,8 @@
-package com.github.jbox.trace.nodes;
+package com.github.jbox.trace.slots;
 
-import com.github.jbox.trace.InvokerNode;
-import com.github.jbox.trace.NodeContext;
+import com.github.jbox.slot.JobSlot;
 import com.github.jbox.trace.TraceException;
+import com.github.jbox.trace.TraceSlotContext;
 import com.taobao.csp.sentinel.Entry;
 import com.taobao.csp.sentinel.SphU;
 import com.taobao.csp.sentinel.slots.block.BlockException;
@@ -19,12 +19,14 @@ import static com.github.jbox.utils.JboxUtils.getSimplifiedMethodName;
  * @version 1.0
  * @since 2018-07-26 08:33:00.
  */
-public class SentinelInvokerNode implements InvokerNode {
+public class SentinelSlot implements JobSlot<TraceSlotContext> {
+
+    private static final long serialVersionUID = -457074399163946394L;
 
     private static final Logger rootLogger = LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
 
     @Override
-    public void invoke(NodeContext context) throws Throwable {
+    public void invoke(TraceSlotContext context) throws Throwable {
         Entry entry = null;
         Method method = context.getMethod();
         try {

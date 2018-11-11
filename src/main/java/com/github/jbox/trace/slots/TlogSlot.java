@@ -1,7 +1,7 @@
-package com.github.jbox.trace.nodes;
+package com.github.jbox.trace.slots;
 
-import com.github.jbox.trace.InvokerNode;
-import com.github.jbox.trace.NodeContext;
+import com.github.jbox.slot.JobSlot;
+import com.github.jbox.trace.TraceSlotContext;
 import com.github.jbox.trace.tlog.LogEvent;
 import com.github.jbox.trace.tlog.TlogManager;
 import lombok.Data;
@@ -19,14 +19,16 @@ import java.util.concurrent.atomic.AtomicBoolean;
  */
 @Data
 @Slf4j
-public class TlogInvokerNode implements InvokerNode {
+public class TlogSlot implements JobSlot<TraceSlotContext> {
 
-    private String configKeyPattern = "%s:%s";
+    private static final long serialVersionUID = -3619644271378328443L;
 
     private List<TlogManager> tlogManagers = new CopyOnWriteArrayList<>();
 
+    private String configKeyPattern = "%s:%s";
+
     @Override
-    public void invoke(NodeContext context) throws Throwable {
+    public void invoke(TraceSlotContext context) throws Throwable {
         LogEvent logEvent = new LogEvent();
         try {
             logEvent.setMethod(context.getMethod());
@@ -40,7 +42,6 @@ public class TlogInvokerNode implements InvokerNode {
             logEvent.setRt(System.currentTimeMillis() - logEvent.getStartTime());
 
             logEvent.setResult(context.getResult());
-
         } catch (Throwable t) {
             logEvent.setException(t);
             throw t;
@@ -66,7 +67,7 @@ public class TlogInvokerNode implements InvokerNode {
         }
     }
 
-    private String getConfigKey(NodeContext context) {
+    private String getConfigKey(TraceSlotContext context) {
         String className = context.getClazz().getName();
         String methodName = context.getMethod().getName();
         return String.format(configKeyPattern, className, methodName);

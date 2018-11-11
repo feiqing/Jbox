@@ -17,7 +17,7 @@ import java.util.Map;
  */
 @Data
 @Slf4j(topic = "JobFramework")
-public class JobContext implements Serializable {
+public class SlotContext implements Serializable {
 
     private static final long serialVersionUID = 6258054189501546389L;
 
@@ -31,16 +31,16 @@ public class JobContext implements Serializable {
     // 框架执行需要的Meta信息, 千万不要动
     private Meta meta = new Meta();
 
-    public JobContext() {
+    public SlotContext() {
     }
 
-    public JobContext(String jobName, List<JobSlot> jobSlots) {
+    public SlotContext(String jobName, List<JobSlot> jobSlots) {
         meta.jobName = jobName;
         meta.jobSlots = jobSlots;
     }
 
-    public JobContext copy() {
-        JobContext newContext = new JobContext();
+    public SlotContext copy() {
+        SlotContext newContext = new SlotContext();
         newContext.success = this.success;
         newContext.result = this.result;
         newContext.t = this.t;

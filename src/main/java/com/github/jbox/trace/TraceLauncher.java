@@ -1,7 +1,11 @@
 package com.github.jbox.trace;
 
+import com.github.jbox.slot.JobSlot;
+import com.github.jbox.trace.slots.MethodInvokeSlot;
 import com.github.jbox.utils.JboxUtils;
-import lombok.Data;
+import com.google.common.base.Preconditions;
+import lombok.Setter;
+import org.apache.commons.collections.CollectionUtils;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
@@ -27,15 +31,39 @@ import java.util.List;
  * - 1.8: add 'errorRoot' config to determine append root logger error content.
  * @since 2016/11/25 上午11:53.
  */
-@Data
 @Aspect
 public class TraceLauncher implements Serializable {
 
     private static final long serialVersionUID = 1383288704716921329L;
 
-    private List<InvokerNode> invokerChain;
+    private List<JobSlot> slots;
 
+    @Setter
     private boolean useAbstractMethod = false;
+
+    public void setSlots(List<JobSlot> slots) {
+        Preconditions.checkArgument(CollectionUtils.isNotEmpty(slots));
+
+        boolean isFoundMethodInvoker = false;
+        for (int i = 0; i < slots.size(); ++i) {
+            JobSlot slot = slots.get(i);
+            Preconditions.checkNotNull(slot, "slot[" + i + "] is null.");
+
+            if (slot instanceof MethodInvokeSlot) {
+                isFoundMethodInvoker = true;
+            }
+        }
+
+        if (!isFoundMethodInvoker) {
+            slots.add(new MethodInvokeSlot());
+        }
+
+        if (!(slots instanceof ArrayList)) {
+            slots = new ArrayList<>(slots);
+        }
+
+        this.slots = slots;
+    }
 
     @Around("@annotation(com.github.jbox.trace.Trace)")
     public Object emit(final ProceedingJoinPoint joinPoint) throws Throwable {
@@ -45,13 +73,23 @@ public class TraceLauncher implements Serializable {
         Object target = joinPoint.getTarget();
         Object[] args = joinPoint.getArgs();
 
-        return InvokerChainLauncher
-                .newLauncher(
-                        invokerChain,
-                        joinPoint, clazz, method,
-                        target, args
-                )
-                .emit()
-                .getResult();
+        TraceSlotContext context = newContext(joinPoint, clazz, method, target, args);
+        context.next();
+        return context.getResult();
+    }
+
+    private TraceSlotContext newContext(ProceedingJoinPoint joinPoint,
+                                        Class<?> clazz, Method method,
+                                        Object target, Object[] args) {
+
+        TraceSlotContext context = new TraceSlotContext("TraceJob", slots);
+
+        context.setJoinPoint(joinPoint);
+        context.setClazz(clazz);
+        context.setMethod(method);
+        context.setTarget(target);
+        context.setArgs(args);
+
+        return context;
     }
 }

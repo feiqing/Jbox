@@ -1,10 +1,10 @@
-package com.github.jbox.trace.nodes;
+package com.github.jbox.trace.slots;
 
 import com.alibaba.fastjson.JSONObject;
-import com.github.jbox.trace.InvokerNode;
-import com.github.jbox.trace.NodeContext;
+import com.github.jbox.slot.JobSlot;
 import com.github.jbox.trace.Trace;
 import com.github.jbox.trace.TraceException;
+import com.github.jbox.trace.TraceSlotContext;
 import com.github.jbox.utils.JboxUtils;
 import lombok.Data;
 import org.apache.commons.lang3.StringUtils;
@@ -25,8 +25,10 @@ import java.util.concurrent.ConcurrentMap;
  * @since 2018-07-26 08:07:00.
  */
 @Data
-public class ElapsedLogInvokerNode implements InvokerNode {
+public class LogElapsedSlot implements JobSlot<TraceSlotContext> {
 
+    private static final long serialVersionUID = 1867516538052273922L;
+    
     private static final Logger tracer = LoggerFactory.getLogger("com.github.jbox.trace");
 
     private Logger defaultBizLogger;
@@ -40,7 +42,7 @@ public class ElapsedLogInvokerNode implements InvokerNode {
     private boolean logTrace = false;
 
     @Override
-    public void invoke(NodeContext context) throws Throwable {
+    public void invoke(TraceSlotContext context) throws Throwable {
         Method method = context.getMethod();
         Object target = context.getTarget();
         Object[] args = context.getArgs();
@@ -50,7 +52,7 @@ public class ElapsedLogInvokerNode implements InvokerNode {
         long rt = System.currentTimeMillis() - start;
 
         Object result = context.getResult();
-        
+
         Pair<String, Long> trace = getTrace(method);
         if (rt > trace.getRight()) {
             String logContent = buildLogContent(method, rt, args, result);

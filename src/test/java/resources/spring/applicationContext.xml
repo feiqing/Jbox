@@ -10,12 +10,12 @@
     <!--<import resource="spring/applicationTLogComposite.xml"/>-->
 
     <bean id="ipoTraceAspect" class="com.github.jbox.trace.TraceLauncher">
-        <property name="invokerChain">
+        <property name="slots">
             <list>
-                <bean class="com.github.jbox.trace.nodes.EagleEyeInvokerNode"/>
-                <bean class="com.github.jbox.trace.nodes.ArgsValidateInvokerNode"/>
-                <bean class="com.github.jbox.trace.nodes.LogRootErrorInvokerNode"/>
-                <bean class="com.github.jbox.trace.nodes.MethodInvokeInvokerNode"/>
+                <bean class="com.github.jbox.trace.slots.EagleEyeSlot"/>
+                <bean class="com.github.jbox.trace.slots.ArgValidateSlot"/>
+                <bean class="com.github.jbox.trace.slots.LogRootErrorSlot"/>
+                <bean class="com.github.jbox.trace.slots.MethodInvokeSlot"/>
             </list>
         </property>
     </bean>
