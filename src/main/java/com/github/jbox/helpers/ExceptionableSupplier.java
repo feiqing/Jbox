@@ -3,10 +3,10 @@ package com.github.jbox.helpers;
 /**
  * @author jifang.zjf@alibaba-inc.com (FeiQing)
  * @version 1.0
- * @since 2018-09-26 23:07:00.
+ * @since 2018/11/9 12:08 PM.
  */
 @FunctionalInterface
-public interface ThrowableSupplier<T> {
+public interface ExceptionableSupplier<T> {
 
-    T get() throws Throwable;
+    T get() throws Exception;
 }

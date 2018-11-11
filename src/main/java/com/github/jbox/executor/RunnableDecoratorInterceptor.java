@@ -1,11 +1,9 @@
 package com.github.jbox.executor;
 
 import com.github.jbox.executor.ExecutorManager.FlightRecorder;
-import com.github.jbox.helpers.ThrowableSupplier;
-import com.github.jbox.utils.JboxUtils;
+import com.github.jbox.helpers.ExceptionableSupplier;
 import com.google.common.collect.Sets;
 import lombok.NonNull;
-import org.slf4j.MDC;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
@@ -129,7 +127,7 @@ class CallableDecorator implements AsyncCallable {
 
     @Override
     public Object call() throws Exception {
-        return runWithNewMdcContext((ThrowableSupplier<Object>) () -> {
+        return runWithNewMdcContext((ExceptionableSupplier<Object>) () -> {
             try {
                 long start = System.currentTimeMillis();
 
@@ -226,7 +224,7 @@ class AsyncCallableDecorator implements AsyncCallable {
 
     @Override
     public Object call() throws Exception {
-        return runWithNewMdcContext((ThrowableSupplier<Object>) () -> {
+        return runWithNewMdcContext((ExceptionableSupplier<Object>) () -> {
             try {
                 long start = System.currentTimeMillis();
 

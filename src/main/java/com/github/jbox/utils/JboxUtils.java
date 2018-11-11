@@ -1,6 +1,7 @@
 package com.github.jbox.utils;
 
 import com.alibaba.fastjson.JSON;
+import com.github.jbox.helpers.ExceptionableSupplier;
 import com.github.jbox.helpers.ThrowableSupplier;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
@@ -260,7 +261,23 @@ public class JboxUtils {
         }
     }
 
-    public static <T> T runWithNewMdcContext(ThrowableSupplier<T> supplier, Map<String, String> newMdcContext) throws Exception {
+    public static <T> T runWithNewMdcContext(ExceptionableSupplier<T> supplier, Map<String, String> newMdcContext) throws Exception {
+        Map<String, String> copyOfContextMap = MDC.getCopyOfContextMap();
+        if (Collections3.isNotEmpty(newMdcContext)) {
+            MDC.setContextMap(newMdcContext);
+        }
+
+        try {
+            return supplier.get();
+        } finally {
+            MDC.clear();
+            if (Collections3.isNotEmpty(copyOfContextMap)) {
+                MDC.setContextMap(copyOfContextMap);
+            }
+        }
+    }
+
+    public static <T> T runWithNewMdcContext(ThrowableSupplier<T> supplier, Map<String, String> newMdcContext) throws Throwable {
         Map<String, String> copyOfContextMap = MDC.getCopyOfContextMap();
         if (Collections3.isNotEmpty(newMdcContext)) {
             MDC.setContextMap(newMdcContext);
