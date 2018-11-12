@@ -1,7 +1,7 @@
-package com.github.jbox.trace.slots;
+package com.github.jbox.trace.tasks;
 
-import com.github.jbox.slot.JobSlot;
-import com.github.jbox.trace.TraceSlotContext;
+import com.github.jbox.job.JobTask;
+import com.github.jbox.trace.TraceJobContext;
 import lombok.Data;
 
 /**
@@ -12,12 +12,12 @@ import lombok.Data;
  * @since 2018-07-26 08:18:00.
  */
 @Data
-public class MethodInvokeSlot implements JobSlot<TraceSlotContext> {
+public class MethodInvokeTask implements JobTask<TraceJobContext> {
 
     private static final long serialVersionUID = 2587891236640265365L;
 
     @Override
-    public void invoke(TraceSlotContext context) throws Throwable {
+    public void invoke(TraceJobContext context) throws Throwable {
         context.successOf(context.getJoinPoint().proceed(context.getArgs()));
     }
 }

@@ -1,7 +1,7 @@
 package com.github.jbox.trace;
 
-import com.github.jbox.slot.JobSlot;
-import com.github.jbox.trace.slots.MethodInvokeSlot;
+import com.github.jbox.job.JobTask;
+import com.github.jbox.trace.tasks.MethodInvokeTask;
 import com.github.jbox.utils.JboxUtils;
 import com.google.common.base.Preconditions;
 import lombok.Setter;
@@ -36,33 +36,29 @@ public class TraceLauncher implements Serializable {
 
     private static final long serialVersionUID = 1383288704716921329L;
 
-    private List<JobSlot> slots;
+    private List<JobTask> tasks;
 
     @Setter
     private boolean useAbstractMethod = false;
 
-    public void setSlots(List<JobSlot> slots) {
-        Preconditions.checkArgument(CollectionUtils.isNotEmpty(slots));
+    public void setTasks(List<JobTask> tasks) {
+        Preconditions.checkArgument(CollectionUtils.isNotEmpty(tasks));
 
         boolean isFoundMethodInvoker = false;
-        for (int i = 0; i < slots.size(); ++i) {
-            JobSlot slot = slots.get(i);
-            Preconditions.checkNotNull(slot, "slot[" + i + "] is null.");
+        for (int i = 0; i < tasks.size(); ++i) {
+            JobTask task = tasks.get(i);
+            Preconditions.checkNotNull(task, "task[" + i + "] is null.");
 
-            if (slot instanceof MethodInvokeSlot) {
+            if (task instanceof MethodInvokeTask) {
                 isFoundMethodInvoker = true;
             }
         }
 
         if (!isFoundMethodInvoker) {
-            slots.add(new MethodInvokeSlot());
+            tasks.add(new MethodInvokeTask());
         }
-
-        if (!(slots instanceof ArrayList)) {
-            slots = new ArrayList<>(slots);
-        }
-
-        this.slots = slots;
+        
+        this.tasks = new ArrayList<>(tasks);
     }
 
     @Around("@annotation(com.github.jbox.trace.Trace)")
@@ -73,16 +69,16 @@ public class TraceLauncher implements Serializable {
         Object target = joinPoint.getTarget();
         Object[] args = joinPoint.getArgs();
 
-        TraceSlotContext context = newContext(joinPoint, clazz, method, target, args);
+        TraceJobContext context = newContext(joinPoint, clazz, method, target, args);
         context.next();
         return context.getResult();
     }
 
-    private TraceSlotContext newContext(ProceedingJoinPoint joinPoint,
-                                        Class<?> clazz, Method method,
-                                        Object target, Object[] args) {
+    private TraceJobContext newContext(ProceedingJoinPoint joinPoint,
+                                       Class<?> clazz, Method method,
+                                       Object target, Object[] args) {
 
-        TraceSlotContext context = new TraceSlotContext("TraceJob", slots);
+        TraceJobContext context = new TraceJobContext("TraceJob", tasks);
 
         context.setJoinPoint(joinPoint);
         context.setClazz(clazz);

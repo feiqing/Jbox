@@ -1,4 +1,4 @@
-package com.github.jbox.slot;
+package com.github.jbox.job;
 
 import com.github.jbox.utils.Collections3;
 import lombok.Data;
@@ -17,7 +17,7 @@ import java.util.Map;
  */
 @Data
 @Slf4j(topic = "JobFramework")
-public class SlotContext implements Serializable {
+public class JobContext implements Serializable {
 
     private static final long serialVersionUID = 6258054189501546389L;
 
@@ -31,22 +31,12 @@ public class SlotContext implements Serializable {
     // 框架执行需要的Meta信息, 千万不要动
     private Meta meta = new Meta();
 
-    public SlotContext() {
+    public JobContext() {
     }
 
-    public SlotContext(String jobName, List<JobSlot> jobSlots) {
+    public JobContext(String jobName, List<JobTask> jobTasks) {
         meta.jobName = jobName;
-        meta.jobSlots = jobSlots;
-    }
-
-    public SlotContext copy() {
-        SlotContext newContext = new SlotContext();
-        newContext.success = this.success;
-        newContext.result = this.result;
-        newContext.t = this.t;
-        newContext.meta = this.meta;
-
-        return newContext;
+        meta.jobTasks = jobTasks;
     }
 
     public void successOf(Object result) {
@@ -68,26 +58,26 @@ public class SlotContext implements Serializable {
         try {
             meta.executingIndex++;
             if (meta.executingIndex <= meta.executedIndex) {
-                throw new IllegalStateException("slot has already been invoked.");
+                throw new IllegalStateException("task has already been invoked.");
             }
 
             meta.executedIndex++;
-            if (meta.executingIndex < meta.jobSlots.size()) {
-                JobSlot slot = meta.jobSlots.get(meta.executingIndex);
-                String desc = desc(slot);
+            if (meta.executingIndex < meta.jobTasks.size()) {
+                JobTask task = meta.jobTasks.get(meta.executingIndex);
+                String desc = desc(task);
                 try {
                     if (meta.traceEntry) logTrace("entry {} ...", desc);
 
                     meta.setAttribute(desc, System.currentTimeMillis());
-                    slot.invoke(this);
+                    task.invoke(this);
                 } finally {
                     meta.totalCost = System.currentTimeMillis() - (long) meta.removeAttribute(desc);
-                    long cost = meta.totalCost - meta.slotsCost;
-                    meta.slotsCost += cost;
+                    long cost = meta.totalCost - meta.tasksCost;
+                    meta.tasksCost += cost;
 
                     if (meta.traceExit) logTrace("exit  {}, cost:[{}]", desc, cost);
                 }
-                if (meta.executedIndex < meta.jobSlots.size() && meta.executedIndex == meta.executingIndex) {
+                if (meta.executedIndex < meta.jobTasks.size() && meta.executedIndex == meta.executingIndex) {
                     if (meta.traceInterrupt) logTrace("[{}] execution was interrupted by {}", meta.jobName, desc);
                 }
             } else {
@@ -104,13 +94,13 @@ public class SlotContext implements Serializable {
         }
     }
 
-    private String desc(JobSlot jobSlot) {
+    private String desc(JobTask jobTask) {
         return MessageFormatter.arrayFormat("{}[{}/{}:{}]",
                 new Object[]{
                         meta.jobName,
                         (meta.executingIndex + 1),
-                        meta.jobSlots.size(),
-                        jobSlot.desc()
+                        meta.jobTasks.size(),
+                        jobTask.desc()
                 }).getMessage();
     }
 
@@ -134,13 +124,13 @@ public class SlotContext implements Serializable {
 
         private String jobName;
 
-        private List<JobSlot> jobSlots;
+        private List<JobTask> jobTasks;
 
         private int executedIndex = -1;
 
         private int executingIndex = -1;
 
-        private long slotsCost = 0;
+        private long tasksCost = 0;
 
         private long totalCost = 0;
 

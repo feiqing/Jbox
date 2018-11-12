@@ -1,8 +1,8 @@
-package com.github.jbox.trace.slots;
+package com.github.jbox.trace.tasks;
 
 import com.alibaba.fastjson.JSONObject;
-import com.github.jbox.slot.JobSlot;
-import com.github.jbox.trace.TraceSlotContext;
+import com.github.jbox.job.JobTask;
+import com.github.jbox.trace.TraceJobContext;
 
 import javax.validation.ConstraintViolation;
 import javax.validation.Validation;
@@ -18,7 +18,7 @@ import java.util.Set;
  * @since 1.3 - validate arguments
  * @since 2018-07-26 08:01:00.
  */
-public class ArgValidateSlot implements JobSlot<TraceSlotContext> {
+public class ArgValidateTask implements JobTask<TraceJobContext> {
 
     private static final long serialVersionUID = -6879277614572243154L;
 
@@ -30,7 +30,7 @@ public class ArgValidateSlot implements JobSlot<TraceSlotContext> {
     }
 
     @Override
-    public void invoke(TraceSlotContext context) throws Throwable {
+    public void invoke(TraceJobContext context) throws Throwable {
         Object target = context.getTarget();
         Method method = context.getMethod();
         Object[] args = context.getArgs();

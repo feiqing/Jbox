@@ -1,7 +1,7 @@
-package com.github.jbox.trace.slots;
+package com.github.jbox.trace.tasks;
 
-import com.github.jbox.slot.JobSlot;
-import com.github.jbox.trace.TraceSlotContext;
+import com.github.jbox.job.JobTask;
+import com.github.jbox.trace.TraceJobContext;
 import com.github.jbox.trace.tlog.LogEvent;
 import com.github.jbox.trace.tlog.TlogManager;
 import lombok.Data;
@@ -19,7 +19,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  */
 @Data
 @Slf4j
-public class TlogSlot implements JobSlot<TraceSlotContext> {
+public class TlogTask implements JobTask<TraceJobContext> {
 
     private static final long serialVersionUID = -3619644271378328443L;
 
@@ -28,7 +28,7 @@ public class TlogSlot implements JobSlot<TraceSlotContext> {
     private String configKeyPattern = "%s:%s";
 
     @Override
-    public void invoke(TraceSlotContext context) throws Throwable {
+    public void invoke(TraceJobContext context) throws Throwable {
         LogEvent logEvent = new LogEvent();
         try {
             logEvent.setMethod(context.getMethod());
@@ -67,7 +67,7 @@ public class TlogSlot implements JobSlot<TraceSlotContext> {
         }
     }
 
-    private String getConfigKey(TraceSlotContext context) {
+    private String getConfigKey(TraceJobContext context) {
         String className = context.getClazz().getName();
         String methodName = context.getMethod().getName();
         return String.format(configKeyPattern, className, methodName);

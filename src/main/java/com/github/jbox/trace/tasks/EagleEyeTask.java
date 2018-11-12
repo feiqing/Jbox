@@ -1,7 +1,7 @@
-package com.github.jbox.trace.slots;
+package com.github.jbox.trace.tasks;
 
-import com.github.jbox.slot.JobSlot;
-import com.github.jbox.trace.TraceSlotContext;
+import com.github.jbox.job.JobTask;
+import com.github.jbox.trace.TraceJobContext;
 import com.google.common.base.Strings;
 import com.taobao.eagleeye.EagleEye;
 import org.slf4j.MDC;
@@ -13,7 +13,7 @@ import org.slf4j.MDC;
  * @since 1.0 - put traceId
  * @since 2018-07-26 07:36:00.
  */
-public class EagleEyeSlot implements JobSlot<TraceSlotContext> {
+public class EagleEyeTask implements JobTask<TraceJobContext> {
 
     private static final long serialVersionUID = 5505706595178320282L;
 
@@ -23,7 +23,7 @@ public class EagleEyeSlot implements JobSlot<TraceSlotContext> {
     private static final String TRACE_ID = "traceId";
 
     @Override
-    public void invoke(TraceSlotContext context) throws Throwable {
+    public void invoke(TraceJobContext context) throws Throwable {
         String traceId = EagleEye.getTraceId();
         if (Strings.isNullOrEmpty(traceId)) {
             traceId = "-";

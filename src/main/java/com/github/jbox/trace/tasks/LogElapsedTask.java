@@ -1,10 +1,10 @@
-package com.github.jbox.trace.slots;
+package com.github.jbox.trace.tasks;
 
 import com.alibaba.fastjson.JSONObject;
-import com.github.jbox.slot.JobSlot;
+import com.github.jbox.job.JobTask;
 import com.github.jbox.trace.Trace;
 import com.github.jbox.trace.TraceException;
-import com.github.jbox.trace.TraceSlotContext;
+import com.github.jbox.trace.TraceJobContext;
 import com.github.jbox.utils.JboxUtils;
 import lombok.Data;
 import org.apache.commons.lang3.StringUtils;
@@ -25,7 +25,7 @@ import java.util.concurrent.ConcurrentMap;
  * @since 2018-07-26 08:07:00.
  */
 @Data
-public class LogElapsedSlot implements JobSlot<TraceSlotContext> {
+public class LogElapsedTask implements JobTask<TraceJobContext> {
 
     private static final long serialVersionUID = 1867516538052273922L;
     
@@ -42,7 +42,7 @@ public class LogElapsedSlot implements JobSlot<TraceSlotContext> {
     private boolean logTrace = false;
 
     @Override
-    public void invoke(TraceSlotContext context) throws Throwable {
+    public void invoke(TraceJobContext context) throws Throwable {
         Method method = context.getMethod();
         Object target = context.getTarget();
         Object[] args = context.getArgs();

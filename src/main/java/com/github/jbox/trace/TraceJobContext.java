@@ -1,7 +1,7 @@
 package com.github.jbox.trace;
 
-import com.github.jbox.slot.JobSlot;
-import com.github.jbox.slot.SlotContext;
+import com.github.jbox.job.JobTask;
+import com.github.jbox.job.JobContext;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.aspectj.lang.ProceedingJoinPoint;
@@ -16,7 +16,7 @@ import java.util.List;
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
-public class TraceSlotContext extends SlotContext {
+public class TraceJobContext extends JobContext {
 
     private static final long serialVersionUID = 3545382785877769347L;
 
@@ -30,10 +30,10 @@ public class TraceSlotContext extends SlotContext {
 
     private Object[] args;
 
-    public TraceSlotContext() {
+    public TraceJobContext() {
     }
 
-    public TraceSlotContext(String jobName, List<JobSlot> jobSlots) {
-        super(jobName, jobSlots);
+    public TraceJobContext(String jobName, List<JobTask> jobTasks) {
+        super(jobName, jobTasks);
     }
 }
