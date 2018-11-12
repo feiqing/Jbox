@@ -34,7 +34,7 @@ public class JobContext implements Serializable {
     public JobContext() {
     }
 
-    public JobContext(String jobName, List<JobTask> jobTasks) {
+    public JobContext(String jobName, List<? extends JobTask> jobTasks) {
         meta.jobName = jobName;
         meta.jobTasks = jobTasks;
     }
@@ -124,7 +124,7 @@ public class JobContext implements Serializable {
 
         private String jobName;
 
-        private List<JobTask> jobTasks;
+        private List<? extends JobTask> jobTasks;
 
         private int executedIndex = -1;
 

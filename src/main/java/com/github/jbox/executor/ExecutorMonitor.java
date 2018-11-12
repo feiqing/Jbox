@@ -36,7 +36,7 @@ public class ExecutorMonitor implements ScheduleTask, ExecutorLoggerInner {
     private long period = _1M_INTERVAL;
 
     @Setter
-    private int taskTopN = 5;
+    private int taskDetailsTopN = 5;
 
     @Override
     public void schedule() {
@@ -133,7 +133,7 @@ public class ExecutorMonitor implements ScheduleTask, ExecutorLoggerInner {
         int topNum = 0;
 
 
-        while (topNum++ < taskTopN && iterator.hasNext()) {
+        while (topNum++ < taskDetailsTopN && iterator.hasNext()) {
             Runnable runnable = iterator.next();
             Object task;
             if (runnable instanceof FutureTask) {
