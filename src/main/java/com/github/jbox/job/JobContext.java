@@ -145,14 +145,14 @@ public class JobContext implements Serializable {
         // 暂时还不知道名字的属性, 先写到Attribute里面, 如果常用的话, 可以单独再起一个字段
         private Map<String, Object> attributes;
 
-        Map<String, Object> getAttributes() {
+        public Map<String, Object> getAttributes() {
             if (this.attributes == null) {
                 this.attributes = new HashMap<>();
             }
             return this.attributes;
         }
 
-        Object removeAttribute(String key) {
+        public Object removeAttribute(String key) {
             if (attributes == null) {
                 return null;
             }
@@ -160,7 +160,7 @@ public class JobContext implements Serializable {
             return attributes.remove(key);
         }
 
-        void setAttribute(String key, Object value) {
+        public void setAttribute(String key, Object value) {
             getAttributes().put(key, value);
         }
     }
