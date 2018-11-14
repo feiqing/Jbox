@@ -39,7 +39,7 @@ public class AsyncJobExecutor<T> {
     @Getter
     private List<Future<T>> futures;
 
-    private boolean hasRunningException;
+    private volatile boolean hasRunningException;
 
     private String jobDesc;
 
