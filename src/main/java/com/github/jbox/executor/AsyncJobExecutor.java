@@ -27,11 +27,6 @@ import static java.util.stream.Collectors.toList;
 @Slf4j
 public class AsyncJobExecutor<T> {
 
-    /**
-     * 如果不设置超时时间, 默认等待30分钟, 防止任务没处理完就退出的场景
-     */
-    private static final long defaultTimeout = 30 * 60 * 60 * 1000;
-
     @Setter
     private ExecutorService worker;
 
@@ -113,7 +108,7 @@ public class AsyncJobExecutor<T> {
     }
 
     public AsyncJobExecutor<T> waiting() {
-        return waiting(defaultTimeout, true);
+        return waiting(Long.MAX_VALUE, true);
     }
 
     public AsyncJobExecutor<T> waiting(long millisTimeout, boolean fullyCompletes) {
