@@ -28,9 +28,9 @@ import static java.util.stream.Collectors.toList;
 public class AsyncJobExecutor<T> {
 
     /**
-     * 如果不设置超时时间, 默认等待1小时, 防止任务没处理完就退出的场景
+     * 如果不设置超时时间, 默认等待30分钟, 防止任务没处理完就退出的场景
      */
-    private static final long defaultTimeout = 60 * 60 * 1000;
+    private static final long defaultTimeout = 30 * 60 * 60 * 1000;
 
     @Setter
     private ExecutorService worker;
