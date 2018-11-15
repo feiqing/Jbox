@@ -34,6 +34,12 @@ public class TaskScheduler implements ApplicationContextAware, DisposableBean {
 
     private static final List<TaskRegister> taskRegisters = new ArrayList<>();
 
+    private static final List<ScheduleTask> tasks = new ArrayList<>();
+
+    public static void registerExternalTask(ScheduleTask task) {
+        tasks.add(task);
+    }
+
     @Override
     public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
         Collection<ScheduleTask> scheduleTasks = getNeedRegisterTask(applicationContext);
@@ -96,18 +102,17 @@ public class TaskScheduler implements ApplicationContextAware, DisposableBean {
     private List<ScheduleTask> getNeedRegisterTask(ApplicationContext applicationContext) {
         Map<String, ScheduleTask> beans = applicationContext.getBeansOfType(ScheduleTask.class);
         if (CollectionUtils.isEmpty(beans)) {
-            return Collections.emptyList();
+            return tasks;
         }
 
         Collection<ScheduleTask> scheduleTasks = beans.values();
-        List<ScheduleTask> needRegisterTasks = new ArrayList<>(scheduleTasks.size());
         for (ScheduleTask task : scheduleTasks) {
             if (task.autoRegistered()) {
-                needRegisterTasks.add(task);
+                tasks.add(task);
             }
         }
 
-        return needRegisterTasks;
+        return tasks;
     }
 
     @Override
