@@ -1,6 +1,6 @@
 package com.github.jbox.hbase;
 
-import com.github.jbox.serializer.support.Hession2Serializer;
+import com.github.jbox.serializer.support.Hessian2Serializer;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.HBaseConfiguration;
 import org.apache.hadoop.hbase.client.Result;
@@ -37,7 +37,7 @@ public class HBatisTester {
         conf.set("hbase.client.scanner.timeout.period", "10000");
 
         template = new HbaseTemplate(conf);
-        tForwardBatis = new HBaseBatis<TForward>("cf1", template, new Hession2Serializer()) {
+        tForwardBatis = new HBaseBatis<TForward>("cf1", template, new Hessian2Serializer()) {
         };
     }
 
@@ -78,7 +78,7 @@ public class HBatisTester {
 
     @Test
     public void testPagePuts() {
-        HBaseBatis<Page> hBaseBatis = new HBaseBatis<Page>("cf1", template, new Hession2Serializer()) {
+        HBaseBatis<Page> hBaseBatis = new HBaseBatis<Page>("cf1", template, new Hessian2Serializer()) {
         };
 
         List<Page> types = new ArrayList<>();
@@ -93,7 +93,7 @@ public class HBatisTester {
 
     @Test
     public void testPageScan() {
-        HBaseBatis<Page> hBaseBatis = new HBaseBatis<Page>("cf1", template, new Hession2Serializer()) {
+        HBaseBatis<Page> hBaseBatis = new HBaseBatis<Page>("cf1", template, new Hessian2Serializer()) {
         };
 
         hBaseBatis.invokeOnTable(hTable -> {
@@ -114,7 +114,7 @@ public class HBatisTester {
                 long count = 0;
                 for (Result result : scanner) {
                     lastRow = result.getRow();
-                    Map<String, Map<String, Object>> stringMapMap = HBaseHelper.resultToColumnMap(result, new Hession2Serializer()::deserialize);
+                    Map<String, Map<String, Object>> stringMapMap = HBaseHelper.resultToColumnMap(result, new Hessian2Serializer()::deserialize);
                     System.out.println(stringMapMap);
                     ++count;
                 }
@@ -148,7 +148,7 @@ public class HBatisTester {
 
     @Test
     public void testIncr() {
-        HBaseBatis<Incr> hBaseBatis = new HBaseBatis<Incr>("cf1", template, new Hession2Serializer()) {
+        HBaseBatis<Incr> hBaseBatis = new HBaseBatis<Incr>("cf1", template, new Hessian2Serializer()) {
         };
 
         System.out.println(hBaseBatis.incr("key1", "family", "column1", 50));
@@ -156,7 +156,7 @@ public class HBatisTester {
 
     @Test
     public void testIncrs() {
-        HBaseBatis<Incr> hBaseBatis = new HBaseBatis<Incr>("cf1", template, new Hession2Serializer()) {
+        HBaseBatis<Incr> hBaseBatis = new HBaseBatis<Incr>("cf1", template, new Hessian2Serializer()) {
         };
 
         Map<String, Map<String, Long>> amounts = new HashMap<>();

@@ -12,7 +12,7 @@ import java.io.ByteArrayOutputStream;
  * @version 1.1
  * @since 16/7/8.
  */
-public class Hession2Serializer extends AbstractSerializer {
+public class Hessian2Serializer extends AbstractSerializer {
 
     @Override
     protected byte[] doSerialize(Object obj) throws Throwable {

@@ -65,7 +65,7 @@
 - 详见: `com.github.jbox.serializer.ISerializer`
 - 默认支持:
     - fastjson: `com.github.jbox.serializer.support.FastJsonSerializer`
-    - hession2: `com.github.jbox.serializer.support.Hession2Serializer`
+    - hessian2: `com.github.jbox.serializer.support.Hessian2Serializer`
     - kryo: `com.github.jbox.serializer.support.KryoSerializer`
     - jdk: `com.github.jbox.serializer.support.JdkSerializer`
     - jdk(with gzip): `com.github.jbox.serializer.support.JdkGzipSerializer`
