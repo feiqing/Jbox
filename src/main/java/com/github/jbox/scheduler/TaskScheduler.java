@@ -46,11 +46,11 @@ public class TaskScheduler implements ApplicationContextAware, DisposableBean {
         List<ScheduleTask> needInvokeOnStart = new LinkedList<>();
         for (ScheduleTask scheduleTask : scheduleTasks) {
             taskRegisters.add(TaskRegister.newRegister(scheduleTask));
-            if (scheduleTask.invokeAtStart()) {
+            if (scheduleTask.configuration().isInvokeAtStart()) {
                 needInvokeOnStart.add(scheduleTask);
             }
 
-            SCHEDULE_TASK_LOGGER.info("scheduleTask [{}] registered, period [{}]", scheduleTask.taskDesc(), scheduleTask.period());
+            SCHEDULE_TASK_LOGGER.info("scheduleTask [{}] registered, period [{}]", scheduleTask.taskDesc(), scheduleTask.configuration().getPeriod());
         }
 
         // invoke start task
@@ -81,7 +81,7 @@ public class TaskScheduler implements ApplicationContextAware, DisposableBean {
     }
 
     private void invokeTask(ScheduleTask task) {
-        task.executor().submit(new AsyncRunnable() {
+        task.configuration().getExecutor().submit(new AsyncRunnable() {
             @Override
             public void execute(AsyncContext context) {
                 try {
@@ -107,7 +107,7 @@ public class TaskScheduler implements ApplicationContextAware, DisposableBean {
 
         Collection<ScheduleTask> scheduleTasks = beans.values();
         for (ScheduleTask task : scheduleTasks) {
-            if (task.autoRegistered()) {
+            if (task.configuration().isAutoRegistered()) {
                 tasks.add(task);
             }
         }
@@ -140,14 +140,14 @@ public class TaskScheduler implements ApplicationContextAware, DisposableBean {
         }
 
         static TaskRegister newRegister(ScheduleTask scheduleTask) {
-            if (scheduleTask.period() < BASE_TIME_FRAGMENT) {
+            if (scheduleTask.configuration().getPeriod() < BASE_TIME_FRAGMENT) {
                 throw new RuntimeException("ScheduleTask: " + scheduleTask.taskDesc() + "'s period is less-than BASE_TIME_FRAGMENT[100ms].");
             }
 
             TaskRegister taskRegister = new TaskRegister();
             taskRegister.setScheduleTask(scheduleTask);
             taskRegister.setCurrentFragment(0L);
-            taskRegister.setTriggerFragment(scheduleTask.period() / BASE_TIME_FRAGMENT);
+            taskRegister.setTriggerFragment(scheduleTask.configuration().getPeriod() / BASE_TIME_FRAGMENT);
 
             return taskRegister;
         }
