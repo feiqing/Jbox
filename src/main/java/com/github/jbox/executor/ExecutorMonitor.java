@@ -69,7 +69,7 @@ public class ExecutorMonitor implements ScheduleTask, ExecutorLoggerInner {
     }
 
     @Override
-    public Configuration configuration() {
+    public Configuration config() {
         return new Configuration(period);
     }
 

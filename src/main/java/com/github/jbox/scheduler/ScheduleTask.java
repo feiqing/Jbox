@@ -37,7 +37,11 @@ public interface ScheduleTask {
 
     void schedule() throws Exception;
 
-    Configuration configuration();
+    Configuration config();
+
+    default Configuration tuning(Configuration configuration) {
+        return configuration;
+    }
 
     default String taskDesc() {
         return this.getClass().getName();

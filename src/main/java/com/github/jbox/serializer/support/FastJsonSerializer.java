@@ -3,6 +3,8 @@ package com.github.jbox.serializer.support;
 import com.alibaba.fastjson.JSON;
 import com.github.jbox.serializer.AbstractSerializer;
 
+import java.nio.charset.StandardCharsets;
+
 /**
  * @author jifang.zjf@alibaba-inc.com (FeiQing)
  * @version 1.0
@@ -17,14 +19,14 @@ public class FastJsonSerializer extends AbstractSerializer {
     }
 
     @Override
-    protected byte[] doSerialize(Object obj) throws Throwable {
+    protected byte[] doSerialize(Object obj) {
         String json = JSON.toJSONString(obj);
-        return json.getBytes("UTF-8");
+        return json.getBytes(StandardCharsets.UTF_8);
     }
 
     @Override
-    protected Object doDeserialize(byte[] bytes) throws Throwable {
-        String json = new String(bytes, 0, bytes.length, "UTF-8");
+    protected Object doDeserialize(byte[] bytes) {
+        String json = new String(bytes, 0, bytes.length, StandardCharsets.UTF_8);
         return JSON.parseObject(json, type);
     }
 }
