@@ -2,7 +2,6 @@ package com.github.jbox.scheduler;
 
 import com.github.jbox.executor.ExecutorManager;
 import com.github.jbox.executor.policy.DiscardOldestPolicy;
-import lombok.Data;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -16,6 +15,16 @@ import java.util.concurrent.ExecutorService;
  * @since 16/10/20 上午8:15.
  */
 public interface ScheduleTask {
+
+    String group = "com.github.jbox.scheduler:ScheduleTask";
+
+    int minSize = 3;
+
+    int maxSize = 5;
+
+    int queueSize = 36;
+
+    ExecutorService defaultExecutor = ExecutorManager.newFixedMinMaxThreadPool(group, minSize, maxSize, queueSize, new DiscardOldestPolicy(group));
 
     Logger SCHEDULE_TASK_LOGGER = LoggerFactory.getLogger("task-scheduler");
 
@@ -37,41 +46,21 @@ public interface ScheduleTask {
 
     void schedule() throws Exception;
 
-    Configuration config();
+    long period();
 
-    default Configuration tuning(Configuration configuration) {
-        return configuration;
+    default ExecutorService executor() {
+        return defaultExecutor;
+    }
+
+    default boolean invokeAtStart() {
+        return false;
+    }
+
+    default boolean autoRegistered() {
+        return true;
     }
 
     default String taskDesc() {
         return this.getClass().getName();
-    }
-
-    @Data
-    class Configuration {
-
-        // 静态参数: 不能变
-        private static final String group = "com.github.jbox.scheduler:ScheduleTask";
-
-        private static final int minSize = 3;
-
-        private static final int maxSize = 5;
-
-        private static final int queueSize = 36;
-
-        private static final ExecutorService defaultExecutor = ExecutorManager.newFixedMinMaxThreadPool(group, minSize, maxSize, queueSize, new DiscardOldestPolicy(group));
-
-        // 动态参数: 可配置
-        private long period;
-
-        private ExecutorService executor = defaultExecutor;
-
-        private boolean invokeAtStart = false;
-
-        private boolean autoRegistered = true;
-
-        public Configuration(long period) {
-            this.period = period;
-        }
     }
 }

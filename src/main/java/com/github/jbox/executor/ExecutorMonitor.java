@@ -68,11 +68,6 @@ public class ExecutorMonitor implements ScheduleTask, ExecutorLoggerInner {
         }
     }
 
-    @Override
-    public Configuration config() {
-        return new Configuration(period);
-    }
-
     private void logGroupDetail(String group, ExecutorService executorService, int maxGroupSize) {
         Optional<ThreadPoolExecutor> executor = getThreadPoolExecutor(executorService);
 
@@ -196,5 +191,10 @@ public class ExecutorMonitor implements ScheduleTask, ExecutorLoggerInner {
             }
         }
         return null;
+    }
+
+    @Override
+    public long period() {
+        return period;
     }
 }

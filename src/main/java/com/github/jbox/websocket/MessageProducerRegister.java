@@ -149,8 +149,8 @@ public class MessageProducerRegister implements ScheduleTask, ApplicationContext
     }
 
     @Override
-    public Configuration config() {
-        return new Configuration(_10S_INTERVAL);
+    public long period() {
+        return _10S_INTERVAL;
     }
 
     @Data
