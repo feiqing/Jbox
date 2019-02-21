@@ -7,6 +7,7 @@ import com.github.jbox.rpc.proto.RpcProxy;
 import com.github.jbox.utils.Collections3;
 import com.github.jbox.utils.IPv4;
 import com.google.common.base.Preconditions;
+import com.google.common.base.Splitter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.InitializingBean;
@@ -33,8 +34,15 @@ public class RpcClient implements ApplicationContextAware, InitializingBean {
 
     private static final ConcurrentMap<String, Map<Class, Object>> ip2proxy = new ConcurrentHashMap<>();
 
-    @Setter
     private List<String> servs;
+
+    public void setServs(List<String> servs) {
+        this.servs = servs;
+    }
+
+    public void setServs(String servs) {
+        this.setServs(Splitter.on(",").trimResults().omitEmptyStrings().splitToList(servs));
+    }
 
     @Setter
     private int servPort = 80;
@@ -43,10 +51,10 @@ public class RpcClient implements ApplicationContextAware, InitializingBean {
     private String servProto = "http";
 
     @Setter
-    private long connectTimeout;
+    private long connectTimeout = 200;
 
     @Setter
-    private long readTimeout;
+    private long readTimeout = 200;
 
     private ApplicationContext applicationContext;
 
