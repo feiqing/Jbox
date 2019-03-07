@@ -8,6 +8,7 @@ import com.github.jbox.utils.Collections3;
 import com.github.jbox.utils.IPv4;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Splitter;
+import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.InitializingBean;
@@ -34,6 +35,7 @@ public class RpcClient implements ApplicationContextAware, InitializingBean {
 
     private static final ConcurrentMap<String, Map<Class, Object>> ip2proxy = new ConcurrentHashMap<>();
 
+    @Getter
     private List<String> servs;
 
     public void setServs(List<String> servs) {
@@ -55,6 +57,15 @@ public class RpcClient implements ApplicationContextAware, InitializingBean {
 
     @Setter
     private long readTimeout = 200;
+
+    @Setter
+    private boolean logParams = true;
+
+    @Setter
+    private boolean logRetObj = true;
+
+    @Setter
+    private boolean logMdcCtx = true;
 
     private ApplicationContext applicationContext;
 
@@ -103,9 +114,12 @@ public class RpcClient implements ApplicationContextAware, InitializingBean {
             return (T) proxy;
         }
 
+        RpcProcessor processor = ip2processor.get(servIp);
+        Preconditions.checkState(processor != null, String.format("servIp:[%s] not exist from servs:%s", servIp, servs));
+
         Enhancer en = new Enhancer();
         en.setSuperclass(api);
-        en.setCallback(new RpcProxy(api, ip2processor.get(servIp)));
+        en.setCallback(new RpcProxy(api, processor, servIp, logParams, logRetObj, logMdcCtx));
         proxy = en.create();
 
         ip2proxy.computeIfAbsent(servIp, (_k) -> new ConcurrentHashMap<>()).put(api, proxy);
