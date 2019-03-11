@@ -16,7 +16,7 @@ import static com.github.jbox.utils.Collections3.nullToEmpty;
  * @version 1.0
  * @since 2018/11/13 8:08 PM.
  */
-@Slf4j(topic = "JboxRpc")
+@Slf4j(topic = "RpcClient")
 public class RpcProxy implements MethodInterceptor {
 
     private Class<?> api;
@@ -44,6 +44,7 @@ public class RpcProxy implements MethodInterceptor {
     public Object intercept(Object o, Method method, Object[] args, MethodProxy methodProxy) throws Throwable {
 
         RpcMsg msg = new RpcMsg();
+        msg.setClientIp(IPv4.getLocalIp());
         msg.setClassName(api.getName());
         msg.setMethodName(method.getName());
         msg.setArgs(args);
@@ -59,17 +60,19 @@ public class RpcProxy implements MethodInterceptor {
             throw t;
         } finally {
             long cost = System.currentTimeMillis() - start;
-            log.debug("|{}|{}|{}|{}:{}|{}|{}|{}|{}|{}|",
-                    Thread.currentThread().getName(),
-                    IPv4.getLocalIp(),
-                    servIp,
-                    msg.getClassName(), msg.getMethodName(),
-                    cost,
-                    logParams ? JSON.toJSONString(msg.getArgs()) : "",
-                    (result != null && logRetObj) ? JSON.toJSONString(result) : "",
-                    except != null ? JSON.toJSONString(except) : "",
-                    logMdcCtx ? JSON.toJSONString(msg.getMdcContext()) : ""
-            );
+            if (log.isDebugEnabled()) {
+                log.debug("|{}|{}|{}|{}:{}|{}|{}|{}|{}|{}|",
+                        Thread.currentThread().getName(),
+                        IPv4.getLocalIp(),
+                        servIp,
+                        msg.getClassName(), msg.getMethodName(),
+                        cost,
+                        logParams ? JSON.toJSONString(msg.getArgs()) : "",
+                        (result != null && logRetObj) ? JSON.toJSONString(result) : "",
+                        except != null ? JSON.toJSONString(except) : "",
+                        logMdcCtx ? JSON.toJSONString(msg.getMdcContext()) : ""
+                );
+            }
         }
 
         return result;

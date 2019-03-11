@@ -1,6 +1,8 @@
 package com.github.jbox.rpc.proto;
 
+import com.alibaba.fastjson.JSON;
 import com.github.jbox.helpers.ThrowableSupplier;
+import com.github.jbox.utils.IPv4;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationContext;
 import org.springframework.util.CollectionUtils;
@@ -21,34 +23,63 @@ import static com.github.jbox.utils.JboxUtils.runWithNewMdcContext;
  * @version 1.0
  * @since 2019/2/21 11:47 AM.
  */
-@Slf4j
+@Slf4j(topic = "RpcServer")
 public class RpcProcessorImpl implements RpcProcessor {
 
     private ApplicationContext applicationContext;
 
-    public RpcProcessorImpl(ApplicationContext applicationContext) {
+    private boolean logParams;
+
+    private boolean logRetObj;
+
+    private boolean logMdcCtx;
+
+    public RpcProcessorImpl(ApplicationContext applicationContext, boolean logParams, boolean logRetObj, boolean logMdcCtx) {
         this.applicationContext = applicationContext;
+        this.logParams = logParams;
+        this.logRetObj = logRetObj;
+        this.logMdcCtx = logMdcCtx;
     }
 
     @Override
     public Serializable process(RpcMsg msg) throws Throwable {
         return runWithNewMdcContext((ThrowableSupplier<Serializable>) () -> {
 
+            long start = System.currentTimeMillis();
+            Serializable result = null;
+            Throwable except = null;
             try {
                 Object bean = getBeanByClass(msg.getClassName());
                 if (bean != null) {
-                    return invoke(bean, msg.getMethodName(), msg.getArgs());
+                    result = invoke(bean, msg.getMethodName(), msg.getArgs());
+                    return result;
                 }
 
                 bean = getBeanByName(msg.getClassName());
                 if (bean != null) {
-                    return invoke(bean, msg.getMethodName(), msg.getArgs());
+                    result = invoke(bean, msg.getMethodName(), msg.getArgs());
+                    return result;
                 }
 
                 throw new RuntimeException("no bean is fond in spring context by class [" + msg.getClassName() + "].");
-            } catch (Throwable e) {
-                log.error("rpc error: {}", msg, e);
-                throw e;
+            } catch (Throwable t) {
+                except = t;
+                throw t;
+            } finally {
+                long cost = System.currentTimeMillis() - start;
+                if (log.isDebugEnabled()) {
+                    log.debug("|{}|{}|{}|{}:{}|{}|{}|{}|{}|{}|",
+                            Thread.currentThread().getName(),
+                            msg.getClientIp(),
+                            IPv4.getLocalIp(),
+                            msg.getClassName(), msg.getMethodName(),
+                            cost,
+                            logParams ? JSON.toJSONString(msg.getArgs()) : "",
+                            (result != null && logRetObj) ? JSON.toJSONString(result) : "",
+                            except != null ? JSON.toJSONString(except) : "",
+                            logMdcCtx ? JSON.toJSONString(msg.getMdcContext()) : ""
+                    );
+                }
             }
 
         }, msg.getMdcContext());

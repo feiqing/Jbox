@@ -86,14 +86,14 @@ public class RpcClient implements ApplicationContextAware, InitializingBean {
 
         for (String servIp : this.servs) {
             if (servIp.equals(IPv4.getLocalIp())) {
-                RpcProcessor processor = new RpcProcessorImpl(applicationContext);
+                RpcProcessor processor = new RpcProcessorImpl(applicationContext, logParams, logRetObj, logMdcCtx);
                 ip2processor.put(servIp, processor);
-                log.info("hessian rpc client [{}] starting...", servIp);
+                log.info("hessian rpc client [{}] starting ...", servIp);
             } else {
                 String url = String.format("%s://%s:%s%s", servProto, servIp, servPort, RpcServer.PATH);
                 RpcProcessor processor = (RpcProcessor) factory.create(RpcProcessor.class, url);
                 ip2processor.put(servIp, processor);
-                log.info("hessian rpc client [{}] starting...", url);
+                log.info("hessian rpc client [{}] starting ...", url);
             }
         }
     }
