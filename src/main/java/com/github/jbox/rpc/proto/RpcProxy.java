@@ -16,7 +16,7 @@ import static com.github.jbox.utils.Collections3.nullToEmpty;
  * @version 1.0
  * @since 2018/11/13 8:08 PM.
  */
-@Slf4j(topic = "RpcClient")
+@Slf4j(topic = "JboxRpcClient")
 public class RpcProxy implements MethodInterceptor {
 
     private Class<?> api;

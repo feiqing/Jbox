@@ -23,7 +23,7 @@ import static com.github.jbox.utils.JboxUtils.runWithNewMdcContext;
  * @version 1.0
  * @since 2019/2/21 11:47 AM.
  */
-@Slf4j(topic = "RpcServer")
+@Slf4j(topic = "JboxRpcServer")
 public class RpcProcessorImpl implements RpcProcessor {
 
     private ApplicationContext applicationContext;
