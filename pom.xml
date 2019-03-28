@@ -9,7 +9,7 @@
     <groupId>com.github.jbox</groupId>
     <artifactId>jbox</artifactId>
     <packaging>jar</packaging>
-    <version>1.9.5.1-rpc-SNAPSHOT</version>
+    <version>1.9.5.2-page-SNAPSHOT</version>
 
     <name>${project.groupId}:${project.artifactId}</name>
     <description>Jbox: business utils collection</description>
