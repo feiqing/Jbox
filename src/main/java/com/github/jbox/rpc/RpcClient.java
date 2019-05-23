@@ -53,6 +53,9 @@ public class RpcClient implements ApplicationContextAware, InitializingBean {
     private String servProto = "http";
 
     @Setter
+    private String rpcPath = RpcServer.PATH;
+
+    @Setter
     private long connectTimeout = 200;
 
     @Setter
@@ -90,7 +93,7 @@ public class RpcClient implements ApplicationContextAware, InitializingBean {
                 ip2processor.put(servIp, processor);
                 log.info("hessian rpc client [{}] starting ...", servIp);
             } else {
-                String url = String.format("%s://%s:%s%s", servProto, servIp, servPort, RpcServer.PATH);
+                String url = String.format("%s://%s:%s%s", servProto, servIp, servPort, rpcPath);
                 RpcProcessor processor = (RpcProcessor) factory.create(RpcProcessor.class, url);
                 ip2processor.put(servIp, processor);
                 log.info("hessian rpc client [{}] starting ...", url);

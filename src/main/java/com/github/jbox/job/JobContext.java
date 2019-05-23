@@ -100,7 +100,7 @@ public class JobContext implements Serializable {
                         meta.jobName,
                         (meta.executingIndex + 1),
                         meta.jobTasks.size(),
-                        jobTask.desc()
+                        jobTask.desc(this)
                 }).getMessage();
     }
 

@@ -11,7 +11,7 @@ public interface JobTask<T extends JobContext> extends Serializable {
 
     void invoke(T context) throws Throwable;
 
-    default String desc() {
+    default String desc(T context) {
         return this.getClass().getName();
     }
 }
