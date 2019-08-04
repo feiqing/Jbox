@@ -1,6 +1,8 @@
 package com.github.jbox.http;
 
+import com.github.jbox.utils.Collections3;
 import com.google.common.base.Preconditions;
+import org.apache.http.Header;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.utils.URIBuilder;
 import org.apache.http.impl.client.CloseableHttpClient;
@@ -37,6 +39,10 @@ public class HttpGetClient extends AbstractHttpClient {
             // 组装入参
             URI uri = buildGetURI(buildRequestUrl(path), params);
             HttpGet get = new HttpGet(uri);
+
+            if (!CollectionUtils.isEmpty(this.getReqHeaders())) {
+                this.getReqHeaders().forEach(get::addHeader);
+            }
 
             // 执行
             String resp = processResp(client.execute(get));

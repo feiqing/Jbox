@@ -42,6 +42,8 @@ public abstract class AbstractHttpClient {
 
     private List<Cookie> reqCookies;
 
+    private List<Header> reqHeaders;
+
     /**
      * for response
      */
@@ -90,6 +92,14 @@ public abstract class AbstractHttpClient {
         if (reqCookie != null) {
             this.setReqCookies(Collections.singletonList(reqCookie));
         }
+    }
+
+    public void addReqHeader(Header header) {
+        if (this.reqHeaders == null) {
+            this.reqHeaders = new ArrayList<>();
+        }
+
+        this.reqHeaders.add(header);
     }
 
     public String execute() {
