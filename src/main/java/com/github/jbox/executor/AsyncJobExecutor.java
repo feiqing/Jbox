@@ -3,14 +3,11 @@ package com.github.jbox.executor;
 import com.github.jbox.utils.Collections3;
 import com.github.jbox.utils.Objects2;
 import com.google.common.base.Strings;
-import com.google.common.util.concurrent.Futures;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.*;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -39,11 +36,13 @@ public class AsyncJobExecutor<T> {
     @Getter
     private List<Future<T>> futures;
 
+    private Queue<Optional<T>> tmpResults = new ConcurrentLinkedQueue<>();
+
+    private List<T> results;
+
     private volatile boolean hasRunningException;
 
     private String jobDesc;
-
-    private List<T> results;
 
     private CountDownLatch latch;
 
@@ -84,7 +83,9 @@ public class AsyncJobExecutor<T> {
                         @Override
                         public T execute(AsyncContext context) {
                             try {
-                                return task.get();
+                                T result = task.get();
+                                tmpResults.offer(Optional.ofNullable(result));
+                                return result;
                             } catch (Throwable t) {
                                 hasRunningException = true;
                                 throw t;
@@ -115,7 +116,6 @@ public class AsyncJobExecutor<T> {
         if (Collections3.isEmpty(futures)) {
             return this;
         }
-
         try {
             latch.await(millisTimeout, TimeUnit.MILLISECONDS);
         } catch (InterruptedException e) {
@@ -123,9 +123,11 @@ public class AsyncJobExecutor<T> {
         }
 
         this.remain = (int) latch.getCount();
-        this.results = new ArrayList<>(futures.size() - remain);
         if (remain == 0 || !fullyCompletes) {
-            this.doGetResult(this.futures, this.results);
+            this.results = new ArrayList<>(this.tmpResults.size());
+            this.tmpResults.forEach(optional -> this.results.add(optional.orElse(null)));
+        } else {
+            this.results = new ArrayList<>();
         }
 
         return this;
@@ -141,14 +143,6 @@ public class AsyncJobExecutor<T> {
         return this;
     }
 
-    private void doGetResult(List<Future<T>> futures, List<T> results) {
-        for (Future<T> future : futures) {
-            if (future.isDone()) {
-                T result = Futures.getUnchecked(future);
-                results.add(result);
-            }
-        }
-    }
 
     public List<T> getResults() {
         return Collections3.nullToEmpty(this.results);
