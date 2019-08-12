@@ -151,10 +151,6 @@ class HBaseHelper {
                 field -> {
                     ReflectionUtils.makeAccessible(field);
                     Object value = ReflectionUtils.getField(field, obj);
-                    if (value == null) {
-                        return;
-                    }
-
                     String family = getFamily(field, defaultFamily);
                     String qualifier = getQualifier(field);
                     columnMap.computeIfAbsent(family, (key) -> new HashMap<>())
