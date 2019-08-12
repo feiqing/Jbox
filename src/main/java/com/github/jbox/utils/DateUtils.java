@@ -49,7 +49,7 @@ public class DateUtils {
     /**
      * yyyy-MM-dd
      */
-    private static final String DATE_PATTERN = "yyyy-MM-dd";
+    public static final String DATE_PATTERN = "yyyy-MM-dd";
 
     public static String dateFormat(Object source) {
         return format(source, DATE_PATTERN);
@@ -62,7 +62,7 @@ public class DateUtils {
     /**
      * yyyy-MM-dd HH:mm:ss
      */
-    private static final String TIME_PATTERN = "yyyy-MM-dd HH:mm:ss";
+    public static final String TIME_PATTERN = "yyyy-MM-dd HH:mm:ss";
 
     public static String timeFormat(Object source) {
         return format(source, TIME_PATTERN);
@@ -75,7 +75,7 @@ public class DateUtils {
     /**
      * yyyy-MM-dd HH:mm:ss,SSS
      */
-    private static final String TIME_MILLIS_PATTERN = "yyyy-MM-dd HH:mm:ss,SSS";
+    public static final String TIME_MILLIS_PATTERN = "yyyy-MM-dd HH:mm:ss,SSS";
 
     public static String timeMillisFormat(Object source) {
         return format(source, TIME_MILLIS_PATTERN);
