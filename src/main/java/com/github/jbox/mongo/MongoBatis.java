@@ -243,11 +243,11 @@ public class MongoBatis<T extends MBaseModel> {
 
     /* ------- distinct ------- */
 
-    public List<T> distinct(String key, DBObject query) {
+    public List<Object> distinct(String key, DBObject query) {
         return distinct(key, query, getCName());
     }
 
-    private List<T> distinct(String key, DBObject query, String collection) {
+    private List<Object> distinct(String key, DBObject query, String collection) {
         DBObject document = new BasicDBObject();
         document.put("distinct", collection);
         document.put("key", key);
@@ -255,7 +255,7 @@ public class MongoBatis<T extends MBaseModel> {
 
         CommandResult result = getMongo().executeCommand(document);
         checkCommandSuccess(result);
-        return (List<T>) result.get("values");
+        return (List<Object>) result.get("values");
     }
 
 
