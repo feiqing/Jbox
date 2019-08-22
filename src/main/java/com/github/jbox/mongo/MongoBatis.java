@@ -228,7 +228,16 @@ public class MongoBatis<T extends MBaseModel> {
     }
 
     private WriteResult removeById(long id, String collection) {
-        Query query = mapToQueryParam(ImmutableMap.of("_id", id));
+        Query query = new Query().addCriteria(Criteria.where("_id").is(id));
+        return getMongo().remove(query, collection);
+    }
+
+    public WriteResult removeByIds(Collection<Long> ids) {
+        return this.removeByIds(ids, getCName());
+    }
+
+    private WriteResult removeByIds(Collection<Long> ids, String collection) {
+        Query query = new Query().addCriteria(Criteria.where("_id").in(ids));
         return getMongo().remove(query, collection);
     }
 
