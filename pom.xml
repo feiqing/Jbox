@@ -9,7 +9,7 @@
     <groupId>com.github.jbox</groupId>
     <artifactId>jbox</artifactId>
     <packaging>jar</packaging>
-    <version>1.9.5.4-SNAPSHOT</version>
+    <version>1.9.6-tdml-SNAPSHOT</version>
 
     <name>${project.groupId}:${project.artifactId}</name>
     <description>Jbox: business utils collection</description>
@@ -70,7 +70,6 @@
         <guava.version>18.0</guava.version>
         <fastjson.version>1.2.7</fastjson.version>
         <commons.lang.version>3.4</commons.lang.version>
-        <commons.proxy.version>1.0</commons.proxy.version>
         <cglib.version>3.2.0</cglib.version>
         <spring.version>4.3.3.RELEASE</spring.version>
         <aspectj.version>1.8.10</aspectj.version>
@@ -135,14 +134,6 @@
             <optional>true</optional>
         </dependency>
 
-        <!--
-        <dependency>
-            <groupId>org.apache.commons</groupId>
-            <artifactId>commons-proxy</artifactId>
-            <version>${commons.proxy.version}</version>
-            <optional>true</optional>
-        </dependency>
-        -->
 
         <!-- byte code -->
         <dependency>
