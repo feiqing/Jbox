@@ -25,9 +25,9 @@ import java.util.concurrent.ConcurrentMap;
  * @version 1.0
  * @since 2019/9/19 4:45 PM.
  */
-public class TdmlFactory<T extends MongoBatis> implements FactoryBean<T> {
+public class TdmlDbFactory<T extends MongoBatis> implements FactoryBean<T> {
 
-    private static final String DEFAULT_STAND_BY_MDC_KEY = "__TDML_PROXY_STAND_BY_MDC_KEY__";
+    private static final String DEFAULT_STAND_BY_MDC_KEY = "__TDML_PROXY_DB_STAND_BY_MDC_KEY__";
 
     private static final Set<Method> metas = new HashSet<>();
 
@@ -38,14 +38,14 @@ public class TdmlFactory<T extends MongoBatis> implements FactoryBean<T> {
     // 不能是static, 每个实例单独一个
     private ConcurrentMap<String, Routee> router = new ConcurrentHashMap<>();
 
-    private String mdcKey;
+    private String slotKey;
 
     private Class<?> type;
 
     private T proxy;
 
-    public TdmlFactory(String mdcKey, List<Routee<T>> routees) {
-        precheck(mdcKey, routees);
+    public TdmlDbFactory(String slotKey, List<Routee<T>> routees) {
+        precheck(slotKey, routees);
 
         for (Routee<T> routee : routees) {
             if (routee.isStandby()) {
@@ -55,7 +55,7 @@ public class TdmlFactory<T extends MongoBatis> implements FactoryBean<T> {
             }
         }
 
-        this.mdcKey = mdcKey;
+        this.slotKey = slotKey;
         this.type = routees.get(0).getTarget().getClass();
         this.proxy = newProxy();
     }
@@ -77,9 +77,9 @@ public class TdmlFactory<T extends MongoBatis> implements FactoryBean<T> {
                 return proxy.invoke(this, args);
             }
 
-            String slot = MDC.get(mdcKey);
+            String slot = MDC.get(slotKey);
             if (Strings.isNullOrEmpty(slot)) {
-                throw new TdmlException("could not find slot:[{}] value in mdc-context.", mdcKey);
+                throw new TdmlException("could not find slot:[{}] value in mdc-context.", slotKey);
             }
 
             Routee routee = router.get(slot);
