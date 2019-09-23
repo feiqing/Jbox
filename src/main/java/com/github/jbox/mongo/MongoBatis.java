@@ -1,5 +1,7 @@
 package com.github.jbox.mongo;
 
+import com.alibaba.fastjson.JSONObject;
+import com.github.jbox.utils.Collections3;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableMap;
 import com.mongodb.BasicDBObject;
@@ -16,10 +18,7 @@ import org.springframework.util.CollectionUtils;
 
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 import static com.github.jbox.biz.BizException.bizException;
 import static com.github.jbox.mongo.BatisUtils.*;
@@ -112,6 +111,18 @@ public class MongoBatis<T extends MBaseModel> {
         return getMongo().find(queryParam, asType(), collection);
     }
 
+    public List<T> find(Query query) {
+        return getMongo().find(query, this.asType());
+    }
+
+    public List<JSONObject> find(Map<String, Object> where, String... fields) {
+        Query query = new Query();
+        Collections3.nullToEmpty(where).forEach((k, v) -> query.addCriteria(Criteria.where(k).is(v)));
+        Arrays.stream(fields).forEach(field -> query.fields().include(field));
+
+        return this.getMongo().find(query, JSONObject.class, getCName());
+    }
+
     /* ------- 分页find(start page : 1) ------- */
     public List<T> find(Map<String, Object> where, int page, int limit, List<Sort.Order> orderBy) {
         return this.find(where, page, limit, orderBy, getCName());
@@ -138,6 +149,10 @@ public class MongoBatis<T extends MBaseModel> {
     private long count(Map<String, Object> where, String collection) {
         Query query = mapToQueryParam(where);
         return getMongo().count(query, collection);
+    }
+
+    public long count(Query query) {
+        return this.getMongo().count(query, this.asType());
     }
 
     /* ------- save: 更新或保存 ------- */

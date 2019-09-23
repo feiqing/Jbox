@@ -2,16 +2,18 @@ package com.github.jbox.mongo;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.Sets;
+import net.sf.cglib.proxy.Callback;
+import net.sf.cglib.proxy.Enhancer;
+import net.sf.cglib.proxy.MethodInterceptor;
+import net.sf.cglib.proxy.MethodProxy;
 import org.slf4j.MDC;
 import org.springframework.beans.factory.FactoryBean;
-import org.springframework.cglib.proxy.Callback;
-import org.springframework.cglib.proxy.Enhancer;
-import org.springframework.cglib.proxy.MethodInterceptor;
-import org.springframework.cglib.proxy.MethodProxy;
 import org.springframework.data.mongodb.core.MongoOperations;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.ReflectionUtils;
 
 import java.lang.reflect.Method;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -26,6 +28,12 @@ import java.util.concurrent.ConcurrentMap;
 public class TdmlFactory<T extends MongoBatis> implements FactoryBean<T> {
 
     private static final String DEFAULT_STAND_BY_MDC_KEY = "__TDML_PROXY_STAND_BY_MDC_KEY__";
+
+    private static final Set<Method> metas = new HashSet<>();
+
+    static {
+        metas.addAll(Arrays.asList(ReflectionUtils.getAllDeclaredMethods(Object.class)));
+    }
 
     // 不能是static, 每个实例单独一个
     private ConcurrentMap<String, Routee> router = new ConcurrentHashMap<>();
@@ -65,6 +73,10 @@ public class TdmlFactory<T extends MongoBatis> implements FactoryBean<T> {
 
         @Override
         public Object intercept(Object obj, Method method, Object[] args, MethodProxy proxy) throws Throwable {
+            if (metas.contains(method)) {
+                return proxy.invoke(this, args);
+            }
+
             String slot = MDC.get(mdcKey);
             if (Strings.isNullOrEmpty(slot)) {
                 throw new TdmlException("could not find slot:[{}] value in mdc-context.", mdcKey);
@@ -103,7 +115,7 @@ public class TdmlFactory<T extends MongoBatis> implements FactoryBean<T> {
             } else {
                 slots.addAll(routee.getSlots());
             }
-            
+
             Class<? extends MongoBatis> routeeType = routee.getTarget().getClass();
             if (type != null && type != routeeType) {
                 throw new TdmlException("routee id:[{}] target type:[{}] is not same as before:[{}].", routee.getId(), routeeType.getName(), type.getName());
