@@ -38,9 +38,11 @@ public class RpcClient implements InitializingBean {
     public void afterPropertiesSet() {
         this.router = ActorSystems.actorSystem.actorOf(Props.create(ClientRouterActor.class, servPort, actorSize), "ClientRouterActor");
         ActorRef clientEventActor = ActorSystems.actorSystem.actorOf(Props.create(ClientEventActor.class), "ClientEventActor");
-        ActorSystems.actorSystem.eventStream().subscribe(clientEventActor, AssociatedEvent.class);
+
         ActorSystems.actorSystem.eventStream().subscribe(clientEventActor, DisassociatedEvent.class);
         ActorSystems.actorSystem.eventStream().subscribe(clientEventActor, AssociationErrorEvent.class);
+
+        ActorSystems.actorSystem.eventStream().subscribe(clientEventActor, AssociatedEvent.class);
         ActorSystems.actorSystem.eventStream().subscribe(clientEventActor, RemotingListenEvent.class);
         ActorSystems.actorSystem.eventStream().subscribe(clientEventActor, RemotingShutdownEvent.class);
         ActorSystems.actorSystem.eventStream().subscribe(clientEventActor, ThisActorSystemQuarantinedEvent.class);
