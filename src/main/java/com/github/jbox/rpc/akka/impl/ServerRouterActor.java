@@ -1,4 +1,4 @@
-package com.github.jbox.rpc.akka;
+package com.github.jbox.rpc.akka.impl;
 
 import akka.actor.ActorRef;
 import akka.actor.Props;
@@ -23,20 +23,24 @@ public class ServerRouterActor extends UntypedActor {
 
     private int actorSize;
 
+    /**
+     * @see ServerRouteeActor
+     */
+    private Router router;
+
     public ServerRouterActor(ApplicationContext applicationContext, int actorSize) {
         this.applicationContext = applicationContext;
         this.actorSize = actorSize;
     }
 
-    private Router router;
 
     @Override
     public void preStart() {
         List<Routee> routees = new ArrayList<>(actorSize);
         for (int i = 0; i < actorSize; ++i) {
-            Props props = Props.create(ServerTargetActor.class, applicationContext).withDispatcher("server-dispatcher");
+            Props props = Props.create(ServerRouteeActor.class, applicationContext).withDispatcher("server-routee-dispatcher");
 
-            ActorRef target = getContext().actorOf(props, "ServerTargetActor:" + i);
+            ActorRef target = getContext().actorOf(props, "ServerRouteeActor:" + i);
             routees.add(new ActorRefRoutee(target));
         }
 

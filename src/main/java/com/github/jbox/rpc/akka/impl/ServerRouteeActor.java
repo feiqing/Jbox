@@ -1,8 +1,8 @@
-package com.github.jbox.rpc.akka;
+package com.github.jbox.rpc.akka.impl;
 
 import akka.actor.UntypedActor;
 import com.alibaba.fastjson.JSON;
-import com.github.jbox.rpc.proto.RpcMsg;
+import com.github.jbox.rpc.proto.RpcParam;
 import com.github.jbox.rpc.proto.RpcResult;
 import com.github.jbox.utils.IPv4;
 import lombok.extern.slf4j.Slf4j;
@@ -27,7 +27,7 @@ import static com.github.jbox.utils.JboxUtils.runWithNewMdcContext;
  * @since 2019/10/6 6:53 PM.
  */
 @Slf4j(topic = "JboxRpcServer")
-public class ServerTargetActor extends UntypedActor {
+public class ServerRouteeActor extends UntypedActor {
 
     private static final ConcurrentMap<String, AtomicReference<Object>> class2bean = new ConcurrentHashMap<>();
 
@@ -35,18 +35,18 @@ public class ServerTargetActor extends UntypedActor {
 
     private ApplicationContext applicationContext;
 
-    public ServerTargetActor(ApplicationContext applicationContext) {
+    public ServerRouteeActor(ApplicationContext applicationContext) {
         this.applicationContext = applicationContext;
     }
 
     @Override
     public void onReceive(Object message) {
-        if (!(message instanceof RpcMsg)) {
+        if (!(message instanceof RpcParam)) {
             unhandled(message);
             return;
         }
 
-        RpcMsg msg = (RpcMsg) message;
+        RpcParam msg = (RpcParam) message;
 
         runWithNewMdcContext((Supplier<Object>) () -> {
 

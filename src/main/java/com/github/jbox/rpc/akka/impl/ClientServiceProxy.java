@@ -1,10 +1,10 @@
-package com.github.jbox.rpc.akka;
+package com.github.jbox.rpc.akka.impl;
 
 import akka.actor.ActorRef;
 import akka.pattern.Patterns;
 import akka.util.Timeout;
 import com.alibaba.fastjson.JSON;
-import com.github.jbox.rpc.proto.RpcMsg;
+import com.github.jbox.rpc.proto.RpcParam;
 import com.github.jbox.rpc.proto.RpcResult;
 import com.github.jbox.utils.IPv4;
 import lombok.extern.slf4j.Slf4j;
@@ -25,17 +25,20 @@ import static com.github.jbox.utils.Collections3.nullToEmpty;
  * @since 2019/10/6 7:08 PM.
  */
 @Slf4j(topic = "JboxRpcClient")
-class RpcProxy implements MethodInterceptor {
+public class ClientServiceProxy implements MethodInterceptor {
 
     private Class<?> api;
 
+    /**
+     * @see ClientRouterActor
+     */
     private ActorRef router;
 
     private String servIp;
 
     private long readTimeout;
 
-    RpcProxy(Class<?> api, ActorRef router, String servIp, long readTimeout) {
+    public ClientServiceProxy(Class<?> api, ActorRef router, String servIp, long readTimeout) {
         this.api = api;
         this.router = router;
         this.servIp = servIp;
@@ -45,7 +48,7 @@ class RpcProxy implements MethodInterceptor {
     @Override
     public Object intercept(Object o, Method method, Object[] args, MethodProxy methodProxy) throws Throwable {
 
-        RpcMsg msg = new RpcMsg();
+        RpcParam msg = new RpcParam();
         msg.setClientIp(IPv4.getLocalIp());
         msg.setServIp(servIp);
         msg.setClassName(api.getName());

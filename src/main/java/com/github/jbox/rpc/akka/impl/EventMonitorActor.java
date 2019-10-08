@@ -1,4 +1,4 @@
-package com.github.jbox.rpc.akka;
+package com.github.jbox.rpc.akka.impl;
 
 import akka.actor.UntypedActor;
 import akka.remote.AssociatedEvent;
@@ -12,21 +12,22 @@ import lombok.extern.slf4j.Slf4j;
  * @since 2019/10/8 2:21 AM.
  */
 @Slf4j(topic = "JboxRpcClient")
-public class ClientEventActor extends UntypedActor {
+public class EventMonitorActor extends UntypedActor {
 
     @Override
     public void onReceive(Object message) {
         if (message instanceof DisassociatedEvent) {
             String host = ((DisassociatedEvent) message).getRemoteAddress().host().get();
-            ActorSystems.putFailed(host, message.toString());
+            Configs.putFailed(host, message.toString());
         } else if (message instanceof AssociationErrorEvent) {
             String host = ((AssociationErrorEvent) message).getRemoteAddress().host().get();
-            ActorSystems.putFailed(host, message.toString());
+            Configs.putFailed(host, message.toString());
         } else if (message instanceof AssociatedEvent) {
             String host = ((AssociatedEvent) message).getRemoteAddress().host().get();
-            ActorSystems.removeFailed(host);
+            Configs.removeFailed(host);
         }
 
+        // todo: detail
         log.warn("Event: {}", message);
     }
 }

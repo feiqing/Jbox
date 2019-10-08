@@ -2,6 +2,8 @@ package com.github.jbox.rpc.akka;
 
 import akka.actor.ActorRef;
 import akka.actor.Props;
+import com.github.jbox.rpc.akka.impl.Configs;
+import com.github.jbox.rpc.akka.impl.ServerRouterActor;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeansException;
@@ -21,7 +23,7 @@ public class RpcServer implements ApplicationContextAware {
 
     @Override
     public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
-        ActorRef actor = ActorSystems.actorSystem.actorOf(Props.create(ServerRouterActor.class, applicationContext, actorSize), "ServerRouterActor");
+        ActorRef actor = Configs.actorSystem.actorOf(Props.create(ServerRouterActor.class, applicationContext, actorSize), "ServerRouterActor");
         log.info("akka rpc server [{}] starting...", actor.toString());
     }
 }

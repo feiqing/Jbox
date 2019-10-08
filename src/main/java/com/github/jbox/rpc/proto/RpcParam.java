@@ -14,7 +14,7 @@ import java.util.Map;
  */
 @Data
 @NoArgsConstructor
-public class RpcMsg implements Serializable {
+public class RpcParam implements Serializable {
 
     private static final long serialVersionUID = 2006423345030709062L;
 

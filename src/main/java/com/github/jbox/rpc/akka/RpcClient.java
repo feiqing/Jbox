@@ -3,6 +3,10 @@ package com.github.jbox.rpc.akka;
 import akka.actor.ActorRef;
 import akka.actor.Props;
 import akka.remote.*;
+import com.github.jbox.rpc.akka.impl.EventMonitorActor;
+import com.github.jbox.rpc.akka.impl.ClientServiceProxy;
+import com.github.jbox.rpc.akka.impl.ClientRouterActor;
+import com.github.jbox.rpc.akka.impl.Configs;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.InitializingBean;
@@ -36,16 +40,16 @@ public class RpcClient implements InitializingBean {
 
     @Override
     public void afterPropertiesSet() {
-        this.router = ActorSystems.actorSystem.actorOf(Props.create(ClientRouterActor.class, servPort, actorSize), "ClientRouterActor");
-        ActorRef clientEventActor = ActorSystems.actorSystem.actorOf(Props.create(ClientEventActor.class), "ClientEventActor");
+        this.router = Configs.actorSystem.actorOf(Props.create(ClientRouterActor.class, servPort, actorSize), "ClientRouterActor");
+        ActorRef clientEventActor = Configs.actorSystem.actorOf(Props.create(EventMonitorActor.class), "EventMonitorActor");
 
-        ActorSystems.actorSystem.eventStream().subscribe(clientEventActor, DisassociatedEvent.class);
-        ActorSystems.actorSystem.eventStream().subscribe(clientEventActor, AssociationErrorEvent.class);
+        Configs.actorSystem.eventStream().subscribe(clientEventActor, DisassociatedEvent.class);
+        Configs.actorSystem.eventStream().subscribe(clientEventActor, AssociationErrorEvent.class);
 
-        ActorSystems.actorSystem.eventStream().subscribe(clientEventActor, AssociatedEvent.class);
-        ActorSystems.actorSystem.eventStream().subscribe(clientEventActor, RemotingListenEvent.class);
-        ActorSystems.actorSystem.eventStream().subscribe(clientEventActor, RemotingShutdownEvent.class);
-        ActorSystems.actorSystem.eventStream().subscribe(clientEventActor, ThisActorSystemQuarantinedEvent.class);
+        Configs.actorSystem.eventStream().subscribe(clientEventActor, AssociatedEvent.class);
+        Configs.actorSystem.eventStream().subscribe(clientEventActor, RemotingListenEvent.class);
+        Configs.actorSystem.eventStream().subscribe(clientEventActor, RemotingShutdownEvent.class);
+        Configs.actorSystem.eventStream().subscribe(clientEventActor, ThisActorSystemQuarantinedEvent.class);
         log.info("akka rpc client [{}] starting...", router.toString());
     }
 
@@ -55,14 +59,14 @@ public class RpcClient implements InitializingBean {
      */
     @SuppressWarnings("unchecked")
     public <T> T proxy(String servIp, Class<T> api) {
-        Object proxy = ip2proxy.getOrDefault(servIp, Collections.emptyMap()).get(api);
+        Object proxy = ip2proxy.computeIfAbsent(servIp, (_k) -> new ConcurrentHashMap<>()).get(api);
         if (proxy != null) {
             return (T) proxy;
         }
 
         Enhancer en = new Enhancer();
         en.setSuperclass(api);
-        en.setCallback(new RpcProxy(api, router, servIp, readTimeout));
+        en.setCallback(new ClientServiceProxy(api, router, servIp, readTimeout));
         proxy = en.create();
 
         ip2proxy.computeIfAbsent(servIp, (_k) -> new ConcurrentHashMap<>()).put(api, proxy);

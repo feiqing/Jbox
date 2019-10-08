@@ -1,4 +1,4 @@
-package com.github.jbox.rpc.akka;
+package com.github.jbox.rpc.akka.impl;
 
 import akka.actor.ActorRef;
 import akka.actor.Props;
@@ -22,6 +22,9 @@ public class ClientRouterActor extends UntypedActor {
 
     private int actorSize;
 
+    /**
+     * @see ClientRouteeActor
+     */
     private Router router;
 
     public ClientRouterActor(int servPort, int actorSize) {
@@ -33,7 +36,7 @@ public class ClientRouterActor extends UntypedActor {
     public void preStart() {
         List<Routee> routees = new ArrayList<>();
         for (int i = 0; i < actorSize; ++i) {
-            ActorRef actor = getContext().actorOf(Props.create(ClientTargetActor.class, servPort), "ClientTargetActor:" + i);
+            ActorRef actor = getContext().actorOf(Props.create(ClientRouteeActor.class, servPort), "ClientRouteeActor:" + i);
             routees.add(new ActorRefRoutee(actor));
         }
         this.router = new Router(new RoundRobinRoutingLogic(), routees);

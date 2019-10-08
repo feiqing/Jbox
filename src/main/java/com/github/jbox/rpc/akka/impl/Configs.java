@@ -1,4 +1,4 @@
-package com.github.jbox.rpc.akka;
+package com.github.jbox.rpc.akka.impl;
 
 import akka.actor.ActorSystem;
 import com.github.jbox.utils.IPv4;
@@ -15,9 +15,9 @@ import java.util.concurrent.TimeUnit;
  * @version 1.0
  * @since 2019/10/8 10:45 AM.
  */
-class ActorSystems {
+public class Configs {
 
-    static final ActorSystem actorSystem;
+    public static final ActorSystem actorSystem;
 
     static {
         Config config = ConfigFactory
@@ -37,15 +37,15 @@ class ActorSystems {
                 }
             });
 
-    static void putFailed(String servIp, String reason) {
+    public static void putFailed(String servIp, String reason) {
         failedServs.put(servIp, reason);
     }
 
-    static void removeFailed(String servIp) {
+    public static void removeFailed(String servIp) {
         failedServs.invalidate(servIp);
     }
 
-    static String getFailed(String servIp) {
+    public static String getFailed(String servIp) {
         return failedServs.getUnchecked(servIp);
     }
 }

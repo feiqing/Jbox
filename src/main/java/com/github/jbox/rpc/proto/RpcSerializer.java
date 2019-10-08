@@ -1,4 +1,4 @@
-package com.github.jbox.rpc.akka;
+package com.github.jbox.rpc.proto;
 
 import akka.serialization.JSerializer;
 import com.github.jbox.serializer.support.Hessian2Serializer;
@@ -8,7 +8,7 @@ import com.github.jbox.serializer.support.Hessian2Serializer;
  * @version 1.0
  * @since 2019/10/8 3:36 PM.
  */
-public class HessianSerializer extends JSerializer {
+public class RpcSerializer extends JSerializer {
 
     private Hessian2Serializer serializer = new Hessian2Serializer();
 

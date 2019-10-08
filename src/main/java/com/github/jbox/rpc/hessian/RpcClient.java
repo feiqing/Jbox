@@ -1,6 +1,9 @@
 package com.github.jbox.rpc.hessian;
 
 import com.caucho.hessian.client.HessianProxyFactory;
+import com.github.jbox.rpc.hessian.impl.RpcProcessor;
+import com.github.jbox.rpc.hessian.impl.RpcProcessorImpl;
+import com.github.jbox.rpc.hessian.impl.ClientServiceProxy;
 import com.github.jbox.utils.IPv4;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -60,11 +63,11 @@ public class RpcClient implements ApplicationContextAware {
      *
      * @param servIp: 服务端IP
      * @param api:    服务端服务接口(可以为接口, 也可以为具体实现类)
-     * @return 服务端服务实例(RpcProxy)
+     * @return 服务端服务实例(ClientServiceProxy)
      */
     @SuppressWarnings("unchecked")
     public <T> T proxy(String servIp, Class<T> api) {
-        Object proxy = ip2proxy.getOrDefault(servIp, Collections.emptyMap()).get(api);
+        Object proxy = ip2proxy.computeIfAbsent(servIp, (_k) -> new ConcurrentHashMap<>()).get(api);
         if (proxy != null) {
             return (T) proxy;
         }
@@ -86,7 +89,7 @@ public class RpcClient implements ApplicationContextAware {
 
         Enhancer en = new Enhancer();
         en.setSuperclass(api);
-        en.setCallback(new RpcProxy(api, processor, servIp));
+        en.setCallback(new ClientServiceProxy(api, processor, servIp));
         proxy = en.create();
 
         ip2proxy.computeIfAbsent(servIp, (_k) -> new ConcurrentHashMap<>()).put(api, proxy);

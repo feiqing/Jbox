@@ -1,7 +1,7 @@
-package com.github.jbox.rpc.hessian;
+package com.github.jbox.rpc.hessian.impl;
 
 import com.alibaba.fastjson.JSON;
-import com.github.jbox.rpc.proto.RpcMsg;
+import com.github.jbox.rpc.proto.RpcParam;
 import com.github.jbox.utils.IPv4;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.MDC;
@@ -18,7 +18,7 @@ import static com.github.jbox.utils.Collections3.nullToEmpty;
  * @since 2018/11/13 8:08 PM.
  */
 @Slf4j(topic = "JboxRpcClient")
-class RpcProxy implements MethodInterceptor {
+public class ClientServiceProxy implements MethodInterceptor {
 
     private Class<?> api;
 
@@ -26,7 +26,7 @@ class RpcProxy implements MethodInterceptor {
 
     private String servIp;
 
-    RpcProxy(Class<?> api, RpcProcessor rpcProcessor, String servIp) {
+    public ClientServiceProxy(Class<?> api, RpcProcessor rpcProcessor, String servIp) {
         this.api = api;
         this.rpcProcessor = rpcProcessor;
         this.servIp = servIp;
@@ -35,7 +35,7 @@ class RpcProxy implements MethodInterceptor {
     @Override
     public Object intercept(Object o, Method method, Object[] args, MethodProxy methodProxy) throws Throwable {
 
-        RpcMsg msg = new RpcMsg();
+        RpcParam msg = new RpcParam();
         msg.setClientIp(IPv4.getLocalIp());
         msg.setServIp(servIp);
         msg.setClassName(api.getName());

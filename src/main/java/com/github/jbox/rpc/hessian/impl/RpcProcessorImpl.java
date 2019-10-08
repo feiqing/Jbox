@@ -1,8 +1,8 @@
-package com.github.jbox.rpc.hessian;
+package com.github.jbox.rpc.hessian.impl;
 
 import com.alibaba.fastjson.JSON;
 import com.github.jbox.helpers.ThrowableSupplier;
-import com.github.jbox.rpc.proto.RpcMsg;
+import com.github.jbox.rpc.proto.RpcParam;
 import com.github.jbox.utils.IPv4;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationContext;
@@ -34,26 +34,26 @@ public class RpcProcessorImpl implements RpcProcessor {
     }
 
     @Override
-    public Serializable process(RpcMsg msg) throws Throwable {
+    public Serializable process(RpcParam param) throws Throwable {
         return runWithNewMdcContext((ThrowableSupplier<Serializable>) () -> {
 
             long start = System.currentTimeMillis();
             Serializable result = null;
             Throwable except = null;
             try {
-                Object bean = getBeanByClass(msg.getClassName());
+                Object bean = getBeanByClass(param.getClassName());
                 if (bean != null) {
-                    result = invoke(bean, msg.getMethodName(), msg.getArgs());
+                    result = invoke(bean, param.getMethodName(), param.getArgs());
                     return result;
                 }
 
-                bean = getBeanByName(msg.getClassName());
+                bean = getBeanByName(param.getClassName());
                 if (bean != null) {
-                    result = invoke(bean, msg.getMethodName(), msg.getArgs());
+                    result = invoke(bean, param.getMethodName(), param.getArgs());
                     return result;
                 }
 
-                throw new RuntimeException("no bean is fond in spring context by class [" + msg.getClassName() + "].");
+                throw new RuntimeException("no bean is fond in spring context by class [" + param.getClassName() + "].");
             } catch (Throwable t) {
                 except = t;
                 throw t;
@@ -62,19 +62,19 @@ public class RpcProcessorImpl implements RpcProcessor {
                 if (log.isDebugEnabled()) {
                     log.debug("|{}|{}|{}|{}:{}|{}|{}|{}|{}|{}|",
                             Thread.currentThread().getName(),
-                            msg.getClientIp(),
+                            param.getClientIp(),
                             IPv4.getLocalIp(),
-                            msg.getClassName(), msg.getMethodName(),
+                            param.getClassName(), param.getMethodName(),
                             cost,
-                            JSON.toJSONString(msg.getArgs()),
+                            JSON.toJSONString(param.getArgs()),
                             result != null ? JSON.toJSONString(result) : "",
                             except != null ? JSON.toJSONString(except) : "",
-                            JSON.toJSONString(msg.getMdcContext())
+                            JSON.toJSONString(param.getMdcContext())
                     );
                 }
             }
 
-        }, msg.getMdcContext());
+        }, param.getMdcContext());
     }
 
     private Serializable invoke(Object bean, String method, Object[] args) throws InvocationTargetException, IllegalAccessException {
