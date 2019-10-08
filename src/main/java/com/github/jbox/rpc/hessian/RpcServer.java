@@ -1,4 +1,4 @@
-package com.github.jbox.rpc.hession;
+package com.github.jbox.rpc.hessian;
 
 import com.github.jbox.utils.IPv4;
 import lombok.extern.slf4j.Slf4j;

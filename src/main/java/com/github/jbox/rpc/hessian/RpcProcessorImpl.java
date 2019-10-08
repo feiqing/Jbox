@@ -1,4 +1,4 @@
-package com.github.jbox.rpc.hession;
+package com.github.jbox.rpc.hessian;
 
 import com.alibaba.fastjson.JSON;
 import com.github.jbox.helpers.ThrowableSupplier;

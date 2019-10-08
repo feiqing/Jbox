@@ -1,4 +1,4 @@
-package com.github.jbox.rpc.hession;
+package com.github.jbox.rpc.hessian;
 
 import com.caucho.hessian.client.HessianProxyFactory;
 import com.github.jbox.utils.IPv4;
