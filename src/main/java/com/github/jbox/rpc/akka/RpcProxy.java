@@ -1,11 +1,19 @@
-package com.github.jbox.rpc.proto;
+package com.github.jbox.rpc.akka;
 
+import akka.actor.ActorRef;
+import akka.pattern.Patterns;
+import akka.util.Timeout;
 import com.alibaba.fastjson.JSON;
+import com.github.jbox.rpc.proto.RpcMsg;
+import com.github.jbox.rpc.proto.RpcResult;
 import com.github.jbox.utils.IPv4;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.MDC;
 import org.springframework.cglib.proxy.MethodInterceptor;
 import org.springframework.cglib.proxy.MethodProxy;
+import scala.concurrent.Await;
+import scala.concurrent.Future;
+import scala.concurrent.duration.Duration;
 
 import java.lang.reflect.Method;
 
@@ -14,30 +22,24 @@ import static com.github.jbox.utils.Collections3.nullToEmpty;
 /**
  * @author jifang.zjf@alibaba-inc.com (FeiQing)
  * @version 1.0
- * @since 2018/11/13 8:08 PM.
+ * @since 2019/10/6 7:08 PM.
  */
 @Slf4j(topic = "JboxRpcClient")
-public class RpcProxy implements MethodInterceptor {
+class RpcProxy implements MethodInterceptor {
 
     private Class<?> api;
 
-    private RpcProcessor rpcProcessor;
+    private ActorRef router;
 
     private String servIp;
 
-    private boolean logParams;
+    private long readTimeout;
 
-    private boolean logRetObj;
-
-    private boolean logMdcCtx;
-
-    public RpcProxy(Class<?> api, RpcProcessor rpcProcessor, String servIp, boolean logParams, boolean logRetObj, boolean logMdcCtx) {
+    RpcProxy(Class<?> api, ActorRef router, String servIp, long readTimeout) {
         this.api = api;
-        this.rpcProcessor = rpcProcessor;
+        this.router = router;
         this.servIp = servIp;
-        this.logParams = logParams;
-        this.logRetObj = logRetObj;
-        this.logMdcCtx = logMdcCtx;
+        this.readTimeout = readTimeout;
     }
 
     @Override
@@ -45,16 +47,24 @@ public class RpcProxy implements MethodInterceptor {
 
         RpcMsg msg = new RpcMsg();
         msg.setClientIp(IPv4.getLocalIp());
+        msg.setServIp(servIp);
         msg.setClassName(api.getName());
         msg.setMethodName(method.getName());
         msg.setArgs(args);
         msg.setMdcContext(nullToEmpty(MDC.getCopyOfContextMap()));
 
-        Object result = null;
+        RpcResult result = null;
         Throwable except = null;
         long start = System.currentTimeMillis();
         try {
-            result = rpcProcessor.process(msg);
+            Timeout timeout = new Timeout(Duration.create(readTimeout, "ms"));
+            Future<Object> future = Patterns.ask(router, msg, timeout);
+            result = (RpcResult) Await.result(future, timeout.duration());
+
+            if (result.getException() != null) {
+                throw result.getException();
+            }
+
         } catch (Throwable t) {
             except = t;
             throw t;
@@ -67,14 +77,14 @@ public class RpcProxy implements MethodInterceptor {
                         servIp,
                         msg.getClassName(), msg.getMethodName(),
                         cost,
-                        logParams ? JSON.toJSONString(msg.getArgs()) : "",
-                        (result != null && logRetObj) ? JSON.toJSONString(result) : "",
+                        JSON.toJSONString(msg.getArgs()),
+                        result != null ? JSON.toJSONString(result) : "",
                         except != null ? JSON.toJSONString(except) : "",
-                        logMdcCtx ? JSON.toJSONString(msg.getMdcContext()) : ""
+                        JSON.toJSONString(msg.getMdcContext())
                 );
             }
         }
 
-        return result;
+        return result.getData();
     }
 }

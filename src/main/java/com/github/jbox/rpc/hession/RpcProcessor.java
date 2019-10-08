@@ -1,4 +1,6 @@
-package com.github.jbox.rpc.proto;
+package com.github.jbox.rpc.hession;
+
+import com.github.jbox.rpc.proto.RpcMsg;
 
 /**
  * @author jifang.zjf@alibaba-inc.com (FeiQing)

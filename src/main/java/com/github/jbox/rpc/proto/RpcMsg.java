@@ -18,6 +18,8 @@ public class RpcMsg implements Serializable {
 
     private static final long serialVersionUID = 2006423345030709062L;
 
+    private String servIp;
+
     private String clientIp;
 
     private String className;

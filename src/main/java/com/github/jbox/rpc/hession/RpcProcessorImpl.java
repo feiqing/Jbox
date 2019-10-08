@@ -1,7 +1,8 @@
-package com.github.jbox.rpc.proto;
+package com.github.jbox.rpc.hession;
 
 import com.alibaba.fastjson.JSON;
 import com.github.jbox.helpers.ThrowableSupplier;
+import com.github.jbox.rpc.proto.RpcMsg;
 import com.github.jbox.utils.IPv4;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationContext;
@@ -28,17 +29,8 @@ public class RpcProcessorImpl implements RpcProcessor {
 
     private ApplicationContext applicationContext;
 
-    private boolean logParams;
-
-    private boolean logRetObj;
-
-    private boolean logMdcCtx;
-
-    public RpcProcessorImpl(ApplicationContext applicationContext, boolean logParams, boolean logRetObj, boolean logMdcCtx) {
+    public RpcProcessorImpl(ApplicationContext applicationContext) {
         this.applicationContext = applicationContext;
-        this.logParams = logParams;
-        this.logRetObj = logRetObj;
-        this.logMdcCtx = logMdcCtx;
     }
 
     @Override
@@ -74,10 +66,10 @@ public class RpcProcessorImpl implements RpcProcessor {
                             IPv4.getLocalIp(),
                             msg.getClassName(), msg.getMethodName(),
                             cost,
-                            logParams ? JSON.toJSONString(msg.getArgs()) : "",
-                            (result != null && logRetObj) ? JSON.toJSONString(result) : "",
+                            JSON.toJSONString(msg.getArgs()),
+                            result != null ? JSON.toJSONString(result) : "",
                             except != null ? JSON.toJSONString(except) : "",
-                            logMdcCtx ? JSON.toJSONString(msg.getMdcContext()) : ""
+                            JSON.toJSONString(msg.getMdcContext())
                     );
                 }
             }
