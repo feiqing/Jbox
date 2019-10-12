@@ -10,6 +10,6 @@ public class SpmTest {
     private static Spm.Type test = () -> "test";
 
     public static void main(String[] args) {
-        Spm.log(test, 48042, true, 11L);
+        Spm.log(test, 48042, true, 11L, 8848);
     }
 }

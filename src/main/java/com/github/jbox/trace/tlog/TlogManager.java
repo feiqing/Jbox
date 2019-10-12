@@ -54,7 +54,7 @@ public class TlogManager extends AbstractTlogConfig implements InitializingBean 
         if (tLogger == null) {
             tLogger = LogBackHelper.initTLogger(
                     getUniqueLoggerName(), getFilePath(),
-                    getCharset(), getMaxHistory(), getTotalSizeCapKb(),
+                    getCharset(), "%m%n%n", getMaxHistory(), getTotalSizeCapKb(),
                     getFilters());
         }
     }

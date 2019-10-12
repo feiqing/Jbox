@@ -1,7 +1,10 @@
 package com.github.jbox.utils;
 
+import com.github.jbox.trace.tlog.LogBackHelper;
 import com.google.common.base.Joiner;
-import lombok.extern.slf4j.Slf4j;
+import com.google.common.base.Strings;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Arrays;
 import java.util.LinkedList;
@@ -12,8 +15,25 @@ import java.util.List;
  * @version 1.0
  * @since 2018/11/7 5:43 PM.
  */
-@Slf4j(topic = "Spm")
 public class Spm {
+
+    private static Logger log;
+
+    static {
+        String homePath = System.getProperty("user.home");
+        String appName = System.getProperty("app.name", "");
+        if (Strings.isNullOrEmpty(appName)) {
+            appName = System.getProperty("project.name", "");
+        }
+        String logPath = homePath + "/" + appName + "/logs/spm.log";
+
+        String pattern = "%d{yyyy-MM-dd HH:mm:ss} %-5level %logger{35} %X{traceId} - %msg%n";
+
+        LoggerFactory.getLogger(Spm.class).warn("spm log path:[{}], pattern:[{}]", logPath, pattern);
+
+
+        log = LogBackHelper.initTLogger("Spm", logPath, "UTF-8", pattern, 1, 0, null);
+    }
 
     /**
      * 前五位固定: localIp | type | slotKey(如storeId, userId等) | is_success | cost |

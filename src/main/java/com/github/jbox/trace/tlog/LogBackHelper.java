@@ -27,11 +27,11 @@ import static com.github.jbox.trace.tlog.TlogConstants.LOGGER_FILE_PATTERN;
  * @version 1.0
  * @since 2017/9/23 08:15:00.
  */
-class LogBackHelper {
+public class LogBackHelper {
 
     private static final Logger tracer = LoggerFactory.getLogger("com.github.jbox.trace");
 
-    static Logger initTLogger(String loggerName, String filePath, String charset, int maxHistory, long totalSizeCapKb,
+    public static Logger initTLogger(String loggerName, String filePath, String charset, String pattern,  int maxHistory, long totalSizeCapKb,
                               List<TlogFilter> filters) {
         Preconditions.checkArgument(!Strings.isNullOrEmpty(loggerName), "log name can't be empty!");
         Preconditions.checkArgument(!Strings.isNullOrEmpty(filePath), "log file can't be empty!");
@@ -62,7 +62,7 @@ class LogBackHelper {
 
                 // init encoder
                 PatternLayoutEncoder encoder = new PatternLayoutEncoder();
-                encoder.setPattern("%m%n%n");
+                encoder.setPattern(pattern);
                 encoder.setCharset(Charset.forName(charset));
                 encoder.setContext(tLogger.getLoggerContext());
                 encoder.start();
