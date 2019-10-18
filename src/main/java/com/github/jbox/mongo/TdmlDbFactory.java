@@ -2,12 +2,12 @@ package com.github.jbox.mongo;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.Sets;
-import net.sf.cglib.proxy.Callback;
-import net.sf.cglib.proxy.Enhancer;
-import net.sf.cglib.proxy.MethodInterceptor;
-import net.sf.cglib.proxy.MethodProxy;
 import org.slf4j.MDC;
 import org.springframework.beans.factory.FactoryBean;
+import org.springframework.cglib.proxy.Callback;
+import org.springframework.cglib.proxy.Enhancer;
+import org.springframework.cglib.proxy.MethodInterceptor;
+import org.springframework.cglib.proxy.MethodProxy;
 import org.springframework.data.mongodb.core.MongoOperations;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.ReflectionUtils;
