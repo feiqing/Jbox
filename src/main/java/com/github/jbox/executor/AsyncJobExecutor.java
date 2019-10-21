@@ -56,7 +56,7 @@ public class AsyncJobExecutor<T> {
     }
 
     protected ExecutorService getWorker() {
-        return ExecutorManager.newFixedMinMaxThreadPool("com.github.jbox.executor:AsyncJobExecutor", 20, 20, 1024, new ThreadPoolExecutor.AbortPolicy());
+        return ExecutorManager.newFixedMinMaxThreadPool("com.github.jbox.executor:AsyncJobExecutor", 20, 20, 1024 * 1024, new ThreadPoolExecutor.AbortPolicy());
     }
 
     public AsyncJobExecutor<T> addTask(Supplier<T> task) {
