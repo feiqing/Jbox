@@ -68,7 +68,7 @@
         <hession.version>4.0.38</hession.version>
         <kryo.version>4.0.0</kryo.version>
         <guava.version>18.0</guava.version>
-        <fastjson.version>1.2.7</fastjson.version>
+        <fastjson.version>1.2.25</fastjson.version>
         <commons.lang.version>3.4</commons.lang.version>
         <commons.proxy.version>1.0</commons.proxy.version>
         <cglib.version>3.2.0</cglib.version>
