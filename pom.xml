@@ -9,7 +9,7 @@
     <groupId>com.github.jbox</groupId>
     <artifactId>jbox</artifactId>
     <packaging>jar</packaging>
-    <version>2.0.1.4-ts-fix-SNAPSHOT</version>
+    <version>2.1.1-oplog-SNAPSHOT</version>
 
     <name>${project.groupId}:${project.artifactId}</name>
     <description>Jbox: business utils collection</description>
@@ -88,11 +88,13 @@
         <groovy.version>2.4.7</groovy.version>
         <scala.version>2.12.3</scala.version>
         <akka.version>2.4.17</akka.version>
+        <disruptor.version>3.4.2</disruptor.version>
 
         <hbase.version>1.3.1</hbase.version>
         <spring.data.hbase.version>2.5.0.RELEASE</spring.data.hbase.version>
 
         <spring.data.mongo.version>1.10.9.RELEASE</spring.data.mongo.version>
+        <mongo.version>3.4.3</mongo.version>
 
         <eagleeye.version>1.5.2.5</eagleeye.version>
         <diamond.version>3.7.8</diamond.version>
@@ -176,6 +178,12 @@
             <groupId>com.typesafe.akka</groupId>
             <artifactId>akka-remote_2.12</artifactId>
             <version>${akka.version}</version>
+            <optional>true</optional>
+        </dependency>
+        <dependency>
+            <groupId>com.lmax</groupId>
+            <artifactId>disruptor</artifactId>
+            <version>${disruptor.version}</version>
             <optional>true</optional>
         </dependency>
 
@@ -284,6 +292,18 @@
             <groupId>org.springframework.data</groupId>
             <artifactId>spring-data-mongodb</artifactId>
             <version>${spring.data.mongo.version}</version>
+            <optional>true</optional>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.mongodb</groupId>
+                    <artifactId>mongo-java-driver</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>org.mongodb</groupId>
+            <artifactId>mongodb-driver</artifactId>
+            <version>${mongo.version}</version>
             <optional>true</optional>
         </dependency>
 
