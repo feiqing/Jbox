@@ -95,10 +95,9 @@ class OplogReader {
         @Override
         public void run() {
             while (started.get()) {
-                BasicDBObject where = new BasicDBObject();
-                where.put("ts", new BasicDBObject("$gt", getStartCursor(client, url, db)));
-
                 try {
+                    BasicDBObject where = new BasicDBObject();
+                    where.put("ts", new BasicDBObject("$gt", getStartCursor(client, url, db)));
                     readLog(client, url, db, where);
                 } catch (Throwable t) {
                     log.error("mongo [{}/{}] read oplog error.", url, db, t);
