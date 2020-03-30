@@ -9,7 +9,7 @@
     <groupId>com.github.jbox</groupId>
     <artifactId>jbox</artifactId>
     <packaging>jar</packaging>
-    <version>2.1.1-oplog-SNAPSHOT</version>
+    <version>2.1.2-class-SNAPSHOT</version>
 
     <name>${project.groupId}:${project.artifactId}</name>
     <description>Jbox: business utils collection</description>
