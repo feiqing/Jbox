@@ -14,18 +14,17 @@
 | 组件 | 描述&内容 |
 | :---- | :---- |
 | `AsyncJobExecutor` | 批量任务并发执行&等待框架 |
-| `ExecutorsManager` | *`java.util.concurrent.Executors`线程池扩展:* |
-| | - 分组`group`内线程池单例, 防止建线程池循环创建 |
-| | - 线程以`'${group}-${number}'`形式命名, 使线程栈查看更加清晰 |
-| | - 开放`newFixedMinMaxThreadPool()`方法, 提供比`Executors`更灵活, 比`ThreadPoolExecutor`更便捷的配置方式 |
-| | - 提供`com.github.jbox.executor.policy`线程拒绝策略, 在`Task-Queue`满时打印日志 |
-| | - 自动将`org.slf4j.MDC`数据copy到子线程context, 并在子线程执行结束时自动清理 |
-| `ExecutorMonitor`监控 | 打印线程池监控信息到`Logger:com.github.jbox.executor.ExecutorMonitor`下: |
-| | - Group相关: 'active count'、'core pool size'、'pool size'、'max pool size' |
-| | - TaskInvoke相关: 'success count'、'failure count'、'avg rt'、'avg tps' |
-| | - TaskQueue相关: 'queue size'、'remaining queue size' |
-| | - TopN阻塞Task相关: 'taskInfo()'、'task hash' |
-    
+| `ExecutorsManager` | ***`java.util.concurrent.Executors`线程池扩展:*** |
+| | 分组`group`内线程池单例, 防止建线程池循环创建 |
+| | 线程以`'${group}-${number}'`形式命名, 使线程栈查看更加清晰 |
+| | 开放`newFixedMinMaxThreadPool()`方法, 提供比`Executors`更灵活, 比`ThreadPoolExecutor`更便捷的配置方式 |
+| | 提供`com.github.jbox.executor.policy`线程拒绝策略, 在`Task-Queue`满时打印日志 |
+| | 自动将`org.slf4j.MDC`数据copy到子线程context, 并在子线程执行结束时自动清理 |
+| `ExecutorMonitor`监控 | ***打印线程池监控信息到`Logger:com.github.jbox.executor.ExecutorMonitor`下:*** |
+| | Group相关:        'active count'、'core pool size'、'pool size'、'max pool size' |
+| | TaskInvoke相关:   'success count'、'failure count'、'avg rt'、'avg tps' |
+| | TaskQueue相关:    'queue size'、'remaining queue size' |
+| | TopN阻塞Task相关:  'taskInfo()'、'task hash' |
 
 ---
 ## flood:AB流量测试框架
