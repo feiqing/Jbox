@@ -1,16 +1,8 @@
 # Jbox 工具集合
 > **2.2.0**
 
-## biz-商业工具
-
-| class | 描述 |
-| :---- | :---- |
-| `com.github.jbox.biz.ResultDO` | 业务返回model统一封装 |
-| `com.github.jbox.biz.PageResultDO` | (分页Result) |
-| `com.github.jbox.biz.IErrorCode` | 业务错误结果统一封装 |
-| `com.github.jbox.biz.BizException` | 业务异常统一封装 |
-
-## executor-并发组件
+---
+## executor: 并发组件
 | 组件 | 描述&内容 |
 | :---- | :---- |
 | `AsyncJobExecutor` | 批量任务并发执行&等待框架 |
@@ -20,70 +12,77 @@
 | | 开放`newFixedMinMaxThreadPool()`方法, 提供比`Executors`更灵活, 比`ThreadPoolExecutor`更便捷的配置方式 |
 | | 提供`com.github.jbox.executor.policy`线程拒绝策略, 在`Task-Queue`满时打印日志 |
 | | 自动将`org.slf4j.MDC`数据copy到子线程context, 并在子线程执行结束时自动清理 |
-| `ExecutorMonitor`监控 | ***打印线程池监控信息到`Logger:com.github.jbox.executor.ExecutorMonitor`下:*** |
+| `ExecutorMonitor` | ***监控:打印线程池监控信息到`Logger:com.github.jbox.executor.ExecutorMonitor`下:*** |
 | | Group相关:        'active count'、'core pool size'、'pool size'、'max pool size' |
 | | TaskInvoke相关:   'success count'、'failure count'、'avg rt'、'avg tps' |
 | | TaskQueue相关:    'queue size'、'remaining queue size' |
 | | TopN阻塞Task相关:  'taskInfo()'、'task hash' |
 
 ---
-## flood:AB流量测试框架
-- 详见: `com.github.jbox.flood.FloodABExperiment`
+
+## rpc: 基于akka、hessian两种实现的RPC框架
+- 最佳示例
+> 配置
+```xml
+<bean class="com.github.jbox.rpc.akka.RpcServer"/>
+<bean class="com.github.jbox.rpc.akka.RpcClient">
+    <property name="readTimeout" value="200"/>
+</bean>
+```
+
+> client调用
+
+![](https://img.alicdn.com/tfs/TB1abdVF4v1gK0jSZFFXXb0sXXa-1050-229.png)
+> 调用方式: `client.proxy("${server-ip}", ${server-service}.class).${service-method}(${params})`
+
+> akka额外提供asyncProxy高性能异步调用, 详见: `com.github.jbox.rpc.akka.RpcClient`
 
 ---
-## hbase: 基于HBase(HbaseTemplate)的ORM框架: HBaseBatis
+
+## job: 逻辑解耦框架
+> 强制对复杂业务逻辑解耦, 保障业务流程清晰流畅, 每一个Task与整体任务在框架层面进行监控, 保障任务串正确执行
+
+- 最佳示例
+> 配置
+```xml
+<bean id="ipoTraceAspect" class="com.github.jbox.trace.TraceLauncher">
+    <property name="tasks">
+        <list>
+            <bean class="com.github.jbox.trace.tasks.EagleEyeTask"/>
+            <bean class="com.github.jbox.trace.tasks.ArgValidateTask"/>
+            <bean class="com.github.jbox.trace.tasks.LogRootErrorTask"/>
+            <bean class="com.github.jbox.trace.tasks.MethodInvokeTask"/>
+        </list>
+    </property>
+</bean>
+```
+> 实现
+![](https://img.alicdn.com/tfs/TB1qjBPFYr1gK0jSZFDXXb9yVXa-1009-754.png)
+
+---
+
+## mongo: MongoORM框架: MongoBatis
+| 组件 | 描述 |
+| :---- | :---- |
+|  `SequenceDAO` | 分布式高性能SequenceID生成(已自动融合进`insert`、`upsert`等方法) |
+| `TdmlTableFactory` | Mongo分表, 基于MDC context |
+| `TdmlDbFactory` | Mongo分库, Proxy模式, 业务0侵入, 方便配置 |
+| `MongoBatis` | ORM |
+| | `insert`自动添加`gmt_create`、`gmt_modified`、`_id`(`long`)属性 |
+| | `update`自动更新`gmt_modified`属性为当前系统时间 |
+| | `find`、`update`、`remove`等以的`Map<String, Object>`作为**查询**、**更新**参数, 屏蔽Mongo特殊的语法 |
+| | `findById`、分页`find`、`updateById`、`removeById`、`distinct`等helper方法 |
+
+## oplog: MongoOplog日志解析&同步框架
+- 详见: `com.github.jbox.oplog.OplogTailStarter`
+
+---
+## hbase: HBaseORM框架: HBaseBatis
 - 详见: `com.github.jbox.hbase.HBaseBatis`
 
----
-## mongo: 基于MongoDB(MongoTemplate)的ORM框架: MongoBatis
-- 提供的能力:
-    - SequenceDAO: 将MongoDB的`ObjectId _id`属性转换为递增的`long _id`
-    - `insert`方法添加`gmt_create`、`gmt_modified`属性.
-    - `update`方法自动更新`gmt_modified`属性为当前系统时间.
-    - `find`、`update`、`remove`等方法以的`Map<String, Object>`作为**查询**、**更新**参数, 屏蔽Mongo特殊的语法.
-    - 添加`findById`、分页`find`、`updateById`、`removeById`、`distinct`等帮助方法.
-- 详见: `com.github.jbox.mongo.MongoBatis`
 
 ---
-## http: 针对HttpClient `GET`/`POST`的统一请求/处理封装
-- 详见: `com.github.jbox.http.HttpGetClient`
-- 详见: `com.github.jbox.http.HttpPostClient`
 
----
-## scheduler: 单机任务调度框架
-- 详见: `com.github.jbox.scheduler.TaskScheduler`
-
----
-## script: 运行时Script执行框架
-- 详见: `com.github.jbox.script.ScriptExecutor`
-- 支持:
-    - JavaScript
-    - Groovy
-    - Python
-
----
-## serializer: 统一序列化/反序列化接口
-- 详见: `com.github.jbox.serializer.ISerializer`
-- 默认支持:
-    - fastjson: `com.github.jbox.serializer.support.FastJsonSerializer`
-    - hessian2: `com.github.jbox.serializer.support.Hessian2Serializer`
-    - kryo: `com.github.jbox.serializer.support.KryoSerializer`
-    - jdk: `com.github.jbox.serializer.support.JdkSerializer`
-    - jdk(with gzip): `com.github.jbox.serializer.support.JdkGzipSerializer`
-   
----
-## spring: Spring容器扩展
-- 容器启动耗时监控: `com.github.jbox.spring.BeanInstantiationMonitor`
-- SpringContext注入: `com.github.jbox.spring.AbstractApplicationContextAware`
-- 懒初始化Bean支持: `com.github.jbox.spring.LazyInitializingBean`
-- 非Spring托管Bean `@Resource`、`@Autowired`、`@Value`适配器: `com.github.jbox.spring.SpringAutowiredAdaptor`
-- `@Value`注解动态配置支持: `com.github.jbox.spring.DynamicPropertySourcesPlaceholder`
-    - 默认支持淘宝Diamond: `DiamondPropertySourcesPlaceholder`;
----
-## stream: Stream并发多级利用
-- 详见: `com.github.jbox.stream.StreamForker`
-
----
 ## trace: 业务层统一AOP框架
 - 主控器: `com.github.jbox.trace.TraceLauncher`
 - spi
@@ -114,10 +113,64 @@
     | `client ip`     | 调用方IP |
 
 ---
+## biz:商业工具
+
+| class | 描述 |
+| :---- | :---- |
+| `com.github.jbox.biz.ResultDO` | 业务返回model统一封装 |
+| `com.github.jbox.biz.PageResultDO` | (分页Result) |
+| `com.github.jbox.biz.IErrorCode` | 业务错误结果统一封装 |
+| `com.github.jbox.biz.BizException` | 业务异常统一封装 |
+
+---
+## flood:AB流量测试框架
+- 详见: `com.github.jbox.flood.FloodABExperiment`
+
+---
+## http: 针对HttpClient `GET`/`POST`的统一请求/处理封装
+- 详见: `com.github.jbox.http.HttpGetClient`
+- 详见: `com.github.jbox.http.HttpPostClient`
+
+---
+## scheduler: 单机任务调度框架
+- 详见: `com.github.jbox.scheduler.TaskScheduler`
+
+---
+## script: 运行时Script执行框架
+- 详见: `com.github.jbox.script.ScriptExecutor`
+- 支持:
+    - JavaScript
+    - Groovy
+    - Python
+
+---
+## serializer: 统一序列化/反序列化接口
+- 详见: `com.github.jbox.serializer.ISerializer`
+- 默认支持:
+    - fastjson: `com.github.jbox.serializer.support.FastJsonSerializer`
+    - hessian2: `com.github.jbox.serializer.support.Hessian2Serializer`
+    - kryo: `com.github.jbox.serializer.support.KryoSerializer`
+    - jdk: `com.github.jbox.serializer.support.JdkSerializer`
+    - jdk(with gzip): `com.github.jbox.serializer.support.JdkGzipSerializer`
+   
+---
+## spring: Spring容器扩展
+- Spring容器启动耗时监控: `com.github.jbox.spring.BeanInstantiationMonitor`
+- SpringContext注入: `com.github.jbox.spring.AbstractApplicationContextAware`
+- 懒初始化Bean支持: `com.github.jbox.spring.LazyInitializingBean`
+- 非Spring托管Bean `@Resource`、`@Autowired`、`@Value`适配器: `com.github.jbox.spring.SpringAutowiredAdaptor`
+- `@Value`注解动态配置支持: `com.github.jbox.spring.DynamicPropertySourcesPlaceholder`
+    - 默认支持淘宝Diamond: `DiamondPropertySourcesPlaceholder`;
+---
+## stream: Stream并发多级利用
+- 详见: `com.github.jbox.stream.StreamForker`
+
+---
 ## utils- 通用工具
 
 | utils | desc |
 | :------: | :-------- |
+| `JboxUtils` | 通用工具集: `getFieldValue`、`getAbstractMethod`、`getImplMethod`、`getStackTrace`、`getServerIp`、`trimPrefixAndSuffix`、`getSimplifiedMethodName` |
 | `AESUtils`   | AES加解密 |
 | `AopTargetUtils`   | 获取AOP target |
 | `BeanCopyUtil` | Bean属性对拷, 忽略属性类型 |
@@ -133,8 +186,6 @@
 | `ProxyTargetUtils` | 获取Proxy target(仅支持Proxy实现包含`target`属性的情况) |
 | `SizeOf` | 精确测量内存内Java对象大小(`-javaagent`) |
 | `Tony` | 玩具工具 |
-| `JboxUtils` | 通用工具集: `getFieldValue`、`getAbstractMethod`、`getImplMethod`、`getStackTrace`、`getServerIp`、`trimPrefixAndSuffix`、`getSimplifiedMethodName` |
-
 
 ---
 # todo
