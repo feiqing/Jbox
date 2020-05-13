@@ -105,7 +105,7 @@ public class JboxUtils {
 
     public static String getStackTrace() {
         StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
-        if (stackTrace != null && stackTrace.length > STACK_BASE_DEEP) {
+        if (stackTrace.length > STACK_BASE_DEEP) {
             StringBuilder sb = new StringBuilder("current thread [")
                     .append(Thread.currentThread().getName())
                     .append("] : ");

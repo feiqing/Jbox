@@ -167,10 +167,9 @@
 
 ---
 ## utils- 通用工具
-
 | utils | desc |
 | :------: | :-------- |
-| `JboxUtils` | 通用工具集: `getFieldValue`、`getAbstractMethod`、`getImplMethod`、`getStackTrace`、`getServerIp`、`trimPrefixAndSuffix`、`getSimplifiedMethodName` |
+| `JboxUtils` | 通用工具方法: `getFieldValue`、`getStackTrace`、`runWithNewMdcContext` |
 | `AESUtils`   | AES加解密 |
 | `AopTargetUtils`   | 获取AOP target |
 | `BeanCopyUtil` | Bean属性对拷, 忽略属性类型 |
