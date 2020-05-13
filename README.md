@@ -2,7 +2,7 @@
 > **2.2.0**
 
 ---
-## executor: 并发组件
+## executor: [并发组件](https://github.com/feiqing/jbox/tree/master/src/main/java/com/github/jbox/executor)
 | 组件 | 描述&内容 |
 | :---- | :---- |
 | `AsyncJobExecutor` | 批量任务并发执行&等待框架 |
