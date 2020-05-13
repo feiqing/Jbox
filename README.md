@@ -1,9 +1,14 @@
 # Jbox 工具集合
 > 1.7.1-SNAPSHOT
 
-## biz-业务对象包
-- `com.github.jbox.biz.ResultDO`: HTTP/RPC接口Result统一封装
-- `com.github.jbox.biz.BizException`、`com.github.jbox.biz.IErrorCode`: 业务异常封装
+## biz-商业工具
+
+| class | 描述 |
+| :---- | :---- |
+| `com.github.jbox.biz.ResultDO` | 业务返回model统一封装
+| `com.github.jbox.biz.PageResultDO` | (分页Result) |
+| `com.github.jbox.biz.IErrorCode` | 业务错误结果统一封装 |
+| `com.github.jbox.biz.BizException` | 业务异常统一封装 |
 
 ## executor-线程池扩展
 - `AsyncJobExecutor`: 异步任务并发execute/waiting框架
