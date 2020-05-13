@@ -20,7 +20,7 @@
 
 ---
 
-## rpc: 基于akka、hessian两种实现的RPC框架
+## rpc: [基于akka、hessian两种实现的RPC框架](https://github.com/feiqing/jbox/tree/master/src/main/java/com/github/jbox/rpc)
 - 最佳示例
 > 配置
 ```xml
@@ -39,7 +39,7 @@
 
 ---
 
-## job: 逻辑解耦框架
+## job: [逻辑解耦框架](https://github.com/feiqing/jbox/tree/master/src/main/java/com/github/jbox/job)
 > 强制对复杂业务逻辑解耦, 保障业务流程清晰流畅, 每一个Task与整体任务在框架层面进行监控, 保障任务串正确执行
 
 - 最佳示例
@@ -61,7 +61,7 @@
 
 ---
 
-## mongo: MongoORM框架: MongoBatis
+## mongo: [MongoORM框架: MongoBatis](https://github.com/feiqing/jbox/tree/master/src/main/java/com/github/jbox/mongo)
 | 组件 | 描述 |
 | :---- | :---- |
 |  `SequenceDAO` | 分布式高性能SequenceID生成(已自动融合进`insert`、`upsert`等方法) |
@@ -73,17 +73,16 @@
 | | `find`、`update`、`remove`等以的`Map<String, Object>`作为**查询**、**更新**参数, 屏蔽Mongo特殊的语法 |
 | | `findById`、分页`find`、`updateById`、`removeById`、`distinct`等helper方法 |
 
-## oplog: MongoOplog日志解析&同步框架
+## oplog: [MongoOplog日志解析&同步框架](https://github.com/feiqing/jbox/tree/master/src/main/java/com/github/jbox/oplog)
 - 详见: `com.github.jbox.oplog.OplogTailStarter`
 
 ---
-## hbase: HBaseORM框架: HBaseBatis
+## hbase: [HBaseORM框架: HBaseBatis](https://github.com/feiqing/jbox/tree/master/src/main/java/com/github/jbox/hbase)
 - 详见: `com.github.jbox.hbase.HBaseBatis`
 
 
 ---
-
-## trace: 业务层统一AOP框架
+## trace: [业务层统一AOP框架](https://github.com/feiqing/jbox/tree/master/src/main/java/com/github/jbox/trace)
 - 主控器: `com.github.jbox.trace.TraceLauncher`
 - spi
     - 可执行节点: `com.github.jbox.trace.InvokerNode`
@@ -113,7 +112,7 @@
     | `client ip`     | 调用方IP |
 
 ---
-## biz:商业工具
+## biz: [商业工具](https://github.com/feiqing/jbox/tree/master/src/main/java/com/github/jbox/biz)
 
 | class | 描述 |
 | :---- | :---- |
@@ -123,20 +122,20 @@
 | `com.github.jbox.biz.BizException` | 业务异常统一封装 |
 
 ---
-## flood:AB流量测试框架
+## flood: [AB流量测试框架](https://github.com/feiqing/jbox/tree/master/src/main/java/com/github/jbox/flood)
 - 详见: `com.github.jbox.flood.FloodABExperiment`
 
 ---
-## http: 针对HttpClient `GET`/`POST`的统一请求/处理封装
+## http: [针对HttpClient `GET`/`POST`的统一请求/处理封装](https://github.com/feiqing/jbox/tree/master/src/main/java/com/github/jbox/http)
 - 详见: `com.github.jbox.http.HttpGetClient`
 - 详见: `com.github.jbox.http.HttpPostClient`
 
 ---
-## scheduler: 单机任务调度框架
+## scheduler: [单机任务调度框架](https://github.com/feiqing/jbox/tree/master/src/main/java/com/github/jbox/scheduler)
 - 详见: `com.github.jbox.scheduler.TaskScheduler`
 
 ---
-## script: 运行时Script执行框架
+## script: [运行时Script执行框架](https://github.com/feiqing/jbox/tree/master/src/main/java/com/github/jbox/script)
 - 详见: `com.github.jbox.script.ScriptExecutor`
 - 支持:
     - JavaScript
@@ -144,7 +143,7 @@
     - Python
 
 ---
-## serializer: 统一序列化/反序列化接口
+## serializer: [统一序列化/反序列化接口](https://github.com/feiqing/jbox/tree/master/src/main/java/com/github/jbox/serializer)
 - 详见: `com.github.jbox.serializer.ISerializer`
 - 默认支持:
     - fastjson: `com.github.jbox.serializer.support.FastJsonSerializer`
@@ -154,19 +153,16 @@
     - jdk(with gzip): `com.github.jbox.serializer.support.JdkGzipSerializer`
    
 ---
-## spring: Spring容器扩展
+## spring: [Spring容器扩展](https://github.com/feiqing/jbox/tree/master/src/main/java/com/github/jbox/spring)
 - Spring容器启动耗时监控: `com.github.jbox.spring.BeanInstantiationMonitor`
 - SpringContext注入: `com.github.jbox.spring.AbstractApplicationContextAware`
 - 懒初始化Bean支持: `com.github.jbox.spring.LazyInitializingBean`
 - 非Spring托管Bean `@Resource`、`@Autowired`、`@Value`适配器: `com.github.jbox.spring.SpringAutowiredAdaptor`
 - `@Value`注解动态配置支持: `com.github.jbox.spring.DynamicPropertySourcesPlaceholder`
     - 默认支持淘宝Diamond: `DiamondPropertySourcesPlaceholder`;
+  
 ---
-## stream: Stream并发多级利用
-- 详见: `com.github.jbox.stream.StreamForker`
-
----
-## utils- 通用工具
+## utils: [通用工具](https://github.com/feiqing/jbox/tree/master/src/main/java/com/github/jbox/utils)
 | utils | desc |
 | :------: | :-------- |
 | `JboxUtils` | 通用工具方法: `getFieldValue`、`getStackTrace`、`runWithNewMdcContext` |
