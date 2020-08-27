@@ -2,6 +2,7 @@ package com.github.jbox.mongo;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.Sets;
+import lombok.Getter;
 import org.slf4j.MDC;
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.cglib.proxy.Callback;
@@ -36,17 +37,27 @@ public class TdmlDbFactory<T extends MongoBatis> implements FactoryBean<T> {
     }
 
     // 不能是static, 每个实例单独一个
-    private ConcurrentMap<String, Routee> router = new ConcurrentHashMap<>();
+    private volatile ConcurrentMap<String, Routee> router = new ConcurrentHashMap<>();
 
+    @Getter
     private String slotKey;
 
+    @Getter
     private Class<?> type;
 
     private T proxy;
 
     public TdmlDbFactory(String slotKey, List<Routee<T>> routees) {
+        setRouter(slotKey, routees);
+        this.slotKey = slotKey;
+        this.type = routees.get(0).getTarget().getClass();
+        this.proxy = newProxy();
+    }
+
+    public void setRouter(String slotKey, List<Routee<T>> routees) {
         precheck(slotKey, routees);
 
+        ConcurrentMap<String, Routee> router = new ConcurrentHashMap<>();
         for (Routee<T> routee : routees) {
             if (routee.isStandby()) {
                 router.put(DEFAULT_STAND_BY_MDC_KEY, routee);
@@ -55,9 +66,7 @@ public class TdmlDbFactory<T extends MongoBatis> implements FactoryBean<T> {
             }
         }
 
-        this.slotKey = slotKey;
-        this.type = routees.get(0).getTarget().getClass();
-        this.proxy = newProxy();
+        this.router = router;
     }
 
     @SuppressWarnings("unchecked")
@@ -91,12 +100,12 @@ public class TdmlDbFactory<T extends MongoBatis> implements FactoryBean<T> {
         }
     };
 
-    private void precheck(String mdcKey, List<Routee<T>> routees) {
-        if (Strings.isNullOrEmpty(mdcKey)) {
-            throw new TdmlException("mdcKey is empty");
+    private void precheck(String slotKey, List<Routee<T>> routees) {
+        if (Strings.isNullOrEmpty(slotKey)) {
+            throw new TdmlException("slotKey is empty");
         }
         if (CollectionUtils.isEmpty(routees)) {
-            throw new TdmlException("mdcKey:[{}]'s routees empty", mdcKey);
+            throw new TdmlException("slotKey:[{}]'s routees empty", slotKey);
         }
 
         Set<String> ids = new HashSet<>();
