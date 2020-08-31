@@ -19,7 +19,7 @@ import org.springframework.context.ApplicationContextAware;
 public class RpcServer implements ApplicationContextAware {
 
     @Setter
-    private int actorSize = 256;
+    private int actorSize = 20;
 
     @Override
     public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {

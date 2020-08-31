@@ -24,7 +24,7 @@ public class NamedThreadFactory implements ThreadFactory, ExecutorLoggerInner {
         Thread thread = new Thread(r);
         thread.setName(String.format("%s-%s", group, number.getAndIncrement()));
         thread.setUncaughtExceptionHandler(exceptionHandler);
-        thread.setDaemon(true);
+        thread.setDaemon(false);
         return thread;
     }
 
