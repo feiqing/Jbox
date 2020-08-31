@@ -38,7 +38,7 @@ public class ServerRouterActor extends UntypedActor {
     public void preStart() {
         List<Routee> routees = new ArrayList<>(actorSize);
         for (int i = 0; i < actorSize; ++i) {
-            Props props = Props.create(ServerRouteeActor.class, applicationContext).withDispatcher("server-routee-dispatcher");
+            Props props = Props.create(ServerRouteeActor.class, applicationContext).withDispatcher("akka-server-routee-dispatcher");
 
             ActorRef target = getContext().actorOf(props, "ServerRouteeActor:" + i);
             routees.add(new ActorRefRoutee(target));
