@@ -36,7 +36,7 @@ public class FailedLetterKafkaExchanger {
                     while (!Thread.currentThread().isInterrupted()) {
                         try {
                             for (org.apache.kafka.clients.consumer.KafkaConsumer<String, JSONObject> puller : pullers.values()) {
-                                ConsumerRecords<String, JSONObject> records = puller.poll(200L);
+                                ConsumerRecords<String, JSONObject> records = puller.poll(DEFAULT_EXCHANGE_PULL_TIMEOUT);
                                 for (ConsumerRecord<String, JSONObject> record : records) {
                                     Letter letter = JSON.toJavaObject(record.value(), Letter.class);
                                     List<SynchronousQueue<ConsumerRecord<String, JSONObject>>> queues = transQueues.get(letter.topic);

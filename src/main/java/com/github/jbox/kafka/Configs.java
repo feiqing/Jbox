@@ -37,4 +37,6 @@ public interface Configs {
     int DEFAULT_PULLER_CONCURRENCE = 1;
 
     long DEFAULT_PULL_TIMEOUT = 5000L;
+
+    long DEFAULT_EXCHANGE_PULL_TIMEOUT = 1000L;
 }
