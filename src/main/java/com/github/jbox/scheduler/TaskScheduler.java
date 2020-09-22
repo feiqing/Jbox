@@ -10,7 +10,10 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.util.CollectionUtils;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
@@ -43,19 +46,11 @@ public class TaskScheduler implements ApplicationContextAware, DisposableBean {
     @Override
     public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
         Collection<ScheduleTask> scheduleTasks = getNeedRegisterTask(applicationContext);
-        List<ScheduleTask> needInvokeOnStart = new LinkedList<>();
         for (ScheduleTask scheduleTask : scheduleTasks) {
             taskRegisters.add(TaskRegister.newRegister(scheduleTask));
-            if (scheduleTask.invokeAtStart()) {
-                needInvokeOnStart.add(scheduleTask);
-            }
-
             SCHEDULE_TASK_LOGGER.info("scheduleTask [{}] registered, period [{}]", scheduleTask.taskDesc(), scheduleTask.period());
         }
-
-        // invoke start task
-        needInvokeOnStart.forEach(this::invokeTask);
-
+        
         scheduleExecutor.scheduleAtFixedRate(
                 this::triggerTask,
                 BASE_TIME_FRAGMENT,

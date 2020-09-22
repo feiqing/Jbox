@@ -5,6 +5,7 @@ import com.github.jbox.scheduler.ScheduleTask;
 import com.github.jbox.utils.Collections3;
 import com.github.jbox.utils.JboxUtils;
 import com.github.jbox.utils.ProxyTargetUtils;
+import com.github.jbox.utils.T;
 import lombok.Setter;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
@@ -33,7 +34,7 @@ public class ExecutorMonitor implements ScheduleTask, ExecutorLoggerInner {
     private static Map<String, AtomicLong> beforeInvoked = new HashMap<>();
 
     @Setter
-    private long period = _1M_INTERVAL;
+    private long period = T.OneM;
 
     @Setter
     private int taskDetailsTopN = 5;
@@ -106,7 +107,7 @@ public class ExecutorMonitor implements ScheduleTask, ExecutorLoggerInner {
     }
 
     private double passedSeconds() {
-        return period * 1.0 / _1S_INTERVAL;
+        return period * 1.0 / T.OneS;
     }
 
     private Object[] getFlightRecorder(String group) {

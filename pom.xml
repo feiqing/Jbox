@@ -9,7 +9,7 @@
     <groupId>com.github.jbox</groupId>
     <artifactId>jbox</artifactId>
     <packaging>jar</packaging>
-    <version>2.3.0-dynamic-router-SNAPSHOT</version>
+    <version>2.4.1-kafka-SNAPSHOT</version>
 
     <name>${project.groupId}:${project.artifactId}</name>
     <description>Jbox: business utils collection</description>
@@ -95,6 +95,7 @@
 
         <spring.data.mongo.version>1.10.9.RELEASE</spring.data.mongo.version>
         <mongo.version>3.4.3</mongo.version>
+        <kafka.version>0.10.2.2</kafka.version>
 
         <eagleeye.version>1.5.2.5</eagleeye.version>
         <diamond.version>3.7.8</diamond.version>
@@ -309,6 +310,13 @@
             <groupId>org.mongodb</groupId>
             <artifactId>mongodb-driver</artifactId>
             <version>${mongo.version}</version>
+            <optional>true</optional>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.kafka</groupId>
+            <artifactId>kafka-clients</artifactId>
+            <version>${kafka.version}</version>
             <optional>true</optional>
         </dependency>
 

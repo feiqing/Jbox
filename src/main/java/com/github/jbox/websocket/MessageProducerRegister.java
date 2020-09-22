@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.github.jbox.scheduler.ScheduleTask;
 import com.github.jbox.utils.AopTargetUtils;
+import com.github.jbox.utils.T;
 import com.google.common.base.Strings;
 import com.google.common.io.CharStreams;
 import lombok.AllArgsConstructor;
@@ -150,7 +151,7 @@ public class MessageProducerRegister implements ScheduleTask, ApplicationContext
 
     @Override
     public long period() {
-        return _10S_INTERVAL;
+        return T.OneS * 10;
     }
 
     @Data

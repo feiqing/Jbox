@@ -1,7 +1,7 @@
 package com.github.jbox.executor;
 
 import com.github.jbox.executor.policy.CallerRunsPolicy;
-import com.github.jbox.scheduler.ScheduleTask;
+import com.github.jbox.utils.T;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
@@ -42,7 +42,7 @@ public class ExecutorManager implements ExecutorLoggerInner {
             ThreadFactory threadFactory = new NamedThreadFactory(group);
 
             ThreadPoolExecutor threadPoolExecutor = new ThreadPoolExecutor(minPoolSize, maxPoolSize,
-                    ScheduleTask.HALF_AN_HOUR_INTERVAL, TimeUnit.MILLISECONDS,
+                    T.OneM * 30, TimeUnit.MILLISECONDS,
                     runnableQueue,
                     threadFactory,
                     rejectHandler);

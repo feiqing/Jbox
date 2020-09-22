@@ -9,15 +9,15 @@ import java.util.Calendar;
  */
 public class T {
 
-    public static final int OneS = 1000;
+    public static final long OneS = 1000;
 
-    public static final int OneM = 60 * OneS;
+    public static final long OneM = 60 * OneS;
 
-    public static final int OneH = 60 * OneM;
+    public static final long OneH = 60 * OneM;
 
-    public static final int OneD = 24 * OneH;
+    public static final long OneD = 24 * OneH;
 
-    public static final int OneW = 7 * OneD;
+    public static final long OneW = 7 * OneD;
 
     public static long ts(long timestamp) {
         return t(timestamp, Calendar.MILLISECOND);
