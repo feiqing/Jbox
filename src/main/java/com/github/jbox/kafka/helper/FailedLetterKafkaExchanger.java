@@ -35,6 +35,10 @@ public class FailedLetterKafkaExchanger {
         ThreadManager.newThread("FailedLetterKafkaExchanger", "default", () -> {
                     while (!Thread.currentThread().isInterrupted()) {
                         try {
+                            if (pullers.isEmpty()) {
+                                Thread.sleep(DEFAULT_EXCHANGE_PULL_TIMEOUT);
+                            }
+
                             for (org.apache.kafka.clients.consumer.KafkaConsumer<String, JSONObject> puller : pullers.values()) {
                                 ConsumerRecords<String, JSONObject> records = puller.poll(DEFAULT_EXCHANGE_PULL_TIMEOUT);
                                 for (ConsumerRecord<String, JSONObject> record : records) {
