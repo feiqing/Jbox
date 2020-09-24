@@ -31,4 +31,8 @@
     <context:component-scan base-package="com.github.jbox"/>
 
     <bean class="com.github.jbox.caces.service.impl.HelloWorldServiceImpl"/>
+
+    <bean class="com.github.jbox.h2.TestDAO">
+        <constructor-arg name="h2path" value="/Users/jifang.zjf/Downloads/test/tt"/>
+    </bean>
 </beans>
