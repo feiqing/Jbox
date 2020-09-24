@@ -54,9 +54,10 @@ public class TLogCompositeTest {
 
         model.setModel(new TestModel());
 
-        int name = testDAO.upsert(model, "name");
+        long name = testDAO.insert(model);
+        System.out.println(name);
 
-        List<TestModel> all = testDAO.findAll();
-        System.out.println(all);
+//        List<TestModel> all = testDAO.selectAll();
+//        System.out.println(all);
     }
 }

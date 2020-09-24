@@ -184,9 +184,9 @@ class TinyHelpers {
     }
 
     // 对象属性值 -> 表字段值
-    static Object getColumnValue(Field field, Object obj) {
+    static Object getColumnValue(Field field, Object model) {
         try {
-            Object value = field.get(obj);
+            Object value = field.get(model);
             if (value == null) {
                 return null;
             }

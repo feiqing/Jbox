@@ -23,4 +23,12 @@ public class H2BaseMode implements Serializable {
 
     @Column(type = "TIMESTAMP", nullable = false)
     private Date gmt_modified;
+
+    public Date getGmtCreate() {
+        return this.gmt_create;
+    }
+
+    public Date getGmtModified() {
+        return this.gmt_modified;
+    }
 }
