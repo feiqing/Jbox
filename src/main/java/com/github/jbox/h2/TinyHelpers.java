@@ -1,5 +1,6 @@
 package com.github.jbox.h2;
 
+import com.alibaba.druid.pool.DruidDataSource;
 import com.github.jbox.serializer.ISerializer;
 import com.google.common.base.Joiner;
 import com.google.common.base.Preconditions;
@@ -36,7 +37,7 @@ class TinyHelpers {
 
     static JdbcTemplate getTemplate(String h2path) {
         return templates.computeIfAbsent(h2path, path -> {
-            DriverManagerDataSource dataSource = new DriverManagerDataSource();
+            DruidDataSource dataSource = new DruidDataSource();
             dataSource.setDriverClassName("org.h2.Driver");
             dataSource.setUrl(String.format("jdbc:h2:%s;AUTO_RECONNECT=TRUE;AUTO_SERVER=TRUE", path));
             dataSource.setUsername("jbox");
@@ -163,8 +164,11 @@ class TinyHelpers {
             }
 
             String type = java2sqlTypes.get(field.getType());
-            if (type == null && (column == null || column.serializer() == ISerializer.class)) {
-                throw new RuntimeException("not support type:[" + field.getType().getName() + "] default, need specified 'serializer'");
+            if (type == null) {
+                if (column == null || column.serializer() == ISerializer.class)
+                    throw new RuntimeException("not support type:[" + field.getType().getName() + "] default, need specified 'serializer'");
+                else
+                    type = java2sqlTypes.get(Object.class);
             }
 
             return type;
@@ -243,6 +247,7 @@ class TinyHelpers {
             return serializer.deserialize(rs.getBytes(idx));
         };
 
+        extractor.put(NULL, (rs, idx, field) -> null);
         extractor.put(BIT, (rs, idx, field) -> rs.getByte(idx));
         extractor.put(TINYINT, (rs, idx, field) -> rs.getByte(idx));
         extractor.put(SMALLINT, (rs, idx, field) -> rs.getShort(idx));

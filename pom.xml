@@ -334,6 +334,13 @@
             <version>${h2.version}</version>
             <optional>true</optional>
         </dependency>
+        <dependency>
+            <groupId>com.alibaba</groupId>
+            <artifactId>druid</artifactId>
+            <version>1.1.23</version>
+            <optional>true</optional>
+        </dependency>
+
 
         <!-- test -->
         <dependency>
