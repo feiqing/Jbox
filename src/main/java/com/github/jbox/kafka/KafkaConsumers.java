@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.github.jbox.kafka.helper.*;
 import com.github.jbox.spring.LazyInitializingBean;
 import com.github.jbox.utils.Collections3;
+import com.github.jbox.utils.Objects2;
 import com.github.jbox.utils.Spm;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -166,7 +167,7 @@ public class KafkaConsumers implements LazyInitializingBean, DisposableBean {
                 try {
                     take = queue.take();
                     start = System.currentTimeMillis();
-                    status = bizConsumer.consume(take);
+                    status = Objects2.nullToDefault(bizConsumer.consume(take), ConsumeStatus.SUCCESS);
                 } catch (InterruptedException ie) {
                     return;
                 } catch (Throwable t) {
