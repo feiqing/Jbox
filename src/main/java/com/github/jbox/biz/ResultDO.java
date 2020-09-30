@@ -26,6 +26,8 @@ public class ResultDO<T> implements Serializable {
 
     private String msg;
 
+    private String traceId;
+
     @JSONField(name = "system_time")
     private String systemTime = DateUtils.timeFormat(new Date());
 
