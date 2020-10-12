@@ -237,6 +237,10 @@ public class MongoBatis<T extends MBaseModel> {
         return getMongo().updateMulti(queryParam, updateParam, collection);
     }
 
+    public int update(Query query, Update update) {
+        return getMongo().updateMulti(query, update, asType(), getCName()).getN();
+    }
+
     /* ------- delete ------- */
     public WriteResult removeById(long id) {
         return this.removeById(id, getCName());
