@@ -9,6 +9,8 @@ import org.slf4j.LoggerFactory;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 /**
  * @author jifang.zjf@alibaba-inc.com (FeiQing)
@@ -55,6 +57,12 @@ public class Spm {
         entities.addAll(Arrays.asList(params));
         log.info("|{}|", Joiner.on('|').useForNull("-").join(entities));
     }
+
+    public static void log(String type, Object slotKey, Boolean isSuccess, Long cost, Object... params) {
+        log(type2type.computeIfAbsent(type, _K -> () -> type), slotKey, isSuccess, cost, params);
+    }
+
+    private static final ConcurrentMap<String, Type> type2type = new ConcurrentHashMap<>();
 
     public interface Type {
         String name();

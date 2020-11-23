@@ -1,8 +1,6 @@
 package com.github.jbox.utils;
 
-import com.google.common.base.Strings;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
 
 import java.net.Inet4Address;
 import java.net.InetAddress;
@@ -10,6 +8,9 @@ import java.net.NetworkInterface;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
+import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 /**
  * @author jifang.zjf@alibaba-inc.com (FeiQing)
@@ -19,50 +20,48 @@ import java.util.List;
 @Slf4j
 public class IPv4 {
 
-    private static final String DEFAULT_IP = "127.0.0.1";
+    private static volatile ConcurrentMap<String, List<String>> ethName2ips = null;
 
-    private static String preferLocalIP = null;
+    public static final List<String> ethNames = new ArrayList<>();
 
-    private static List<String> localIps = null;
-
-    public static String getLocalIp() {
-        if (!Strings.isNullOrEmpty(preferLocalIP)) {
-            return preferLocalIP;
-        }
-
-        return getLocalIps().get(0);
+    static {
+        ethNames.add("eth0");
+        ethNames.add("en0");
     }
 
-    public static String getLocalIp(String prefer) {
-        if (!Strings.isNullOrEmpty(preferLocalIP)) {
-            return preferLocalIP;
-        }
-
-        for (String localIP : getLocalIps()) {
-            if (StringUtils.contains(localIP, prefer)) {
-                return preferLocalIP = localIP;
+    public static String getLocalIp() {
+        ConcurrentMap<String, List<String>> localIps = getLocalIps();
+        for (String ethName : ethNames) {
+            List<String> ips = localIps.get(ethName);
+            if (ips != null) {
+                return ips.get(0);
             }
         }
 
-        return getLocalIps().get(0);
+        return "127.0.0.1";
     }
 
-    public static List<String> getLocalIps() {
-        return localIps == null ? (localIps = doGetLocalIps()) : localIps;
+    public static String getLocalIp(String ethName) {
+        return Optional.ofNullable(getLocalIps().get(ethName)).map(ips -> ips.get(0)).orElse(null);
     }
 
-    private static List<String> doGetLocalIps() {
-        List<String> localIps = new ArrayList<>();
+    public static ConcurrentMap<String, List<String>> getLocalIps() {
+        return ethName2ips == null ? (ethName2ips = doGetLocalIps()) : ethName2ips;
+    }
+
+    private static ConcurrentMap<String, List<String>> doGetLocalIps() {
+        ConcurrentMap<String, List<String>> ethName2ips = new ConcurrentHashMap<>();
         try {
             Enumeration<NetworkInterface> networkInterfaces = NetworkInterface.getNetworkInterfaces();
             while (networkInterfaces.hasMoreElements()) {
                 NetworkInterface networkInterface = networkInterfaces.nextElement();
+                String ethName = networkInterface.getName();
                 Enumeration<InetAddress> inetAddresses = networkInterface.getInetAddresses();
 
                 while (inetAddresses.hasMoreElements()) {
                     InetAddress inetAddress = inetAddresses.nextElement();
-                    if (inetAddress instanceof Inet4Address && !inetAddress.isLoopbackAddress()) {
-                        localIps.add(inetAddress.getHostAddress());
+                    if (inetAddress instanceof Inet4Address) {
+                        ethName2ips.computeIfAbsent(ethName, _k -> new ArrayList<>(1)).add(inetAddress.getHostAddress());
                     }
                 }
             }
@@ -70,10 +69,10 @@ public class IPv4 {
             log.error("", e);
         }
 
-        if (localIps.isEmpty()) {
-            localIps.add(DEFAULT_IP);
-        }
+        return ethName2ips;
+    }
 
-        return localIps;
+    public static void main(String[] args) {
+        System.out.println(IPv4.getLocalIp());
     }
 }
