@@ -55,11 +55,11 @@
     <distributionManagement>
         <repository>
             <id>releases</id>
-            <url>http://mvnrepo.alibaba-inc.com/mvn/releases</url>
+            <url>https://packages.aliyun.com/maven/repository/2055695-release-zOXqOG</url>
         </repository>
         <snapshotRepository>
             <id>snapshots</id>
-            <url>http://mvnrepo.alibaba-inc.com/mvn/snapshots</url>
+            <url>https://packages.aliyun.com/maven/repository/2055695-snapshot-LUat2L</url>
         </snapshotRepository>
     </distributionManagement>
 
