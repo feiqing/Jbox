@@ -122,10 +122,6 @@
 | `com.github.jbox.biz.BizException` | 业务异常统一封装 |
 
 ---
-## flood: [AB流量测试框架](https://github.com/feiqing/jbox/tree/master/src/main/java/com/github/jbox/flood)
-- 详见: `com.github.jbox.flood.FloodABExperiment`
-
----
 ## http: [针对HttpClient `GET`/`POST`的统一请求/处理封装](https://github.com/feiqing/jbox/tree/master/src/main/java/com/github/jbox/http)
 - 详见: `com.github.jbox.http.HttpGetClient`
 - 详见: `com.github.jbox.http.HttpPostClient`
