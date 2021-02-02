@@ -13,6 +13,8 @@ import org.springframework.beans.factory.DisposableBean;
 import java.util.Collections;
 import java.util.Map;
 
+import static com.github.jbox.kafka.Configs.KAFKA_SPM_LOG_SUCCESS;
+
 /**
  * @author jifang.zjf@alibaba-inc.com (FeiQing)
  * @version 1.0
@@ -25,6 +27,8 @@ public class KafkaProducers implements DisposableBean {
 
     private Map<String, Object> config;
 
+    private boolean logSuccess;
+
     public KafkaProducers(String bootstrapServers) {
         this(Collections.singletonMap(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers));
     }
@@ -33,6 +37,7 @@ public class KafkaProducers implements DisposableBean {
         Preconditions.checkState(Collections3.isNotEmpty(config));
         Preconditions.checkState(config.containsKey(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG));
         this.config = config;
+        this.logSuccess = Boolean.valueOf(String.valueOf(config.getOrDefault(KAFKA_SPM_LOG_SUCCESS, false)));
     }
 
     public void sendMessage(ProducerRecord<String, Object> msg) {
@@ -48,7 +53,9 @@ public class KafkaProducers implements DisposableBean {
                     log.debug("send message success, topic:{} key:{}, meta:[{}:{}]", msg.topic(), msg.key(), metadata.partition(), +metadata.offset());
                 }
             }
-            Spm.log(type, msg.topic(), success, System.currentTimeMillis() - start);
+            if (logSuccess || !success) {
+                Spm.log(type, msg.topic(), success, System.currentTimeMillis() - start);
+            }
         });
     }
 

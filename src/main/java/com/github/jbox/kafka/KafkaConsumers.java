@@ -151,12 +151,19 @@ public class KafkaConsumers implements LazyInitializingBean, DisposableBean {
         }
     }
 
-    @AllArgsConstructor
     private static class KafkaBizConsumerWrapper implements Runnable {
 
         private SynchronousQueue<ConsumerRecord<String, JSONObject>> queue;
 
         private KafkaConsumer bizConsumer;
+
+        private boolean logSuccess;
+
+        public KafkaBizConsumerWrapper(SynchronousQueue<ConsumerRecord<String, JSONObject>> queue, KafkaConsumer bizConsumer) {
+            this.queue = queue;
+            this.bizConsumer = bizConsumer;
+            this.logSuccess = getConfig(bizConsumer, KAFKA_SPM_LOG_SUCCESS, true);
+        }
 
         @Override
         public void run() {
@@ -175,7 +182,9 @@ public class KafkaConsumers implements LazyInitializingBean, DisposableBean {
                     status = parseStatus(bizConsumer);
                 } finally {
                     processStatus(status, take, bizConsumer);
-                    Spm.log(type, bizConsumer.topic(), status == ConsumeStatus.SUCCESS, System.currentTimeMillis() - start, bizConsumer.group());
+                    if (status != ConsumeStatus.SUCCESS || logSuccess) {
+                        Spm.log(type, bizConsumer.topic(), status == ConsumeStatus.SUCCESS, System.currentTimeMillis() - start, bizConsumer.group());
+                    }
                 }
             }
         }
