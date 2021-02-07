@@ -19,6 +19,8 @@ public interface Configs {
     // 是否启动消费者
     String KAFKA_IS_START_CONSUMER = "jbox.is.start.consumer";
 
+    String KAFKA_SPM_LOG_SUCCESS = "jbox.spm.log.success";
+
     // 消息消费抛出异常后该消息如何处理, 如下 #1. #2. #3
     // #1. 与ConsumeStatus.FAILED行为相同(默认行为)
     String KAFKA_UNCATCHED_EXCEPTION_AS_FAILED = "FAILED";
