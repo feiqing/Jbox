@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <settings xmlns="http://maven.apache.org/SETTINGS/1.0.0"
-          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-          xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.0.0 http://maven.apache.org/xsd/settings-1.0.0.xsd">
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.0.0 http://maven.apache.org/xsd/settings-1.0.0.xsd">
     <servers>
         <server>
             <id>cloud-retail-public-releases</id>
@@ -35,20 +34,30 @@
         </server>
         <server>
             <id>package-snapshots</id>
-            <username>5ef9abfe82c9b2864909e1c2</username>
-            <password>Yt=N8=7mF]lo</password>
+            <username>5f0e730f7ec18baeb8225216</username>
+            <password>_FMyc8FiGPg0</password>
         </server>
         <server>
             <id>package-releases</id>
-            <username>5ef9abfe82c9b2864909e1c2</username>
-            <password>Yt=N8=7mF]lo</password>
+            <username>5f0e730f7ec18baeb8225216</username>
+            <password>_FMyc8FiGPg0</password>
+        </server>
+        <server>
+            <id>fh-codeup-snapshots</id>
+            <username>FDOFoe</username>
+            <password>n4U2blLtIQ</password>
+        </server>
+        <server>
+            <id>fh-codeup-releases</id>
+            <username>FDOFoe</username>
+            <password>n4U2blLtIQ</password>
         </server>
     </servers>
 
     <mirrors>
         <mirror>
             <id>mirror</id>
-            <mirrorOf>*,!rdc-releases,!cloud-retail-releases,!cloud-retail-snapshots,!cloud-retail-public-releases,!cloud-retail-public-snapshots,!rdc-snapshots,!edas-oss-central,!package-snapshots,!package-releases</mirrorOf>
+            <mirrorOf>*,!rdc-releases,!cloud-retail-releases,!cloud-retail-snapshots,!cloud-retail-public-releases,!cloud-retail-public-snapshots,!rdc-snapshots,!edas-oss-central,!fh-codeup-releases,!fh-codeup-snapshots,!package-snapshots,!package-releases</mirrorOf>
             <name>mirror</name>
             <url>https://maven.aliyun.com/nexus/content/groups/public</url>
         </mirror>
@@ -260,13 +269,62 @@
                 </pluginRepository>
             </pluginRepositories>
         </profile>
+        <profile>
+            <id>fh-codeup-repo</id>
+            <repositories>
+                <repository>
+                    <id>fh-codeup-releases</id>
+                    <url>https://packages.aliyun.com/maven/repository/2008925-release-z2JXcw</url>
+                    <releases>
+                        <enabled>true</enabled>
+                    </releases>
+                    <snapshots>
+                        <enabled>false</enabled>
+                    </snapshots>
+                </repository>
+                <repository>
+                    <id>fh-codeup-snapshots</id>
+                    <url>https://packages.aliyun.com/maven/repository/2008925-snapshot-tZnPYN</url>
+                    <releases>
+                        <enabled>false</enabled>
+                    </releases>
+                    <snapshots>
+                        <enabled>true</enabled>
+                    </snapshots>
+                </repository>
+            </repositories>
+            <pluginRepositories>
+                <pluginRepository>
+                    <id>fh-codeup-releases</id>
+                    <url>https://packages.aliyun.com/maven/repository/2008925-release-z2JXcw</url>
+                    <releases>
+                        <enabled>true</enabled>
+                    </releases>
+                    <snapshots>
+                        <enabled>false</enabled>
+                    </snapshots>
+                </pluginRepository>
+                <pluginRepository>
+                    <id>fh-codeup-snapshots</id>
+                    <url>https://packages.aliyun.com/maven/repository/2008925-snapshot-tZnPYN</url>
+                    <releases>
+                        <enabled>false</enabled>
+                    </releases>
+                    <snapshots>
+                        <enabled>true</enabled>
+                    </snapshots>
+                </pluginRepository>
+            </pluginRepositories>
+        </profile>
     </profiles>
 
     <activeProfiles>
         <activeProfile>cloud-retail</activeProfile>
         <activeProfile>cloud-retail-public</activeProfile>
+        <activeProfile>aliyun</activeProfile>
         <activeProfile>edas.oss.repo</activeProfile>
         <activeProfile>rdc-private-repo</activeProfile>
         <activeProfile>cz-isv-repo</activeProfile>
+        <activeProfile>fh-codeup-repo</activeProfile>
     </activeProfiles>
 </settings>
