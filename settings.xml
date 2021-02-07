@@ -321,7 +321,7 @@
     <activeProfiles>
         <activeProfile>cloud-retail</activeProfile>
         <activeProfile>cloud-retail-public</activeProfile>
-        <activeProfile>aliyun</activeProfile>
+        <!--<activeProfile>aliyun</activeProfile>-->
         <activeProfile>edas.oss.repo</activeProfile>
         <activeProfile>rdc-private-repo</activeProfile>
         <activeProfile>cz-isv-repo</activeProfile>
