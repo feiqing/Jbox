@@ -1,8 +1,6 @@
 package com.github.jbox.http;
 
-import com.github.jbox.utils.Collections3;
 import com.google.common.base.Preconditions;
-import org.apache.http.Header;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.utils.URIBuilder;
 import org.apache.http.impl.client.CloseableHttpClient;

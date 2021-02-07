@@ -41,28 +41,28 @@
     </organization>
 
     <!-- 弹内 -->
-    <distributionManagement>
-        <repository>
-            <id>releases</id>
-            <url>http://mvnrepo.alibaba-inc.com/mvn/releases</url>
-        </repository>
-        <snapshotRepository>
-            <id>snapshots</id>
-            <url>http://mvnrepo.alibaba-inc.com/mvn/snapshots</url>
-        </snapshotRepository>
-    </distributionManagement>
-
-    <!-- 弹外 -->
     <!--<distributionManagement>-->
         <!--<repository>-->
-            <!--<id>cloud-retail-releases</id>-->
-            <!--<url>https://packages.aliyun.com/maven/repository/2037694-release-NauJ5L/</url>-->
+            <!--<id>releases</id>-->
+            <!--<url>http://mvnrepo.alibaba-inc.com/mvn/releases</url>-->
         <!--</repository>-->
         <!--<snapshotRepository>-->
-            <!--<id>cloud-retail-snapshots</id>-->
-            <!--<url>https://packages.aliyun.com/maven/repository/2037694-snapshot-pUciqp/</url>-->
+            <!--<id>snapshots</id>-->
+            <!--<url>http://mvnrepo.alibaba-inc.com/mvn/snapshots</url>-->
         <!--</snapshotRepository>-->
     <!--</distributionManagement>-->
+
+    <!-- 弹外 -->
+    <distributionManagement>
+        <repository>
+            <id>cloud-retail-releases</id>
+            <url>https://packages.aliyun.com/maven/repository/2037694-release-NauJ5L/</url>
+        </repository>
+        <snapshotRepository>
+            <id>cloud-retail-snapshots</id>
+            <url>https://packages.aliyun.com/maven/repository/2037694-snapshot-pUciqp/</url>
+        </snapshotRepository>
+    </distributionManagement>
 
     <properties>
         <httpclient.version>4.5.3</httpclient.version>
