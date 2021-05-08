@@ -5,6 +5,7 @@
        http://localhost:8080/jbox/trace.xsd">
 
     <define name="service" value="com.cainiao.webapp.service.impl.HelloWorldServiceImpl"/>
+    <define name="service2" value="com.cainiao.webapp.service.impl.HelloWorldServiceImpl"/>
 
     <trace method="${service}:sayHello">
         <expression key="#args[0]"/>

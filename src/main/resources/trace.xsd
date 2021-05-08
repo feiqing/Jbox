@@ -71,16 +71,16 @@
             </xsd:annotation>
         </xsd:attribute>
 
-        <xsd:attribute name="template" type="xsd:boolean" use="optional" default="false">
-            <xsd:annotation>
-                <xsd:documentation><![CDATA[
-                    模板配置: 当被拦截的ConfigKey(Class:Method)找不到关联的配置时, 默认使用该配置,
-                    限制:
-                        1. 一个config文件只能有一个template配置, 否则会在启动时报错
-                        2. 与ref属性互斥
-                    ]]></xsd:documentation>
-            </xsd:annotation>
-        </xsd:attribute>
+<!--        <xsd:attribute name="template" type="xsd:boolean" use="optional" default="false">-->
+<!--            <xsd:annotation>-->
+<!--                <xsd:documentation><![CDATA[-->
+<!--                    模板配置: 当被拦截的ConfigKey(Class:Method)找不到关联的配置时, 默认使用该配置,-->
+<!--                    限制:-->
+<!--                        1. 一个config文件只能有一个template配置, 否则会在启动时报错-->
+<!--                        2. 与ref属性互斥-->
+<!--                    ]]></xsd:documentation>-->
+<!--            </xsd:annotation>-->
+<!--        </xsd:attribute>-->
     </xsd:attributeGroup>
 
     <xsd:element name="expression">

@@ -78,7 +78,7 @@ public abstract class AbstractTlogConfig implements Serializable {
         Preconditions.checkArgument(!Strings.isNullOrEmpty(fileName), "el resource config file name can't be empty");
         String fileType = fileName.substring(fileName.lastIndexOf('.'));
         Preconditions.checkArgument(StringUtils.equals(fileType, XML_FILE_SUFFIX), "config file is not xml format.");
-        ELXmlResolver.resolve(fileName, resource.getInputStream(), methodELMap, templateEL);
+        ELXmlResolver.resolveConfigFile(resource.getInputStream(), methodELMap, fileName);
     }
 
     @Data
