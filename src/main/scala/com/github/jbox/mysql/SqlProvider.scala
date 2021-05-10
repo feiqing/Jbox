@@ -52,6 +52,26 @@ class SqlProvider {
     s"INSERT INTO $getTable (${colNames.mkString(",")}) VALUES(${colVals.mkString(", ")})"
   }
 
+  def upsert(obj: Any): String = {
+    val colNames: ListBuffer[String] = ListBuffer[String]()
+    colNames += "`gmt_create`"
+    colNames += "`gmt_modified`"
+
+    val colVals: ListBuffer[String] = ListBuffer[String]()
+    colVals += "NOW()"
+    colVals += "NOW()"
+
+    val updates = new StringBuilder
+    getFields(obj.getClass).foreach(tup => {
+      colNames += tup._1
+      colVals += tup._2
+
+      updates.append(", ").append(tup._1).append(" = ").append(tup._2)
+    })
+
+    s"INSERT INTO $getTable (${colNames.mkString(",")}) VALUES(${colVals.mkString(", ")})  ON DUPLICATE KEY UPDATE `gmt_modified` = NOW() $updates"
+  }
+
   def updateById(obj: Any): String = {
     val sets =
       for ((k, v) <- getFields(obj.getClass))
