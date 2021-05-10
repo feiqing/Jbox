@@ -61,15 +61,15 @@ class SqlProvider {
     colVals += "NOW()"
     colVals += "NOW()"
 
-    val updates = new StringBuilder
     getFields(obj.getClass).foreach(tup => {
       colNames += tup._1
       colVals += tup._2
-
-      updates.append(", ").append(tup._1).append(" = ").append(tup._2)
     })
 
-    s"INSERT INTO $getTable (${colNames.mkString(",")}) VALUES(${colVals.mkString(", ")})  ON DUPLICATE KEY UPDATE `gmt_modified` = NOW() $updates"
+    s"""INSERT INTO $getTable(${colNames.mkString(",")})
+       |VALUES(${colVals.mkString(", ")})
+       |ON DUPLICATE KEY UPDATE ${(colNames zip colVals).tail.map(t => t._1 + " = " + t._2).mkString(", ")}
+       |""".stripMargin
   }
 
   def updateById(obj: Any): String = {
