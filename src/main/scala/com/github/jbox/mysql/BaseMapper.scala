@@ -29,11 +29,11 @@ trait BaseMapper[T <: BaseDO] {
 
   @InsertProvider(`type` = classOf[SqlProvider], method = "insert")
   @Options(useGeneratedKeys = true, keyProperty = "id")
-  def insert(entity: T): Integer
+  def insert(t: T): Integer
 
   @InsertProvider(`type` = classOf[SqlProvider], method = "upsert")
   @Options(useGeneratedKeys = true, keyProperty = "id")
-  def upsert(entity: T): Integer
+  def upsert(t: T): Integer
 
   @UpdateProvider(`type` = classOf[SqlProvider], method = "updateById")
   def updateById(t: T): Integer

@@ -30,14 +30,18 @@ class TableInterceptor extends MethodInterceptor {
 }
 
 object TableInterceptor {
-  private final val field_mapper_interface =
-    ReflectionUtils.findField(classOf[MapperProxy[_]], "mapperInterface")
-  ReflectionUtils.makeAccessible(field_mapper_interface)
 
+  private lazy final val field_mapper_interface = {
+    val field = ReflectionUtils.findField(classOf[MapperProxy[_]], "mapperInterface")
+    ReflectionUtils.makeAccessible(field)
+    field
+  }
+
+  @volatile
   private var field_h: Field = _
 
   private def getMapperClass(invocation: MethodInvocation) = {
-    if (field_h == null) {
+    if (field_h == null) synchronized {
       val h = ReflectionUtils.findField(invocation.getThis.getClass, "h")
       ReflectionUtils.makeAccessible(h)
       field_h = h
