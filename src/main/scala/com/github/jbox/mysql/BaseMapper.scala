@@ -2,7 +2,7 @@ package com.github.jbox.mysql
 
 import org.apache.ibatis.annotations._
 
-import java.util
+import java.util.{List => JList, Collection => JCollection}
 
 /**
  * @author jifang.zjf@alibaba-inc.com (FeiQing)
@@ -11,10 +11,10 @@ import java.util
  */
 trait BaseMapper[T <: BaseDO] {
 
-  def findAll: util.List[T] = find(Where.where)
+  def findAll: JList[T] = find(Where.where)
 
   @SelectProvider(`type` = classOf[SqlProvider], method = "find")
-  def find(where: Where): util.List[T]
+  def find(where: Where): JList[T]
 
   @SelectProvider(`type` = classOf[SqlProvider], method = "findOne")
   def findOne(where: Where): T
@@ -22,7 +22,7 @@ trait BaseMapper[T <: BaseDO] {
   def findById(id: Long): T = findOne(Where._is("id", id))
 
   @SelectProvider(`type` = classOf[SqlProvider], method = "findByIds")
-  def findByIds(@Param("ids") ids: util.Collection[Long]): util.List[T]
+  def findByIds[U <: Long](@Param("ids") ids: JCollection[U]): JList[T]
 
   @SelectProvider(`type` = classOf[SqlProvider], method = "count")
   def count(where: Where): Long

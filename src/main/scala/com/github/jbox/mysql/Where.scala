@@ -1,6 +1,6 @@
 package com.github.jbox.mysql
 
-import java.util
+import java.util.{Map => JMap}
 import scala.beans.BeanProperty
 import scala.collection.JavaConverters.mapAsScalaMapConverter
 import scala.collection.mutable
@@ -21,7 +21,7 @@ object Where {
 
 @SerialVersionUID(3829956445496228702L)
 @BeanProperty
-class Where extends util.HashMap[String, Any] {
+class Where extends java.util.HashMap[String, Any] {
 
   private[mysql] val __is: mutable.Map[String, Any] = mutable.LinkedHashMap[String, Any]()
 
@@ -35,7 +35,7 @@ class Where extends util.HashMap[String, Any] {
     this
   }
 
-  def isAll(fields: util.Map[String, Any]): Where = {
+  def isAll(fields: JMap[String, Any]): Where = {
     __is ++= fields.asScala
     putAll(fields)
     this
@@ -47,7 +47,7 @@ class Where extends util.HashMap[String, Any] {
     this
   }
 
-  def likeAll(fields: util.Map[String, Any]): Where = {
+  def likeAll(fields: JMap[String, Any]): Where = {
     __like ++= fields.asScala
     putAll(fields)
     this
@@ -66,7 +66,7 @@ class Where extends util.HashMap[String, Any] {
     this
   }
 
-  def orderByAll(fields: util.Map[String, Boolean]): Where = {
+  def orderByAll(fields: JMap[String, Boolean]): Where = {
     fields.forEach((x, y) => orderBy(x, y))
     this
   }
