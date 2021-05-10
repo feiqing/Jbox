@@ -7,7 +7,6 @@ import org.slf4j.LoggerFactory
 
 import java.io.InputStream
 import java.util
-import java.util.function._
 import java.util.{List => JList, Map => JMap}
 import scala.collection.JavaConverters.{mapAsScalaMapConverter, seqAsJavaListConverter}
 import scala.collection.mutable
@@ -35,20 +34,21 @@ object ELXmlResolver {
     log("define", define, fileName)
 
     val refs = mutable.Map[String, String]()
-    (config \ "trace").map(_.asInstanceOf[Elem]).foreach(trace => {
-      val method = getDefineStr((trace \ "@method").toString(), define)
-      if ((trace \ "@ref").length != 0) {
-        refs(method) = getDefineStr((trace \ "@ref").toString(), define)
-      } else {
-        resolveExpressions(method, trace \ "expression", methods)
-      }
-    })
+    (config \ "trace")
+      .map(_.asInstanceOf[Elem])
+      .foreach(trace => {
+        val method = getDefineStr((trace \ "@method").toString(), define)
+        if ((trace \ "@ref").length != 0) {
+          refs(method) = getDefineStr((trace \ "@ref").toString(), define)
+        } else {
+          resolveExpressions(method, trace \ "expression", methods)
+        }
+      })
 
-    refs.foreach(t => {
-      methods.put(t._1, methods.computeIfAbsent(t._2, new Function[String, Nothing] {
-        override def apply(t: String) = throw new TraceException(s"relative config '$t' is not defined.")
-      }))
-    })
+    for ((k, v) <- refs) {
+      methods.put(k, methods.computeIfAbsent(v, t => throw new TraceException(s"relative config '$t' is not defined.")))
+    }
+
     log("trace", methods.asScala.toMap, fileName)
   }
 
@@ -57,16 +57,13 @@ object ELXmlResolver {
       expr => {
         val key = (expr \ "@key").toString()
         val multi = expr \ "@multi"
-        val config = if (multi == null && !multi.toString().toBoolean) {
+        val config = if (multi == null && !multi.toString().toBoolean)
           new ELConfig(key, null)
-        } else {
+        else
           new ELConfig(key, (expr \ "field").map(_.asInstanceOf[Elem]).map(e => (e \\ "@value").toString()).toList.asJava)
-        }
 
         methods
-          .computeIfAbsent(method, new Function[String, JList[ELConfig]] {
-            override def apply(t: String) = new util.ArrayList[ELConfig]()
-          })
+          .computeIfAbsent(method, _ => new util.ArrayList[ELConfig]())
           .add(config)
       }
     )
