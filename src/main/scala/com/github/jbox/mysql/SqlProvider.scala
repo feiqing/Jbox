@@ -167,6 +167,6 @@ object SqlProvider {
 
   private val lines: ConcurrentMap[String, String] = new ConcurrentHashMap[String, String]
 
-  def hump2line(hump: String): String = lines.computeIfAbsent(hump, _.replaceAll("[A-Z]", "_$0").toLowerCase)
+  private[mysql] def hump2line(hump: String): String = lines.computeIfAbsent(hump, _.replaceAll("[A-Z]", "_$0").toLowerCase)
 
 }
