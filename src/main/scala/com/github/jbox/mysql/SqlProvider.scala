@@ -44,10 +44,10 @@ class SqlProvider {
     colVals += "NOW()"
     colVals += "NOW()"
 
-    getFields(obj.getClass).foreach(tup => {
-      colNames += tup._1
-      colVals += tup._2
-    })
+    for ((k, v) <- getFields(obj.getClass)) {
+      colNames += k
+      colVals += v
+    }
 
     s"INSERT INTO $getTable (${colNames.mkString(",")}) VALUES(${colVals.mkString(", ")})"
   }
@@ -61,10 +61,10 @@ class SqlProvider {
     colVals += "NOW()"
     colVals += "NOW()"
 
-    getFields(obj.getClass).foreach(tup => {
-      colNames += tup._1
-      colVals += tup._2
-    })
+    for ((k, v) <- getFields(obj.getClass)) {
+      colNames += k
+      colVals += v
+    }
 
     s"""INSERT INTO $getTable(${colNames.mkString(",")})
        |VALUES(${colVals.mkString(", ")})
