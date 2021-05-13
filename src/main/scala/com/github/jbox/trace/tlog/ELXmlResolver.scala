@@ -7,6 +7,7 @@ import org.slf4j.LoggerFactory
 
 import java.io.InputStream
 import java.util
+import java.util.function
 import java.util.{List => JList, Map => JMap}
 import scala.collection.JavaConverters.{mapAsScalaMapConverter, seqAsJavaListConverter}
 import scala.collection.mutable
@@ -46,7 +47,9 @@ object ELXmlResolver {
       })
 
     for ((k, v) <- refs) {
-      methods.put(k, methods.computeIfAbsent(v, t => throw new TraceException(s"relative config '$t' is not defined.")))
+      methods.put(k, methods.computeIfAbsent(v, new function.Function[String, JList[ELConfig]] {
+        override def apply(t: String): JList[ELConfig] = throw new TraceException(s"relative config '$t' is not defined.")
+      }))
     }
 
     log("trace", methods.asScala.toMap, fileName)
@@ -63,7 +66,9 @@ object ELXmlResolver {
           new ELConfig(key, (expr \ "field").map(_.asInstanceOf[Elem]).map(e => (e \\ "@value").toString()).toList.asJava)
 
         methods
-          .computeIfAbsent(method, _ => new util.ArrayList[ELConfig]())
+          .computeIfAbsent(method, new function.Function[String, JList[ELConfig]] {
+            override def apply(t: String): JList[ELConfig] = new util.ArrayList[ELConfig]()
+          })
           .add(config)
       }
     )

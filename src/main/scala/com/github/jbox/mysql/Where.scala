@@ -1,5 +1,6 @@
 package com.github.jbox.mysql
 
+import java.util.function.BiConsumer
 import java.util.{Map => JMap}
 import scala.beans.BeanProperty
 import scala.collection.JavaConverters.mapAsScalaMapConverter
@@ -67,7 +68,9 @@ class Where extends java.util.HashMap[String, Any] {
   }
 
   def orderByAll(fields: JMap[String, Boolean]): Where = {
-    fields.forEach((x, y) => orderBy(x, y))
+    fields.forEach(new BiConsumer[String, Boolean] {
+      override def accept(t: String, u: Boolean): Unit = orderBy(t, u)
+    })
     this
   }
 

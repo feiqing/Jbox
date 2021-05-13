@@ -1,13 +1,15 @@
 package com.github.jbox.mysql
 
 import SqlProvider.hump2line
-import com.google.common.base.Joiner
+import com.google.common.base.{Joiner, Predicate}
 import org.reflections.ReflectionUtils.getAllFields
 import org.slf4j.MDC
 
 import java.lang.reflect.{Field, Modifier}
 import java.util
 import java.util.concurrent.{ConcurrentHashMap, ConcurrentMap}
+import java.util.function
+import java.util.function.Consumer
 import scala.collection.JavaConverters.seqAsJavaListConverter
 import scala.collection.mutable
 import scala.collection.mutable.ListBuffer
@@ -134,29 +136,30 @@ class SqlProvider {
 
   private def getFields(clazz: Class[_]): mutable.Map[String, String] =
     fields
-      .computeIfAbsent(clazz, _ => {
-        val fields: mutable.Map[String, String] = new mutable.LinkedHashMap[String, String]
-        getAllFields(clazz, field => {
-          def foo(field: Field): Boolean = {
-            if (field == null)
-              return false
-            if (Modifier.isStatic(field.getModifiers))
-              return false
-            if (Modifier.isFinal(field.getModifiers))
-              return false
-            !Array("id", "gmtCreate", "gmtModified").contains(field.getName)
-          }
-
-          foo(field)
-        })
-          .forEach(field => {
-            val column: Column = field.getAnnotation(classOf[Column])
-            val name: String = field.getName
-            val col: String = if (column != null) column.value else hump2line(name)
-            fields.put("`" + col + "`", "#{" + name + "}")
+      .computeIfAbsent(clazz, new function.Function[Class[_], mutable.Map[String, String]] {
+        override def apply(t: Class[_]): mutable.Map[String, String] = {
+          val fields: mutable.Map[String, String] = new mutable.LinkedHashMap[String, String]
+          getAllFields(clazz, new Predicate[Field] {
+            override def apply(field: Field): Boolean = {
+              if (field == null)
+                return false
+              if (Modifier.isStatic(field.getModifiers))
+                return false
+              if (Modifier.isFinal(field.getModifiers))
+                return false
+              !Array("id", "gmtCreate", "gmtModified").contains(field.getName)
+            }
+          }).forEach(new Consumer[Field] {
+            override def accept(field: Field): Unit = {
+              val column: Column = field.getAnnotation(classOf[Column])
+              val name: String = field.getName
+              val col: String = if (column != null) column.value else hump2line(name)
+              fields.put("`" + col + "`", "#{" + name + "}")
+            }
           })
 
-        fields
+          fields
+        }
       })
 
 
@@ -167,6 +170,8 @@ object SqlProvider {
 
   private val lines: ConcurrentMap[String, String] = new ConcurrentHashMap[String, String]
 
-  private[mysql] def hump2line(hump: String): String = lines.computeIfAbsent(hump, _.replaceAll("[A-Z]", "_$0").toLowerCase)
+  private[mysql] def hump2line(hump: String): String = lines.computeIfAbsent(hump, new function.Function[String, String] {
+    override def apply(t: String): String = t.replaceAll("[A-Z]", "_$0").toLowerCase
+  })
 
 }

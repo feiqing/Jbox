@@ -10,6 +10,7 @@ import org.springframework.util.ReflectionUtils
 
 import java.lang.reflect.Field
 import java.util.concurrent.ConcurrentHashMap
+import java.util.function
 
 /**
  * @author jifang.zjf@alibaba-inc.com (FeiQing)
@@ -52,7 +53,9 @@ object TableInterceptor {
 
   private final val tables = new ConcurrentHashMap[Class[_], String]
 
-  private def getTableName(clazz: Class[_]) = tables.computeIfAbsent(clazz, _ => _getTable(clazz))
+  private def getTableName(clazz: Class[_]) = tables.computeIfAbsent(clazz, new function.Function[Class[_], String] {
+    override def apply(t: Class[_]): String = _getTable(clazz)
+  })
 
   private def _getTable(clazz: Class[_]): String = {
     val table = clazz.getAnnotation(classOf[Table])
