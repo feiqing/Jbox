@@ -15,9 +15,9 @@ public class BaseDO implements Serializable {
 
     private static final long serialVersionUID = 535912108299590205L;
 
-    private Long id;
+    public Long id;
 
-    private Date gmtCreate;
+    public Date gmtCreate;
 
-    private Date gmtModified;
+    public Date gmtModified;
 }

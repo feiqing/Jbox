@@ -37,7 +37,7 @@ class SqlProvider {
 
   def count(where: Where) = s"SELECT COUNT(*) FROM $getTable ${getWhere(where)}"
 
-  def insert(obj: Any): String = {
+  def insert(obj: BaseDO): String = {
     val colNames: ListBuffer[String] = ListBuffer[String]()
     colNames += "`gmt_create`"
     colNames += "`gmt_modified`"
@@ -54,7 +54,7 @@ class SqlProvider {
     s"INSERT INTO $getTable (${colNames.mkString(",")}) VALUES(${colVals.mkString(", ")})"
   }
 
-  def upsert(obj: Any): String = {
+  def upsert(obj: BaseDO): String = {
     val colNames: ListBuffer[String] = ListBuffer[String]()
     colNames += "`gmt_create`"
     colNames += "`gmt_modified`"
@@ -63,18 +63,23 @@ class SqlProvider {
     colVals += "NOW()"
     colVals += "NOW()"
 
+    if (obj.id != null) {
+      colNames += "`id`"
+      colVals += "#{id}"
+    }
+
     for ((k, v) <- getFields(obj.getClass)) {
       colNames += k
       colVals += v
     }
 
-    s"""INSERT INTO $getTable(${colNames.mkString(",")})
+    s"""INSERT INTO $getTable(${colNames.mkString(", ")})
        |VALUES(${colVals.mkString(", ")})
-       |ON DUPLICATE KEY UPDATE ${(colNames zip colVals).tail.map(t => t._1 + " = " + t._2).mkString(", ")}
+       |ON DUPLICATE KEY UPDATE ${colNames.tail.map(t => s"$t = VALUES($t)").mkString(", ")}
        |""".stripMargin
   }
 
-  def updateById(obj: Any): String = {
+  def updateById(obj: BaseDO): String = {
     val sets =
       for ((k, v) <- getFields(obj.getClass))
         yield k + " = " + v
