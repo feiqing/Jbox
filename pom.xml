@@ -65,7 +65,7 @@
     </distributionManagement>
 
     <properties>
-        <httpclient.version>4.5.3</httpclient.version>
+        <httpclient.version>4.5.13</httpclient.version>
         <hessian.version>4.0.38</hessian.version>
         <kryo.version>4.0.0</kryo.version>
         <guava.version>25.0-jre</guava.version>
