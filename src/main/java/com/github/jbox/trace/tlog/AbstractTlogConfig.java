@@ -1,6 +1,5 @@
 package com.github.jbox.trace.tlog;
 
-import com.alibaba.fastjson.serializer.PropertyPreFilter;
 import com.alibaba.fastjson.serializer.SerializeFilter;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
@@ -123,23 +122,25 @@ public abstract class AbstractTlogConfig implements Serializable {
     }
 
     SerializeFilter getArgFilter() {
-        if (this.argFilter == null) {
-            synchronized (excludeArgs) {
-                if (this.argFilter == null) {
-                    this.argFilter = (PropertyPreFilter) (serializer, object, name) -> !excludeArgs.contains(name);
-                }
-            }
-        }
+        // todo
+//        if (this.argFilter == null) {
+//            synchronized (excludeArgs) {
+//                if (this.argFilter == null) {
+//                    this.argFilter = (PropertyPreFilter) (serializer, object, name) -> !excludeArgs.contains(name);
+//                }
+//            }
+//        }
 
         return this.argFilter;
     }
 
     SerializeFilter getResultFilter() {
-        if (this.resultFilter == null) {
-            synchronized (excludeResults) {
-                this.resultFilter = (PropertyPreFilter) (serializer, object, name) -> !excludeResults.contains(name);
-            }
-        }
+        // todo
+//        if (this.resultFilter == null) {
+//            synchronized (excludeResults) {
+//                this.resultFilter = (PropertyPreFilter) (serializer, object, name) -> !excludeResults.contains(name);
+//            }
+//        }
 
         return this.resultFilter;
     }
