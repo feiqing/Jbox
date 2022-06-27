@@ -93,7 +93,7 @@
         <hbase.version>1.3.1</hbase.version>
         <spring.data.hbase.version>2.5.0.RELEASE</spring.data.hbase.version>
 
-        <spring.data.mongo.version>1.10.9.RELEASE</spring.data.mongo.version>
+        <spring.data.mongo.version>3.3.5</spring.data.mongo.version>
         <mongo.version>3.4.3</mongo.version>
         <kafka.version>0.10.2.2</kafka.version>
         <h2.version>1.4.195</h2.version>
