@@ -1,4 +1,4 @@
-package com.github.jbox.mysql;
+package com.github.jbox.mybatis;
 
 import java.lang.annotation.*;
 
