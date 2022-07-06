@@ -85,7 +85,7 @@
         <logback.version>1.2.3</logback.version>
         <log4j.version>2.8.2</log4j.version>
 
-        <jython.version>2.7.0</jython.version>
+        <jython.version>2.7.1</jython.version>
         <scala.version>2.12.13</scala.version>
         <akka.version>2.4.17</akka.version>
         <disruptor.version>3.4.2</disruptor.version>
