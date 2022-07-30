@@ -1,11 +1,5 @@
 package com.github.jbox.trace.tlog;
 
-import java.nio.charset.Charset;
-import java.util.List;
-
-import com.github.jbox.script.ScriptExecutor;
-import com.github.jbox.trace.tlog.TlogFilter.TLogContext;
-
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.encoder.PatternLayoutEncoder;
 import ch.qos.logback.classic.spi.ILoggingEvent;
@@ -14,10 +8,14 @@ import ch.qos.logback.core.rolling.RollingFileAppender;
 import ch.qos.logback.core.rolling.TimeBasedRollingPolicy;
 import ch.qos.logback.core.spi.FilterReply;
 import ch.qos.logback.core.util.FileSize;
+import com.github.jbox.trace.tlog.TlogFilter.TLogContext;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.nio.charset.Charset;
+import java.util.List;
 
 import static ch.qos.logback.core.spi.FilterReply.DENY;
 import static com.github.jbox.trace.tlog.TlogConstants.LOGGER_FILE_PATTERN;
@@ -31,8 +29,8 @@ public class LogBackHelper {
 
     private static final Logger tracer = LoggerFactory.getLogger("com.github.jbox.trace");
 
-    public static Logger initTLogger(String loggerName, String filePath, String charset, String pattern,  int maxHistory, long totalSizeCapKb,
-                              List<TlogFilter> filters) {
+    public static Logger initTLogger(String loggerName, String filePath, String charset, String pattern, int maxHistory, long totalSizeCapKb,
+                                     List<TlogFilter> filters) {
         Preconditions.checkArgument(!Strings.isNullOrEmpty(loggerName), "log name can't be empty!");
         Preconditions.checkArgument(!Strings.isNullOrEmpty(filePath), "log file can't be empty!");
 
@@ -40,7 +38,7 @@ public class LogBackHelper {
         try {
             Class.forName("ch.qos.logback.classic.Logger");
             if (logger instanceof ch.qos.logback.classic.Logger) {
-                ch.qos.logback.classic.Logger tLogger = (ch.qos.logback.classic.Logger)logger;
+                ch.qos.logback.classic.Logger tLogger = (ch.qos.logback.classic.Logger) logger;
 
                 // init appender
                 RollingFileAppender<ILoggingEvent> appender = new RollingFileAppender<>();
@@ -81,17 +79,16 @@ public class LogBackHelper {
                 tLogger.setAdditive(false);
                 tLogger.setLevel(Level.ALL);
                 tLogger.addAppender(appender);
-                ScriptExecutor.register(tLogger.getName(), appender);
             } else {
                 tracer.warn(
-                    "app [{}] not used Logback impl for Log, please set '{}' logger in your logger context manual.",
-                    System.getProperty("project.name", "unknown"),
-                    loggerName);
+                        "app [{}] not used Logback impl for Log, please set '{}' logger in your logger context manual.",
+                        System.getProperty("project.name", "unknown"),
+                        loggerName);
             }
         } catch (ClassNotFoundException e) {
             tracer.warn("app [{}] not used Logback impl for Log, please set '{}' logger in your logger context manual.",
-                System.getProperty("project.name", "unknown"),
-                loggerName, e);
+                    System.getProperty("project.name", "unknown"),
+                    loggerName, e);
         }
 
         return logger;

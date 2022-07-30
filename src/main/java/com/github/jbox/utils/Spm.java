@@ -13,6 +13,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 /**
+ * Todo: 删除
+ *
  * @author jifang.zjf@alibaba-inc.com (FeiQing)
  * @version 1.0
  * @since 2018/11/7 5:43 PM.
@@ -49,7 +51,7 @@ public class Spm {
      */
     public static void log(Type type, Object slotKey, Boolean isSuccess, Long cost, Object... params) {
         List<Object> entities = new LinkedList<>();
-        entities.add(IPv4.getLocalIp());
+        entities.add(Jbox.getLocalIp());
         entities.add(type.name());
         entities.add(slotKey);
         entities.add(isSuccess);

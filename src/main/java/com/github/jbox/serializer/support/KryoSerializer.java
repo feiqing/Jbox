@@ -13,11 +13,17 @@ import java.io.ByteArrayOutputStream;
  */
 public class KryoSerializer extends AbstractSerializer {
 
+    private static final ThreadLocal<Kryo> kryo = ThreadLocal.withInitial(() -> {
+        Kryo k = new Kryo();
+        k.setRegistrationRequired(false);
+        return k;
+    });
+
     @Override
-    protected byte[] doSerialize(Object obj) throws Throwable {
+    protected byte[] _serialize(Object obj) throws Throwable {
         try (ByteArrayOutputStream bos = new ByteArrayOutputStream();
              Output output = new Output(bos)) {
-            new Kryo().writeClassAndObject(output, obj);
+            kryo.get().writeClassAndObject(output, obj);
             output.flush();
 
             return bos.toByteArray();
@@ -25,9 +31,9 @@ public class KryoSerializer extends AbstractSerializer {
     }
 
     @Override
-    protected Object doDeserialize(byte[] bytes) {
+    protected Object _deserialize(byte[] bytes) {
         try (Input input = new Input(bytes)) {
-            return new Kryo().readClassAndObject(input);
+            return kryo.get().readClassAndObject(input);
         }
     }
 }

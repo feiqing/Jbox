@@ -2,13 +2,13 @@ package com.github.jbox.trace;
 
 import com.github.jbox.job.JobTask;
 import com.github.jbox.trace.tasks.MethodInvokeTask;
-import com.github.jbox.utils.JboxUtils;
+import com.github.jbox.utils.Jbox;
 import com.google.common.base.Preconditions;
 import lombok.Setter;
-import org.apache.commons.collections.CollectionUtils;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
+import org.springframework.util.CollectionUtils;
 
 import java.io.Serializable;
 import java.lang.reflect.Method;
@@ -42,7 +42,7 @@ public class TraceLauncher implements Serializable {
     private boolean useAbstractMethod = false;
 
     public void setTasks(List<JobTask> tasks) {
-        Preconditions.checkArgument(CollectionUtils.isNotEmpty(tasks));
+        Preconditions.checkArgument(!CollectionUtils.isEmpty(tasks));
 
         boolean isFoundMethodInvoker = false;
         for (int i = 0; i < tasks.size(); ++i) {
@@ -64,7 +64,7 @@ public class TraceLauncher implements Serializable {
     @Around("@annotation(com.github.jbox.trace.Trace)")
     public Object emit(final ProceedingJoinPoint joinPoint) throws Throwable {
 
-        Method method = useAbstractMethod ? JboxUtils.getAbstractMethod(joinPoint) : JboxUtils.getImplMethod(joinPoint);
+        Method method = useAbstractMethod ? Jbox.getAbstractMethod(joinPoint) : Jbox.getImplMethod(joinPoint);
         Class<?> clazz = method.getDeclaringClass();
         Object target = joinPoint.getTarget();
         Object[] args = joinPoint.getArgs();

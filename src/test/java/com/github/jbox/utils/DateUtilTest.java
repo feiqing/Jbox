@@ -38,8 +38,8 @@ public class DateUtilTest {
                 public void run() {
                     for (int j = 0; j < 100_000; j++) {
                         String from = data[i2];
-                        Date d = DateUtils.timeParse(from);
-                        String to = DateUtils.timeFormat(d.getTime());
+                        Date d = T.timeParse(from);
+                        String to = T.timeFormat(d.getTime());
                         System.out.println("i: " + i2 + "\tj: " + j + "\tThreadID: "
                                 + Thread.currentThread().getId() + "\tThreadName: "
                                 + Thread.currentThread().getName() + "\t" + from + "\t" + to);

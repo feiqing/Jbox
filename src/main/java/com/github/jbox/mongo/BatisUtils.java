@@ -1,6 +1,6 @@
 package com.github.jbox.mongo;
 
-import com.github.jbox.utils.DateUtils;
+import com.github.jbox.utils.T;
 import com.google.common.base.Strings;
 import com.mongodb.CommandResult;
 import lombok.extern.slf4j.Slf4j;
@@ -45,7 +45,7 @@ public class BatisUtils {
                     .forEach(entry -> update.set(entry.getKey(), entry.getValue()));
         }
 
-        update.set(GMT_MODIFIED, DateUtils.timeMillisFormat(System.currentTimeMillis()));
+        update.set(GMT_MODIFIED, T.millisFormat(System.currentTimeMillis()));
 
         return update;
     }
@@ -71,11 +71,11 @@ public class BatisUtils {
 
         // gmt_create
         if (Strings.isNullOrEmpty(object.getGmtCreate())) {
-            object.setGmtCreate(DateUtils.timeMillisFormat(System.currentTimeMillis()));
+            object.setGmtCreate(T.millisFormat(System.currentTimeMillis()));
         }
 
         // gmt_modified
-        object.setGmtModified(DateUtils.timeMillisFormat(System.currentTimeMillis()));
+        object.setGmtModified(T.millisFormat(System.currentTimeMillis()));
     }
 
     static void checkCommandSuccess(CommandResult document) throws MongoCommandExecuteException {

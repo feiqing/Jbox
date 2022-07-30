@@ -1,11 +1,10 @@
 package com.github.jbox.scheduler;
 
-import com.github.jbox.executor.ExecutorManager;
-import com.github.jbox.executor.policy.DiscardOldestPolicy;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.commons.lang3.concurrent.BasicThreadFactory;
 
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * 实现该接口并注册为SpringBean由{@link TaskScheduler}自动发现并注册, 自动调度.
@@ -16,31 +15,32 @@ import java.util.concurrent.ExecutorService;
  */
 public interface ScheduleTask {
 
-    String group = "com.github.jbox.scheduler:ScheduleTask";
-
-    int minSize = 3;
-
-    int maxSize = 5;
-
-    int queueSize = 36;
-
-    ExecutorService defaultExecutor = ExecutorManager.newFixedMinMaxThreadPool(group, minSize, maxSize, queueSize, new DiscardOldestPolicy(group));
-
-    Logger SCHEDULE_TASK_LOGGER = LoggerFactory.getLogger("task-scheduler");
+    AtomicReference<ExecutorService> defaultExecutor = new AtomicReference<>(null);
 
     void schedule() throws Exception;
 
     long period();
 
     default ExecutorService executor() {
-        return defaultExecutor;
+        if (defaultExecutor.get() != null) {
+            return defaultExecutor.get();
+        }
+
+        synchronized (defaultExecutor) {
+            if (defaultExecutor.get() == null) {
+                BasicThreadFactory factory = new BasicThreadFactory.Builder().namingPattern("J-Schedule-Default-Exec-%d").daemon(true).build();
+                defaultExecutor.set(Executors.newCachedThreadPool(factory));
+            }
+        }
+
+        return defaultExecutor.get();
     }
 
     default boolean autoRegistered() {
         return true;
     }
 
-    default String taskDesc() {
+    default String desc() {
         return this.getClass().getName();
     }
 }

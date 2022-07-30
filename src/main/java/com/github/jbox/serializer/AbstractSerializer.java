@@ -1,20 +1,18 @@
 package com.github.jbox.serializer;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * @author jifang.zjf@alibaba-inc.com (FeiQing)
  * @version 1.0
  * @since 2018-07-01 21:41:00.
  */
+@Slf4j(topic = "com.github.jbox.serializer")
 public abstract class AbstractSerializer implements ISerializer {
 
-    private static final Logger logger = LoggerFactory.getLogger("com.github.jbox.serializer.ISerializer");
+    protected abstract byte[] _serialize(Object obj) throws Throwable;
 
-    protected abstract byte[] doSerialize(Object obj) throws Throwable;
-
-    protected abstract Object doDeserialize(byte[] bytes) throws Throwable;
+    protected abstract Object _deserialize(byte[] bytes) throws Throwable;
 
     @Override
     public <T> byte[] serialize(T obj) {
@@ -22,9 +20,9 @@ public abstract class AbstractSerializer implements ISerializer {
             return null;
         }
         try {
-            return doSerialize(obj);
+            return _serialize(obj);
         } catch (Throwable t) {
-            logger.error("{} serialize error.", this.getClass().getName(), t);
+            log.error("{} serialize error.", this.getClass().getName(), t);
             return null;
         }
     }
@@ -37,9 +35,9 @@ public abstract class AbstractSerializer implements ISerializer {
         }
 
         try {
-            return (T) doDeserialize(bytes);
+            return (T) _deserialize(bytes);
         } catch (Throwable t) {
-            logger.error("{} deserialize error.", this.getClass().getName(), t);
+            log.error("{} deserialize error.", this.getClass().getName(), t);
             return null;
         }
     }

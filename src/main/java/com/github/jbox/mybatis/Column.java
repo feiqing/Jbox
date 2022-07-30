@@ -13,4 +13,11 @@ import java.lang.annotation.*;
 public @interface Column {
 
     String value() default "";
+
+    /**
+     * @return alias as value
+     */
+    String name() default "";
+
+    boolean exclude() default false;
 }

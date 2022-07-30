@@ -13,12 +13,12 @@ import java.io.Serializable;
 public class JdkSerializer extends AbstractSerializer {
 
     @Override
-    protected byte[] doSerialize(Object obj) {
+    protected byte[] _serialize(Object obj) {
         return SerializationUtils.serialize((Serializable) obj);
     }
 
     @Override
-    protected Object doDeserialize(byte[] bytes) {
+    protected Object _deserialize(byte[] bytes) {
         return SerializationUtils.deserialize(bytes);
     }
 }

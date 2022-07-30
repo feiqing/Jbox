@@ -1,23 +1,18 @@
 package com.github.jbox.trace.tlog;
 
 import com.alibaba.fastjson.JSONObject;
-import com.github.jbox.executor.AsyncContext;
-import com.github.jbox.executor.AsyncRunnable;
-import com.github.jbox.executor.ExecutorManager;
-import com.github.jbox.executor.policy.DiscardPolicy;
 import com.github.jbox.trace.TraceException;
-import com.github.jbox.utils.DateUtils;
+import com.github.jbox.utils.T;
 import com.google.common.base.Function;
 import com.google.common.base.Joiner;
 import com.google.common.base.Preconditions;
 import lombok.NonNull;
 import org.slf4j.Logger;
-import org.slf4j.helpers.MessageFormatter;
 import org.springframework.beans.factory.InitializingBean;
 
 import java.util.*;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.RejectedExecutionHandler;
+import java.util.concurrent.Executors;
 
 import static java.util.stream.Collectors.toList;
 
@@ -42,12 +37,8 @@ public class TlogManager extends AbstractTlogConfig implements InitializingBean 
     public void afterPropertiesSet() {
         // init executor
         if (executor == null) {
-            RejectedExecutionHandler rejected = new DiscardPolicy(TlogConstants.TLOG_EXECUTOR_GROUP);
-            executor = ExecutorManager.newFixedMinMaxThreadPool(
-                    TlogConstants.TLOG_EXECUTOR_GROUP,
-                    getMinPoolSize(), getMaxPoolSize(),
-                    getRunnableQSize(), rejected
-            );
+            // todo
+            executor = Executors.newFixedThreadPool(getMinPoolSize());
         }
 
         // init tLogger
@@ -64,19 +55,18 @@ public class TlogManager extends AbstractTlogConfig implements InitializingBean 
         executor.submit(new LogEventParser(event));
     }
 
-    protected final class LogEventParser implements AsyncRunnable {
+    protected final class LogEventParser implements Runnable {
 
-        private LogEvent event;
+        private final LogEvent event;
 
         LogEventParser(LogEvent event) {
             this.event = event;
         }
 
         @Override
-        @SuppressWarnings("unchecked")
-        public void execute(AsyncContext context) {
+        public void run() {
             List<Object> logEntities = new LinkedList<>();
-            logEntities.add(DateUtils.timeMillisFormat(event.getStartTime()));
+            logEntities.add(T.millisFormat(event.getStartTime()));
             logEntities.add(event.getInvokeThread());
             logEntities.add(event.getRt());
             logEntities.add(event.getClassName());
@@ -216,13 +206,6 @@ public class TlogManager extends AbstractTlogConfig implements InitializingBean 
         private void doLogger(List<Object> logEntities) {
             String content = Joiner.on(TlogConstants.SEPARATOR).useForNull(getPlaceHolder()).join(logEntities);
             tLogger.trace("{}", content);
-        }
-
-        @Override
-        public String taskInfo() {
-            return MessageFormatter.format("{}: [{}]",
-                    this.getClass().getSimpleName(), event.getMethod().toGenericString())
-                    .getMessage();
         }
     }
 

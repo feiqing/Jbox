@@ -1,17 +1,16 @@
 package com.github.jbox.rpc.hessian;
 
 import com.caucho.hessian.client.HessianProxyFactory;
+import com.github.jbox.rpc.hessian.impl.ClientServiceProxy;
 import com.github.jbox.rpc.hessian.impl.RpcProcessor;
 import com.github.jbox.rpc.hessian.impl.RpcProcessorImpl;
-import com.github.jbox.rpc.hessian.impl.ClientServiceProxy;
-import com.github.jbox.utils.IPv4;
+import com.github.jbox.utils.Jbox;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cglib.proxy.Enhancer;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 
-import java.util.Collections;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -25,7 +24,7 @@ import java.util.concurrent.ConcurrentMap;
 @Slf4j(topic = "JboxRpcClient")
 public class RpcClient implements ApplicationContextAware {
 
-    private static final ConcurrentMap<String, Map<Class, Object>> ip2proxy = new ConcurrentHashMap<>();
+    private static final ConcurrentMap<String, Map<Class<?>, Object>> ip2proxy = new ConcurrentHashMap<>();
 
     @Setter
     private int servPort = 80;
@@ -73,7 +72,7 @@ public class RpcClient implements ApplicationContextAware {
         }
 
         RpcProcessor processor;
-        if (servIp.equals(IPv4.getLocalIp())) {
+        if (servIp.equals(Jbox.getLocalIp())) {
             processor = new RpcProcessorImpl(applicationContext);
             log.info("hessian rpc client [{}] starting ...", servIp);
         } else {

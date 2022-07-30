@@ -1,8 +1,7 @@
 package com.github.jbox.biz;
 
 import com.alibaba.fastjson.annotation.JSONField;
-import com.github.jbox.utils.DateUtils;
-import com.github.jbox.utils.IPv4;
+import com.github.jbox.utils.Jbox;
 import lombok.Data;
 
 import java.io.Serializable;
@@ -29,10 +28,10 @@ public class ResultDO<T> implements Serializable {
     private String traceId;
 
     @JSONField(name = "system_time")
-    private String systemTime = DateUtils.timeFormat(new Date());
+    private String systemTime = com.github.jbox.utils.T.timeFormat(new Date());
 
     @JSONField(name = "server_ip")
-    private String serverIp = IPv4.getLocalIp();
+    private String serverIp = Jbox.getLocalIp();
 
     @JSONField(name = "stack_trace")
     private String stackTrace;

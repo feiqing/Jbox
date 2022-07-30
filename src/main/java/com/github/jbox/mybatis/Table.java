@@ -11,6 +11,12 @@ import java.lang.annotation.*;
 @Target(value = ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
 public @interface Table {
-    
-    String value();
+
+    String name() default "";
+
+    String sequence() default "__AUTO_INCREMENT__"; // if useSequence, default as name()
+
+    boolean gmtCreate() default true;
+
+    boolean gmtModified() default true;
 }

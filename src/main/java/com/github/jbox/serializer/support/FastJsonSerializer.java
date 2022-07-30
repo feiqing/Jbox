@@ -12,20 +12,20 @@ import java.nio.charset.StandardCharsets;
  */
 public class FastJsonSerializer extends AbstractSerializer {
 
-    private Class<?> type;
+    private final Class<?> type;
 
     public FastJsonSerializer(Class<?> type) {
         this.type = type;
     }
 
     @Override
-    protected byte[] doSerialize(Object obj) {
+    protected byte[] _serialize(Object obj) {
         String json = JSON.toJSONString(obj);
         return json.getBytes(StandardCharsets.UTF_8);
     }
 
     @Override
-    protected Object doDeserialize(byte[] bytes) {
+    protected Object _deserialize(byte[] bytes) {
         String json = new String(bytes, 0, bytes.length, StandardCharsets.UTF_8);
         return JSON.parseObject(json, type);
     }

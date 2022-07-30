@@ -16,7 +16,7 @@ import java.util.zip.GZIPOutputStream;
 public class JdkGzipSerializer extends AbstractSerializer {
 
     @Override
-    protected byte[] doSerialize(Object obj) throws Throwable {
+    protected byte[] _serialize(Object obj) throws Throwable {
         try (ByteArrayOutputStream bos = new ByteArrayOutputStream();
              GZIPOutputStream gzout = new GZIPOutputStream(bos);
              ObjectOutputStream out = new ObjectOutputStream(gzout)) {
@@ -27,7 +27,7 @@ public class JdkGzipSerializer extends AbstractSerializer {
     }
 
     @Override
-    protected Object doDeserialize(byte[] bytes) throws Throwable {
+    protected Object _deserialize(byte[] bytes) throws Throwable {
         try (ByteArrayInputStream bis = new ByteArrayInputStream(bytes);
              GZIPInputStream gzin = new GZIPInputStream(bis);
              ObjectInputStream ois = new ObjectInputStream(gzin)) {

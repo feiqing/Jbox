@@ -2,7 +2,7 @@ package com.github.jbox.rpc.hessian.impl;
 
 import com.alibaba.fastjson.JSON;
 import com.github.jbox.rpc.proto.RpcParam;
-import com.github.jbox.utils.IPv4;
+import com.github.jbox.utils.Jbox;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.MDC;
 import org.springframework.cglib.proxy.MethodInterceptor;
@@ -20,11 +20,11 @@ import static com.github.jbox.utils.Collections3.nullToEmpty;
 @Slf4j(topic = "JboxRpcClient")
 public class ClientServiceProxy implements MethodInterceptor {
 
-    private Class<?> api;
+    private final Class<?> api;
 
-    private RpcProcessor rpcProcessor;
+    private final RpcProcessor rpcProcessor;
 
-    private String servIp;
+    private final String servIp;
 
     public ClientServiceProxy(Class<?> api, RpcProcessor rpcProcessor, String servIp) {
         this.api = api;
@@ -36,7 +36,7 @@ public class ClientServiceProxy implements MethodInterceptor {
     public Object intercept(Object o, Method method, Object[] args, MethodProxy methodProxy) throws Throwable {
 
         RpcParam msg = new RpcParam();
-        msg.setClientIp(IPv4.getLocalIp());
+        msg.setClientIp(Jbox.getLocalIp());
         msg.setServIp(servIp);
         msg.setClassName(api.getName());
         msg.setMethodName(method.getName());
@@ -56,7 +56,7 @@ public class ClientServiceProxy implements MethodInterceptor {
             if (log.isDebugEnabled()) {
                 log.debug("|{}|{}|{}|{}:{}|{}|{}|{}|{}|{}|",
                         Thread.currentThread().getName(),
-                        IPv4.getLocalIp(),
+                        Jbox.getLocalIp(),
                         servIp,
                         msg.getClassName(), msg.getMethodName(),
                         cost,

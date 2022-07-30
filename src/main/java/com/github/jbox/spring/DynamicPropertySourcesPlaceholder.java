@@ -1,17 +1,23 @@
 package com.github.jbox.spring;
 
-import com.github.jbox.utils.AopTargetUtils;
-import com.github.jbox.utils.JboxUtils;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Splitter;
 import com.google.common.base.Strings;
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.CacheLoader;
+import com.google.common.cache.LoadingCache;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
 import lombok.Data;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
 import org.apache.commons.lang3.reflect.FieldUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.slf4j.helpers.MessageFormatter;
+import org.springframework.aop.framework.AdvisedSupport;
+import org.springframework.aop.support.AopUtils;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -27,8 +33,9 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 
-import static com.github.jbox.utils.JboxUtils.convertTypeValue;
+import static com.github.jbox.utils.Jbox.toObj;
 
 /**
  * @author jifang.zjf@alibaba-inc.com
@@ -42,7 +49,10 @@ import static com.github.jbox.utils.JboxUtils.convertTypeValue;
  * - 1.6: independent
  * @since 2017/4/5 上午10:35.
  */
+@Slf4j
 public abstract class DynamicPropertySourcesPlaceholder extends PropertySourcesPlaceholderConfigurer implements ApplicationContextAware {
+
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     private static final String SEP_LINE = "\n";
 
@@ -142,7 +152,7 @@ public abstract class DynamicPropertySourcesPlaceholder extends PropertySourcesP
 
             // update field changed.
             for (Setter setter : setters) {
-                Object value = convertTypeValue(stringValue, setter.getType(), setter.getGenericType());
+                Object value = toObj(stringValue, setter.getType()/*setter.getGenericType()*/);
                 setter.set(value);
             }
 
@@ -165,12 +175,12 @@ public abstract class DynamicPropertySourcesPlaceholder extends PropertySourcesP
             if (bean == null) {
                 continue;
             }
-            initSetter(AopTargetUtils.getAopTarget(bean));
+            initSetter(getAopTarget(bean));
         }
 
         // register spring external bean
         for (Object bean : externalBeans) {
-            initSetter(AopTargetUtils.getAopTarget(bean));
+            initSetter(getAopTarget(bean));
         }
     }
 
@@ -205,7 +215,7 @@ public abstract class DynamicPropertySourcesPlaceholder extends PropertySourcesP
     private String getAnnotationValue(String value) {
         value = value.trim();
         Preconditions.checkState(!Strings.isNullOrEmpty(value), "@value() config can not be empty.");
-        return JboxUtils.trimPrefixAndSuffix(value, "${", "}");
+        return trimPrefixAndSuffix(value, "${", "}");
     }
 
     /* ------ helpers ----- */
@@ -369,5 +379,138 @@ public abstract class DynamicPropertySourcesPlaceholder extends PropertySourcesP
         PropertySourcesPlaceholderException(String message) {
             super(message);
         }
+    }
+
+    private static final long EXPIRE_DURATION = 30;
+
+    private static final LoadingCache<Object, Object> targetCache = CacheBuilder.newBuilder()
+            .expireAfterAccess(EXPIRE_DURATION, TimeUnit.MINUTES)
+            .recordStats()
+            .build(new CacheLoader<Object, Object>() {
+                @Override
+                public Object load(Object proxy) throws Exception {
+                    if (proxy == null) {
+                        return null;
+                    }
+
+                    try {
+                        // not aop proxy
+                        if (!AopUtils.isAopProxy(proxy)) {
+                            return proxy;
+                        }
+
+                        if (AopUtils.isCglibProxy(proxy)) {
+                            return getCglibProxyTarget(proxy);
+                        } else if (AopUtils.isJdkDynamicProxy(proxy)) {
+                            return getJDKProxyTarget(proxy);
+                        } else {
+                            return null;
+                        }
+
+                    } catch (Exception e) {
+                        log.error("proxy: {}, getAopProxyTarget error, use default null", proxy, e);
+                        return null;
+                    }
+                }
+            });
+
+    private static Object getAopTarget(Object bean) {
+        return targetCache.getUnchecked(bean);
+    }
+
+    private static final String JDK_CALLBACK = "h";
+
+    private static final String JDK_ADVISED = "advised";
+
+    private static Object getJDKProxyTarget(Object proxy) throws Exception {
+        AdvisedSupport advisedSupport = (AdvisedSupport) getFieldValue(proxy, JDK_CALLBACK, JDK_ADVISED);
+
+        if (advisedSupport == null) {
+            return null;
+        } else {
+            return advisedSupport.getTargetSource().getTarget();
+        }
+    }
+
+    private static final String CGLIB_CALLBACK = "CGLIB$CALLBACK_0";
+
+    private static final String CGLIB_ADVISED = "advised";
+
+    private static Object getCglibProxyTarget(Object proxy) throws Exception {
+        AdvisedSupport advisedSupport = (AdvisedSupport) getFieldValue(proxy, CGLIB_CALLBACK, CGLIB_ADVISED);
+
+        if (advisedSupport == null) {
+            return null;
+        } else {
+            return advisedSupport.getTargetSource().getTarget();
+        }
+    }
+
+    public static String trimPrefixAndSuffix(String value, String prefix, String suffix) {
+        if (Strings.isNullOrEmpty(value)) {
+            return value;
+        }
+
+        Preconditions.checkArgument(prefix != null, "prefix can not be null");
+        Preconditions.checkArgument(suffix != null, "suffix can not be null");
+
+        if (value.startsWith(prefix)) {
+            value = value.substring(prefix.length());
+        }
+        if (value.endsWith(suffix)) {
+            value = value.substring(0, value.length() - suffix.length());
+        }
+
+        return value;
+    }
+
+    public static Object getFieldValue(Object target, String fieldName) {
+        Preconditions.checkArgument(!Strings.isNullOrEmpty(fieldName), "field name can not be empty: %s", fieldName);
+
+        if (target == null) {
+            return null;
+        }
+
+        Field field = ReflectionUtils.findField(target.getClass(), fieldName);
+
+        if (field == null) {
+            return null;
+        }
+
+        ReflectionUtils.makeAccessible(field);
+        return ReflectionUtils.getField(field, target);
+    }
+
+    public static Object getFieldValue(Object target, String outerFieldName, String... innerFieldNames) {
+        Preconditions.checkArgument(!Strings.isNullOrEmpty(outerFieldName),
+                "outer field name can not be empty: %s",
+                outerFieldName);
+
+        if (target == null) {
+            return null;
+        }
+
+        Object outerTarget = getFieldValue(target, outerFieldName);
+
+        Object innerObject = null;
+        if (innerFieldNames != null && innerFieldNames.length != 0) {
+            for (String innerFieldName : innerFieldNames) {
+                if (outerTarget == null) {
+                    break;
+                }
+
+                Field innerField = ReflectionUtils.findField(outerTarget.getClass(), innerFieldName);
+                if (innerField == null) {
+                    break;
+                }
+
+                ReflectionUtils.makeAccessible(innerField);
+                innerObject = ReflectionUtils.getField(innerField, outerTarget);
+
+                outerTarget = innerObject;
+            }
+        }
+
+        return innerObject;
     }
 }

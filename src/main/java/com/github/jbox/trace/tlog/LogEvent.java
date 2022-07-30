@@ -1,6 +1,6 @@
 package com.github.jbox.trace.tlog;
 
-import com.github.jbox.utils.IPv4;
+import com.github.jbox.utils.Jbox;
 import lombok.Data;
 
 import java.lang.reflect.Method;
@@ -44,7 +44,7 @@ public class LogEvent {
     private Throwable exception;
 
     public void init() {
-        this.serverIp = IPv4.getLocalIp();
+        this.serverIp = Jbox.getLocalIp();
         /*提供开放能力插件化注入
         this.traceId = EagleEye.getTraceId();
         this.clientName = RequestCtxUtil.getAppNameOfClient();

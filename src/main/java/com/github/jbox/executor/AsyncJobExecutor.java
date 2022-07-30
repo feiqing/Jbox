@@ -1,11 +1,11 @@
 package com.github.jbox.executor;
 
 import com.github.jbox.utils.Collections3;
-import com.github.jbox.utils.Objects2;
 import com.google.common.base.Strings;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.concurrent.BasicThreadFactory;
 
 import java.util.*;
 import java.util.concurrent.*;
@@ -17,6 +17,8 @@ import static com.github.jbox.executor.AsyncJobExecutor.JobStatus.*;
 import static java.util.stream.Collectors.toList;
 
 /**
+ * Todo: 测试
+ *
  * @author jifang.zjf@alibaba-inc.com (FeiQing)
  * @version 1.0
  * @since 2018-05-22 02:57:00.
@@ -28,7 +30,7 @@ public class AsyncJobExecutor<T> {
     private ExecutorService worker;
 
     @Getter
-    private List<Supplier<T>> tasks;
+    private final List<Supplier<T>> tasks;
 
     @Getter
     private int remain;
@@ -36,7 +38,7 @@ public class AsyncJobExecutor<T> {
     @Getter
     private List<Future<T>> futures;
 
-    private Queue<Optional<T>> tmpResults = new ConcurrentLinkedQueue<>();
+    private final Queue<Optional<T>> tmpResults = new ConcurrentLinkedQueue<>();
 
     private List<T> results;
 
@@ -51,12 +53,13 @@ public class AsyncJobExecutor<T> {
     }
 
     public AsyncJobExecutor(ExecutorService worker) {
-        this.worker = Objects2.nullToDefault(worker, getWorker());
+        this.worker = worker != null ? worker : initWorker();
         this.tasks = new LinkedList<>();
     }
 
-    protected ExecutorService getWorker() {
-        return ExecutorManager.newFixedMinMaxThreadPool("com.github.jbox.executor:AsyncJobExecutor", 20, 20, 1024 * 1024, new ThreadPoolExecutor.AbortPolicy());
+    protected ExecutorService initWorker() {
+        ThreadFactory factory = new BasicThreadFactory.Builder().namingPattern("J-Async-Common-Exec-%d").daemon(true).build();
+        return Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors() * 2, factory);
     }
 
     public AsyncJobExecutor<T> addTask(Supplier<T> task) {
@@ -77,30 +80,18 @@ public class AsyncJobExecutor<T> {
         this.latch = new CountDownLatch(tasks.size());
         this.futures = new ArrayList<>(tasks.size());
         for (Supplier<T> task : tasks) {
-            Future<T> future = worker.submit(
-                    new AsyncCallable<T>() {
-
-                        @Override
-                        public T execute(AsyncContext context) {
-                            try {
-                                T result = task.get();
-                                tmpResults.offer(Optional.ofNullable(result));
-                                return result;
-                            } catch (Throwable t) {
-                                hasRunningException = true;
-                                throw t;
-                            } finally {
-                                latch.countDown();
-                            }
-                        }
-
-                        @Override
-                        public String taskInfo() {
-                            String jobDesc = getJobDesc();
-                            return Strings.isNullOrEmpty(jobDesc) ? this.getClass().getName() : jobDesc;
-                        }
-                    }
-            );
+            Future<T> future = worker.submit(() -> {
+                try {
+                    T result = task.get();
+                    tmpResults.offer(Optional.ofNullable(result));
+                    return result;
+                } catch (Throwable t) {
+                    hasRunningException = true;
+                    throw t;
+                } finally {
+                    latch.countDown();
+                }
+            });
 
             futures.add(future);
         }

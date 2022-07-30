@@ -3,9 +3,6 @@ package com.github.jbox.caces.service.impl;
 import com.github.jbox.caces.service.HelloWorldService;
 import com.github.jbox.domain.User;
 import com.github.jbox.domain.UserWrapper;
-import com.github.jbox.executor.AsyncCallable;
-import com.github.jbox.executor.AsyncContext;
-import com.github.jbox.executor.ExecutorManager;
 import com.github.jbox.trace.Trace;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -48,14 +45,6 @@ public class HelloWorldServiceImpl implements HelloWorldService {
     @Trace
     @Override
     public List<String> strs(String[] strs) {
-        ExecutorService single = ExecutorManager.newSingleThreadExecutor("single");
-        single.submit(new AsyncCallable<List<String>>() {
-            @Override
-            public List<String> execute(AsyncContext context) throws Exception {
-                logger.info("strs: {}", strs);
-                return Collections.emptyList();
-            }
-        });
         return Collections.emptyList();
     }
 
@@ -67,13 +56,5 @@ public class HelloWorldServiceImpl implements HelloWorldService {
     @Trace
     @Override
     public void limit(@Min(1) int page, @Max(50) int size) {
-        ExecutorService cached = ExecutorManager.newCachedThreadPool("cached");
-        cached.submit(new AsyncCallable<Object>() {
-            @Override
-            public Object execute(AsyncContext context) {
-                logger.info("page: {}, limit:{}", page, size);
-                throw new RuntimeException("hh");
-            }
-        });
     }
 }

@@ -1,10 +1,12 @@
 package com.github.jbox.mybatis;
 
+import com.github.jbox.mybatis.spring.SqlSessionFactoryBean;
 import com.google.common.base.Joiner;
 import com.google.common.base.Strings;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.builder.annotation.ProviderContext;
 
+import java.io.Serializable;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.ParameterizedType;
 import java.util.*;
@@ -63,21 +65,33 @@ public class SqlProvider {
                 .toString();
     }
 
-    public String insert(ProviderContext context, BaseEntity<?> entity) {
+    public String insert(ProviderContext context, BaseEntity<? extends Serializable> entity) {
         List<String> colNames = new LinkedList<>();
         List<String> colVals = new LinkedList<>();
 
+        // todo: 在这里基于@Table注解判断是否添加`id`字段, 添加的同时通过生成sequence数值
         if (entity.getId() != null) {
             colNames.add("`id`");
             colVals.add("#{id}");
         }
 
-        if (entity.useGmtCreate()) {
+        Table tableAnno = getTableAnno(entity);
+        SqlSessionFactoryBean.sequence(tableAnno.sequence());
+
+        if (tableAnno != null && tableAnno.sequence() != "__AUTO_INCREMENT__") {
+            colNames.add("`id`");
+            colVals.add("#{id}");
+            // todo 设计一个SequenceHolder
+            // entity.setId();
+        }
+
+
+        if (tableAnno == null || tableAnno.gmtCreate()) {
             colNames.add("`gmt_create`");
             colVals.add(entity.getGmtCreate() != null ? "#{gmtCreate}" : "NOW()");
         }
 
-        if (entity.useGmtModified()) {
+        if (tableAnno == null || tableAnno.gmtModified()) {
             colNames.add("`gmt_modified`");
             colVals.add(entity.getGmtModified() != null ? "#{gmtModified}" : "NOW()");
         }
@@ -98,18 +112,25 @@ public class SqlProvider {
                 .toString();
     }
 
+    private static final ConcurrentMap<Class<?>, Optional<Table>> class2table = new ConcurrentHashMap<>();
+
+    private static Table getTableAnno(BaseEntity<?> entity) {
+        return class2table.computeIfAbsent(entity.getClass(), clazz -> Optional.ofNullable(clazz.getAnnotation(Table.class))).orElse(null);
+    }
+
 
     public String upsert(ProviderContext context, BaseEntity<?> entity) {
         List<String> colNames = new LinkedList<>();
         List<String> namTails = new LinkedList<>();
         List<String> colVals = new LinkedList<>();
 
-        if (entity.useGmtCreate()) {
+        final Table tableAnno = getTableAnno(entity);
+        if (tableAnno == null || tableAnno.gmtCreate()) {
             colNames.add("`gmt_create`");
             colVals.add(entity.getGmtCreate() != null ? "#{gmtCreate}" : "NOW()");
         }
 
-        if (entity.useGmtModified()) {
+        if (tableAnno == null || tableAnno.gmtModified()) {
             colNames.add("`gmt_modified`");
             namTails.add("`gmt_modified`");
             colVals.add(entity.getGmtModified() != null ? "#{gmtModified}" : "NOW()");
@@ -144,7 +165,8 @@ public class SqlProvider {
         StringBuilder sb = new StringBuilder("UPDATE ")
                 .append(getTable(context));
 
-        if (entity.useGmtModified()) {
+        Table tableAnno = getTableAnno(entity);
+        if (tableAnno == null || tableAnno.gmtModified()) {
             sb.append(String.format(" SET gmt_modified = %s", entity.getGmtModified() != null ? "${gmtModified}" : "NOW()"));
         }
 
@@ -184,7 +206,15 @@ public class SqlProvider {
                 .entrySet()
                 .stream()
                 .filter(entry -> entry.getValue() != null)
-                .map(entry -> String.format("`%s` = #{%s}", hump2line(entry.getKey()), entry.getKey()))
+                .map(entry -> {
+                    // TODO: 后续可以给出配置项过滤掉该查询项
+                    if (entry.getValue() == null) {
+                        return String.format("`%s` IS NULL", hump2line(entry.getKey()));
+                    } else {
+                        return String.format("`%s` = #{%s}", hump2line(entry.getKey()), entry.getKey());
+                    }
+
+                })
                 .collect(Collectors.toList());
     }
 
@@ -280,9 +310,9 @@ public class SqlProvider {
             Class<?> entityType = (Class<?>) ((ParameterizedType) (context.getMapperType().getGenericInterfaces()[0])).getActualTypeArguments()[0];
             Table table = entityType.getAnnotation(Table.class);
             if (table != null) {
-                if (Strings.isNullOrEmpty(table.value()))
+                if (Strings.isNullOrEmpty(table.name()))
                     throw new RuntimeException("no support");
-                return table.value();
+                return table.name();
             }
 
             String name = entityType.getSimpleName();

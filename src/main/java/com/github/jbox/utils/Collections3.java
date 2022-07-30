@@ -27,11 +27,11 @@ public class Collections3 {
         }
 
         if (obj instanceof Collection) {
-            return ((Collection) obj).isEmpty();
+            return ((Collection<?>) obj).isEmpty();
         }
 
         if (obj instanceof Map) {
-            return ((Map) obj).isEmpty();
+            return ((Map<?, ?>) obj).isEmpty();
         }
 
         if (obj instanceof Object[]) {
@@ -53,7 +53,7 @@ public class Collections3 {
         return map == null ? Collections.emptyMap() : map;
     }
 
-    public static int size(Map map) {
+    public static int size(Map<?, ?> map) {
         if (map == null) {
             return 0;
         }
@@ -61,7 +61,7 @@ public class Collections3 {
         return map.size();
     }
 
-    public static int size(Collection collection) {
+    public static int size(Collection<?> collection) {
         if (collection == null) {
             return 0;
         }
@@ -87,9 +87,6 @@ public class Collections3 {
         return null;
     }
 
-    public static boolean isEmpty(Object[] array) {
-        return array == null || array.length == 0;
-    }
 
     public static <T> void removeAll(Map<T, ?> map, Collection<T> keys) {
         for (T t : keys) {

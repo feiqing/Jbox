@@ -15,7 +15,7 @@ import java.io.ByteArrayOutputStream;
 public class Hessian2Serializer extends AbstractSerializer {
 
     @Override
-    protected byte[] doSerialize(Object obj) throws Throwable {
+    protected byte[] _serialize(Object obj) throws Throwable {
         try (ByteArrayOutputStream os = new ByteArrayOutputStream()) {
             Hessian2Output out = new Hessian2Output(os);
             out.writeObject(obj);
@@ -25,7 +25,7 @@ public class Hessian2Serializer extends AbstractSerializer {
     }
 
     @Override
-    protected Object doDeserialize(byte[] bytes) throws Throwable {
+    protected Object _deserialize(byte[] bytes) throws Throwable {
         try (ByteArrayInputStream is = new ByteArrayInputStream(bytes)) {
             Hessian2Input in = new Hessian2Input(is);
             Object result = in.readObject();
