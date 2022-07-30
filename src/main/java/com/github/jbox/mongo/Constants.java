@@ -5,7 +5,7 @@ package com.github.jbox.mongo;
  * @version 1.0
  * @since 2018-03-06 18:28:00.
  */
-public interface TableConstant {
+interface Constants {
 
     String ID = "_id";
 

@@ -2,9 +2,11 @@ package com.github.jbox.mongo;
 
 import com.github.jbox.utils.T;
 import com.google.common.base.Strings;
-import com.mongodb.CommandResult;
+import lombok.Getter;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.bson.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
@@ -15,7 +17,7 @@ import org.springframework.util.ReflectionUtils;
 import java.lang.reflect.Modifier;
 import java.util.*;
 
-import static com.github.jbox.mongo.TableConstant.GMT_MODIFIED;
+import static com.github.jbox.mongo.Constants.GMT_MODIFIED;
 
 
 /**
@@ -24,9 +26,9 @@ import static com.github.jbox.mongo.TableConstant.GMT_MODIFIED;
  * @since 2018-03-15 14:30:00.
  */
 @Slf4j
-public class BatisUtils {
+class Helpers {
 
-    public static Query mapToQueryParam(Map<String, ?> map, String... excludes) {
+    static Query mapToQueryParam(Map<String, ?> map, String... excludes) {
         Query query = new Query();
         if (!CollectionUtils.isEmpty(map)) {
             map.entrySet().stream()
@@ -37,7 +39,7 @@ public class BatisUtils {
         return query;
     }
 
-    public static Update mapToUpdateParam(Map<String, Object> map, String... excludes) {
+    static Update mapToUpdateParam(Map<String, Object> map, String... excludes) {
         Update update = new Update();
         if (!CollectionUtils.isEmpty(map)) {
             map.entrySet().stream()
@@ -50,7 +52,7 @@ public class BatisUtils {
         return update;
     }
 
-    public static Update mapToUpdateParamNoGmt(Map<String, Object> map, String... excludes) {
+    static Update mapToUpdateParamNoGmt(Map<String, Object> map, String... excludes) {
         Update update = new Update();
         if (!CollectionUtils.isEmpty(map)) {
             map.entrySet().stream()
@@ -62,10 +64,10 @@ public class BatisUtils {
     }
 
 
-    public static void insertInit(MongoEntity object, String collection, SequenceDAO sequenceDAO) {
+    static void insertInit(MongoEntity object, String collection, MongoSequence mongoSequence) {
         // id
         if (object.getId() == null) {
-            long id = sequenceDAO.generateId(collection);
+            long id = mongoSequence.generateId(collection);
             object.setId(id);
         }
 
@@ -78,19 +80,19 @@ public class BatisUtils {
         object.setGmtModified(T.millisFormat(System.currentTimeMillis()));
     }
 
-    static void checkCommandSuccess(CommandResult document) throws MongoCommandExecuteException {
-        int ok = (int) document.getDouble("ok");
+    static void checkCommandSuccess(Document document) throws MongoCommandExecuteException {
+        int ok = document.getInteger("ok");
         if (ok != 1) {
             MongoCommandExecuteException exception = new MongoCommandExecuteException();
             exception.setOk(ok);
-            exception.setErrorCode(document.getInt("code"));
+            exception.setErrorCode(document.getInteger("code"));
             exception.setCodeName(document.getString("codeName"));
             exception.setErrmsg(document.getString("errmsg"));
             throw exception;
         }
     }
 
-    public static Map<String, Object> beanToMap(Object obj, String... excludes) {
+    static Map<String, Object> beanToMap(Object obj, String... excludes) {
 
         Map<String, Object> map = new HashMap<>();
         if (obj != null) {
@@ -135,5 +137,36 @@ public class BatisUtils {
         return Arrays
                 .stream(array)
                 .anyMatch(entry -> StringUtils.equals(entry, element));
+    }
+
+    public static class MongoCommandExecuteException extends RuntimeException {
+
+        private static final long serialVersionUID = -8181715563606319069L;
+
+        @Getter
+        @Setter
+        private int errorCode;
+
+        @Getter
+        @Setter
+        private String codeName;
+
+        @Getter
+        @Setter
+        private int ok;
+
+        @Getter
+        @Setter
+        private String errmsg;
+
+        @Override
+        public String toString() {
+            return "MongoCommandExecuteException{" +
+                    "errorCode=" + errorCode +
+                    ", codeName='" + codeName + '\'' +
+                    ", ok=" + ok +
+                    ", errmsg='" + errmsg + '\'' +
+                    '}';
+        }
     }
 }

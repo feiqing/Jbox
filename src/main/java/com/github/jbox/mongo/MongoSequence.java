@@ -3,7 +3,6 @@ package com.github.jbox.mongo;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import lombok.Data;
-import lombok.Getter;
 import org.springframework.data.mongodb.core.FindAndModifyOptions;
 import org.springframework.data.mongodb.core.MongoOperations;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -12,11 +11,12 @@ import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 
+import java.io.Serializable;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicLong;
 
-import static com.github.jbox.mongo.TableConstant.*;
+import static com.github.jbox.mongo.Constants.*;
 
 /**
  * 每次启动, Sequence抬升1000
@@ -24,21 +24,19 @@ import static com.github.jbox.mongo.TableConstant.*;
  * @author cunxiao
  * @since 2018-02-28 17:03:00.
  **/
-public class SequenceDAO {
+public class MongoSequence {
 
     private static final ConcurrentMap<String, SequenceRange> ranges = new ConcurrentHashMap<>();
 
-    private static final long DEFAULT_STEP = 1000L;
+    private final long step;
 
-    private long step;
+    private final MongoOperations mongoTemplate;
 
-    private MongoOperations mongoTemplate;
-
-    public SequenceDAO(MongoOperations mongoTemplate) {
-        this(DEFAULT_STEP, mongoTemplate);
+    public MongoSequence(MongoOperations mongoTemplate) {
+        this(1000L, mongoTemplate);
     }
 
-    public SequenceDAO(long step, MongoOperations mongoTemplate) {
+    public MongoSequence(long step, MongoOperations mongoTemplate) {
         this.step = step;
         this.mongoTemplate = mongoTemplate;
     }
@@ -113,17 +111,15 @@ public class SequenceDAO {
         return new SequenceRange(oldValue, newValue);
     }
 
-    public class SequenceRange {
+    @Data
+    public static class SequenceRange {
 
-        @Getter
         private final long min;
 
-        @Getter
         private final long max;
 
         private final AtomicLong seq;
 
-        @Getter
         private volatile boolean over = false;
 
         SequenceRange(long min, long max) {
@@ -154,7 +150,7 @@ public class SequenceDAO {
 
     @Data
     @Document(collection = SEQ_COL)
-    private static class SequenceDO {
+    public static class SequenceDO {
 
         @Field(ID)
         private String type;
@@ -162,4 +158,14 @@ public class SequenceDAO {
         @Field(SEQ)
         private long seq;
     }
+
+    public static class SequenceException extends RuntimeException implements Serializable {
+
+        private static final long serialVersionUID = -7383087459057215862L;
+
+        public SequenceException(String message) {
+            super(message);
+        }
+    }
+
 }

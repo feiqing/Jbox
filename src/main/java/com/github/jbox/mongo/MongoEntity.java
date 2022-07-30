@@ -7,8 +7,9 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Field;
 
 import java.io.Serializable;
+import java.util.Objects;
 
-import static com.github.jbox.mongo.TableConstant.*;
+import static com.github.jbox.mongo.Constants.*;
 
 /**
  * @author jifang.zjf@alibaba-inc.com (FeiQing)
@@ -50,8 +51,8 @@ public class MongoEntity implements Serializable {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        MongoEntity MBaseModel = (MongoEntity) o;
-        return _id != null ? _id.equals(MBaseModel._id) : MBaseModel._id == null;
+        MongoEntity entity = (MongoEntity) o;
+        return Objects.equals(_id, entity._id);
     }
 
     @Override

@@ -3,11 +3,11 @@ package com.github.jbox.mongo;
 import com.alibaba.fastjson.JSONObject;
 import com.github.jbox.utils.Collections3;
 import com.google.common.base.Preconditions;
-import com.mongodb.BasicDBObject;
-import com.mongodb.CommandResult;
 import com.mongodb.DBObject;
-import com.mongodb.WriteResult;
+import com.mongodb.client.result.DeleteResult;
+import com.mongodb.client.result.UpdateResult;
 import lombok.Getter;
+import org.bson.Document;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoOperations;
 import org.springframework.data.mongodb.core.query.Criteria;
@@ -17,12 +17,14 @@ import org.springframework.util.CollectionUtils;
 
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
 
-import static com.github.jbox.biz.BizException.bizException;
-import static com.github.jbox.mongo.BatisUtils.*;
-import static com.github.jbox.mongo.TableConstant.ID;
-import static com.github.jbox.mongo.TableConstant.SERIAL_VERSION_ID;
+import static com.github.jbox.mongo.Constants.ID;
+import static com.github.jbox.mongo.Constants.SERIAL_VERSION_ID;
+import static com.github.jbox.mongo.Helpers.*;
 
 
 /**
@@ -34,22 +36,22 @@ import static com.github.jbox.mongo.TableConstant.SERIAL_VERSION_ID;
 public class MongoMapper<T extends MongoEntity> {
 
     @Getter
-    private final SequenceDAO sequenceDAO;
+    private final MongoSequence sequence;
 
-    private final MongoOperations mongoTemplate;
+    private final MongoOperations operations;
 
     private final Class<T> type;
 
-    public MongoMapper(MongoOperations mongoTemplate, SequenceDAO sequenceDAO) {
+    public MongoMapper(MongoOperations operations, MongoSequence sequence) {
         this.type = _type();
-        this.mongoTemplate = mongoTemplate;
-        this.sequenceDAO = sequenceDAO;
+        this.operations = operations;
+        this.sequence = sequence;
     }
 
-    public MongoMapper(Class<?> type, MongoOperations mongoTemplate, SequenceDAO sequenceDAO) {
+    public MongoMapper(Class<?> type, MongoOperations operations, MongoSequence sequence) {
         this.type = (Class<T>) type;
-        this.mongoTemplate = mongoTemplate;
-        this.sequenceDAO = sequenceDAO;
+        this.operations = operations;
+        this.sequence = sequence;
     }
 
     public T findById(long id) {
@@ -105,14 +107,14 @@ public class MongoMapper<T extends MongoEntity> {
     private List<T> find(Map<String, Object> where, int page, int limit, List<Sort.Order> orderBy, String collection) {
         Preconditions.checkArgument(page >= 1);
 
-        Query queryParam = mapToQueryParam(where);
-        queryParam.skip((page - 1) * limit);
-        queryParam.limit(limit);
+        Query query = mapToQueryParam(where);
+        query.skip((long) (page - 1) * limit);
+        query.limit(limit);
         if (!CollectionUtils.isEmpty(orderBy)) {
-            queryParam.with(new Sort(orderBy));
+            query.with(Sort.by(orderBy));
         }
 
-        return mongo().find(queryParam, type(), collection);
+        return mongo().find(query, type(), collection);
     }
 
     public T findOne(Map<String, Object> where) {
@@ -120,8 +122,7 @@ public class MongoMapper<T extends MongoEntity> {
     }
 
     private T findOne(Map<String, Object> where, String collection) {
-        Query queryParam = mapToQueryParam(where);
-        return mongo().findOne(queryParam, type(), collection);
+        return mongo().findOne(mapToQueryParam(where), type(), collection);
     }
 
     public long count(Map<String, Object> where) {
@@ -146,7 +147,7 @@ public class MongoMapper<T extends MongoEntity> {
         return object.getId();
     }
 
-    public WriteResult upsert(Query query, Update update) {
+    public UpdateResult upsert(Query query, Update update) {
         return mongo().upsert(query, update, type(), cname());
     }
 
@@ -155,7 +156,7 @@ public class MongoMapper<T extends MongoEntity> {
     }
 
     private long insert(T object, String collection) {
-        insertInit(object, collection, sequenceDAO);
+        insertInit(object, collection, sequence);
         mongo().insert(object, collection);
         return object.getId();
     }
@@ -166,81 +167,81 @@ public class MongoMapper<T extends MongoEntity> {
 
     private void insert(Collection<T> objects, String collection) {
         for (T object : objects) {
-            insertInit(object, collection, sequenceDAO);
+            insertInit(object, collection, sequence);
         }
         mongo().insert(objects, collection);
     }
 
-    public WriteResult updateOne(Map<String, Object> where, Map<String, Object> update) {
+    public UpdateResult updateOne(Map<String, Object> where, Map<String, Object> update) {
         return updateOne(where, update, cname());
     }
 
-    private WriteResult updateOne(Map<String, Object> where, Map<String, Object> update, String collection) {
+    private UpdateResult updateOne(Map<String, Object> where, Map<String, Object> update, String collection) {
         Query queryParam = mapToQueryParam(where);
         Update updateParam = mapToUpdateParam(update, ID, SERIAL_VERSION_ID);
         return mongo().updateFirst(queryParam, updateParam, collection);
     }
 
-    public WriteResult updateById(Map<String, Object> update, long id) {
+    public UpdateResult updateById(Map<String, Object> update, long id) {
         return updateById(update, id, cname());
     }
 
-    public WriteResult updateById(T object) {
+    public UpdateResult updateById(T object) {
         Map<String, Object> update = beanToMap(object, ID, SERIAL_VERSION_ID);
 
         return this.updateById(update, object.getId());
     }
 
-    private WriteResult updateById(Map<String, Object> update, long id, String collection) {
+    private UpdateResult updateById(Map<String, Object> update, long id, String collection) {
         Query queryParam = new Query(Criteria.where(ID).is(id));
         Update updateParam = mapToUpdateParam(update);
 
         return mongo().updateFirst(queryParam, updateParam, collection);
     }
 
-    private WriteResult updateById(T object, String collection) {
+    private UpdateResult updateById(T object, String collection) {
         Map<String, Object> update = beanToMap(object, ID, SERIAL_VERSION_ID);
 
         return updateById(update, object.getId(), collection);
     }
 
-    public WriteResult update(Map<String, Object> where, Map<String, Object> update) {
+    public UpdateResult update(Map<String, Object> where, Map<String, Object> update) {
         return update(where, update, cname());
     }
 
-    private WriteResult update(Map<String, Object> where, Map<String, Object> update, String collection) {
+    private UpdateResult update(Map<String, Object> where, Map<String, Object> update, String collection) {
         Query queryParam = mapToQueryParam(where);
         Update updateParam = mapToUpdateParam(update, ID, SERIAL_VERSION_ID);
         return mongo().updateMulti(queryParam, updateParam, collection);
     }
 
-    public int update(Query query, Update update) {
-        return mongo().updateMulti(query, update, type(), cname()).getN();
+    public UpdateResult update(Query query, Update update) {
+        return mongo().updateMulti(query, update, type(), cname());
     }
 
-    public WriteResult removeById(long id) {
+    public DeleteResult removeById(long id) {
         return this.removeById(id, cname());
     }
 
-    private WriteResult removeById(long id, String collection) {
+    private DeleteResult removeById(long id, String collection) {
         Query query = new Query().addCriteria(Criteria.where("_id").is(id));
         return mongo().remove(query, collection);
     }
 
-    public WriteResult removeByIds(Collection<Long> ids) {
+    public DeleteResult removeByIds(Collection<Long> ids) {
         return this.removeByIds(ids, cname());
     }
 
-    private WriteResult removeByIds(Collection<Long> ids, String collection) {
+    private DeleteResult removeByIds(Collection<Long> ids, String collection) {
         Query query = new Query().addCriteria(Criteria.where("_id").in(ids));
         return mongo().remove(query, collection);
     }
 
-    public WriteResult remove(Map<String, Object> where) {
+    public DeleteResult remove(Map<String, Object> where) {
         return this.remove(where, cname());
     }
 
-    private WriteResult remove(Map<String, Object> where, String collection) {
+    private DeleteResult remove(Map<String, Object> where, String collection) {
         Query query = mapToQueryParam(where);
         return mongo().remove(query, collection);
     }
@@ -250,19 +251,19 @@ public class MongoMapper<T extends MongoEntity> {
     }
 
     private List<Object> distinct(String key, DBObject query, String collection) {
-        DBObject document = new BasicDBObject();
+        Document document = new Document();
         document.put("distinct", collection);
         document.put("key", key);
         document.put("query", query);
 
-        CommandResult result = mongo().executeCommand(document);
+        Document result = mongo().executeCommand(document);
         checkCommandSuccess(result);
         return (List<Object>) result.get("values");
     }
 
     /* ------- helpers ------- */
     public MongoOperations mongo() {
-        return mongoTemplate;
+        return operations;
     }
 
     protected String cname() {
@@ -276,11 +277,11 @@ public class MongoMapper<T extends MongoEntity> {
     private Class<T> _type() {
         Type superclass = this.getClass().getGenericSuperclass();
         while (!superclass.equals(Object.class) && !(superclass instanceof ParameterizedType)) {
-            superclass = ((Class) superclass).getGenericSuperclass();
+            superclass = ((Class<?>) superclass).getGenericSuperclass();
         }
 
         if (!(superclass instanceof ParameterizedType)) {
-            throw new RuntimeException(String.format("class:%s extends MongoBatis<T> not replace generic type <T>", this.getClass().getName()));
+            throw new RuntimeException(String.format("class:%s extends MongoMapper<T> not replace generic type <T>", this.getClass().getName()));
         }
 
         return (Class<T>) ((ParameterizedType) superclass).getActualTypeArguments()[0];

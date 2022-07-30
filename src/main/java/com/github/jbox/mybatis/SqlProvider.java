@@ -14,7 +14,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.stream.Collectors;
 
-import static org.reflections.ReflectionUtils.getAllFields;
+import static org.apache.commons.lang3.reflect.FieldUtils.getAllFieldsList;
 
 /**
  * @author jifang.zjf@alibaba-inc.com (FeiQing)
@@ -271,26 +271,28 @@ public class SqlProvider {
         return col2field
                 .computeIfAbsent(clazz, _K -> {
                             Map<String, String> map = new LinkedHashMap<>();
-                            getAllFields(clazz, field -> {
-                                if (field == null) {
-                                    return false;
-                                }
+                            getAllFieldsList(clazz)
+                                    .stream()
+                                    .filter(field -> {
+                                        if (field == null) {
+                                            return false;
+                                        }
 
-                                if (Modifier.isStatic(field.getModifiers())) {
-                                    return false;
-                                }
+                                        if (Modifier.isStatic(field.getModifiers())) {
+                                            return false;
+                                        }
 
-                                if (Modifier.isFinal(field.getModifiers())) {
-                                    return false;
-                                }
+                                        if (Modifier.isFinal(field.getModifiers())) {
+                                            return false;
+                                        }
 
-                                return !Arrays.asList("id", "gmtCreate", "gmtModified", "_use_gmt_create", "_use_gmt_modified").contains(field.getName());
-                            }).forEach(field -> {
-                                Column column = field.getAnnotation(Column.class);
-                                String name = field.getName();
-                                String col = column != null ? column.value() : hump2line(name);
-                                map.put("`" + col + "`", "#{" + name + "}");
-                            });
+                                        return !Arrays.asList("id", "gmtCreate", "gmtModified").contains(field.getName());
+                                    }).forEach(field -> {
+                                        Column column = field.getAnnotation(Column.class);
+                                        String name = field.getName();
+                                        String col = column != null ? column.value() : hump2line(name);
+                                        map.put("`" + col + "`", "#{" + name + "}");
+                                    });
 
                             return map;
                         }
