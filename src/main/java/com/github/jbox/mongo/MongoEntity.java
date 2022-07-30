@@ -16,7 +16,7 @@ import static com.github.jbox.mongo.TableConstant.*;
  * @since 2018-03-05 14:35:00.
  */
 @Data
-public class MBaseModel implements Serializable {
+public class MongoEntity implements Serializable {
 
     private static final long serialVersionUID = 2109995371767737261L;
 
@@ -50,7 +50,7 @@ public class MBaseModel implements Serializable {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        MBaseModel MBaseModel = (MBaseModel) o;
+        MongoEntity MBaseModel = (MongoEntity) o;
         return _id != null ? _id.equals(MBaseModel._id) : MBaseModel._id == null;
     }
 

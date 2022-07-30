@@ -1,7 +1,6 @@
 package com.github.jbox.serializer.support;
 
 import com.alibaba.fastjson.JSON;
-import com.github.jbox.serializer.AbstractSerializer;
 
 import java.nio.charset.StandardCharsets;
 

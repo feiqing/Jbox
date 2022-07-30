@@ -9,8 +9,6 @@ interface TlogConstants {
 
     String SEPARATOR = "|";
 
-    String TLOG_EXECUTOR_GROUP = "com.github.jbox:TlogManager";
-
     String PLACEHOLDER = "";
 
     String UTF_8 = "UTF-8";

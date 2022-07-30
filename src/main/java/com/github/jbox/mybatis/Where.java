@@ -1,11 +1,13 @@
 package com.github.jbox.mybatis;
 
+import com.google.common.base.Preconditions;
+import com.google.common.base.Strings;
 import lombok.Getter;
 
-import javax.validation.constraints.NotNull;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * @author jifang.zjf@alibaba-inc.com (FeiQing)
@@ -30,24 +32,33 @@ public class Where extends HashMap<String, Object> {
     }
 
     public Where is(String field, Object value) {
+        Preconditions.checkArgument(!Strings.isNullOrEmpty(field));
+
         is.put(field, value);
         put(field, value);
         return this;
     }
 
-    public Where isAll(@NotNull Map<String, Object> fields) {
+    public Where isAll(Map<String, Object> fields) {
+        Preconditions.checkNotNull(fields);
+
         is.putAll(fields);
         putAll(fields);
         return this;
     }
 
     public Where like(String field, Object value) {
+        Preconditions.checkArgument(!Strings.isNullOrEmpty(field));
+        Preconditions.checkArgument(Objects.nonNull(value));
+
         like.put(field, value);
         put(field, value);
         return this;
     }
 
-    public Where likeAll(@NotNull Map<String, Object> fields) {
+    public Where likeAll(Map<String, Object> fields) {
+        Preconditions.checkNotNull(fields);
+
         like.putAll(fields);
         putAll(fields);
 
@@ -63,11 +74,15 @@ public class Where extends HashMap<String, Object> {
     }
 
     public Where orderBy(String field, boolean asc) {
+        Preconditions.checkArgument(!Strings.isNullOrEmpty(field));
+
         orderBy.put(field, asc);
         return this;
     }
 
-    public Where orderByAll(@NotNull Map<String, Boolean> fields) {
+    public Where orderByAll(Map<String, Boolean> fields) {
+        Preconditions.checkNotNull(fields);
+
         fields.forEach(this::orderBy);
 
         return this;

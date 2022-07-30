@@ -24,9 +24,28 @@ import java.util.concurrent.ConcurrentMap;
 @Slf4j
 public class Jbox {
 
+    private static final ConcurrentMap<Class<?>, Class<?>> primitives = new ConcurrentHashMap<>();
+
     private static String ip = "unknown";
 
     private static String mac = "unknown";
+
+    static {
+        primitives.put(byte.class, Byte.class);
+        primitives.put(Byte.class, Byte.class);
+        primitives.put(short.class, Short.class);
+        primitives.put(Short.class, Short.class);
+        primitives.put(int.class, Integer.class);
+        primitives.put(Integer.class, Integer.class);
+        primitives.put(long.class, Long.class);
+        primitives.put(Long.class, Long.class);
+        primitives.put(float.class, Float.class);
+        primitives.put(Float.class, Float.class);
+        primitives.put(double.class, Double.class);
+        primitives.put(Double.class, Double.class);
+        primitives.put(boolean.class, Boolean.class);
+        primitives.put(Boolean.class, Boolean.class);
+    }
 
     static {
         try {
@@ -79,36 +98,20 @@ public class Jbox {
     }
 
     public static Method getAbstractMethod(JoinPoint pjp) {
-        MethodSignature ms = (MethodSignature) pjp.getSignature();
-        return ms.getMethod();
+        return ((MethodSignature) pjp.getSignature()).getMethod();
     }
 
-    public static Method getImplMethod(JoinPoint pjp) throws NoSuchMethodException {
-        MethodSignature ms = (MethodSignature) pjp.getSignature();
-        Method method = ms.getMethod();
-        if (method.getDeclaringClass().isInterface()) {
-            method = pjp.getTarget().getClass().getDeclaredMethod(ms.getName(), method.getParameterTypes());
+    public static Method getImplementMethod(JoinPoint pjp) {
+        try {
+            MethodSignature ms = (MethodSignature) pjp.getSignature();
+            Method method = ms.getMethod();
+            if (method.getDeclaringClass().isInterface()) {
+                method = pjp.getTarget().getClass().getDeclaredMethod(ms.getName(), method.getParameterTypes());
+            }
+            return method;
+        } catch (NoSuchMethodException e) {
+            throw new RuntimeException(e);
         }
-        return method;
-    }
-
-    private static final ConcurrentMap<Class<?>, Class<?>> primitives = new ConcurrentHashMap<>();
-
-    static {
-        primitives.put(byte.class, Byte.class);
-        primitives.put(Byte.class, Byte.class);
-        primitives.put(short.class, Short.class);
-        primitives.put(Short.class, Short.class);
-        primitives.put(int.class, Integer.class);
-        primitives.put(Integer.class, Integer.class);
-        primitives.put(long.class, Long.class);
-        primitives.put(Long.class, Long.class);
-        primitives.put(float.class, Float.class);
-        primitives.put(Float.class, Float.class);
-        primitives.put(double.class, Double.class);
-        primitives.put(Double.class, Double.class);
-        primitives.put(boolean.class, Boolean.class);
-        primitives.put(Boolean.class, Boolean.class);
     }
 
     public static <T> T toObj(String val, Class<T> type) {

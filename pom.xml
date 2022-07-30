@@ -77,7 +77,6 @@
         <slf4j.version>1.7.25</slf4j.version>
         <lombok.version>1.16.16</lombok.version>
         <validation.api.version>2.0.0.Final</validation.api.version>
-        <hibernate.validator.version>5.4.1.Final</hibernate.validator.version>
         <el.version>3.0.1-b08</el.version>
         <commons.crypto.version>1.0.0</commons.crypto.version>
 
@@ -110,6 +109,7 @@
     </properties>
 
     <dependencies>
+
         <!-- commons: 必选依赖 -->
         <dependency>
             <groupId>org.slf4j</groupId>
@@ -132,7 +132,6 @@
             <version>${fastjson.version}</version>
         </dependency>
 
-
         <!-- byte code -->
         <dependency>
             <groupId>cglib</groupId>
@@ -148,7 +147,7 @@
             <optional>true</optional>
         </dependency>
 
-        <!-- Serializer -->
+        <!-- serializer -->
         <dependency>
             <groupId>com.caucho</groupId>
             <artifactId>hessian</artifactId>
@@ -177,27 +176,8 @@
             <version>${aspectj.version}</version>
             <optional>true</optional>
         </dependency>
-        <!-- validation api 新增了如@NotEmpty等扩展  -->
-        <dependency>
-            <groupId>javax.validation</groupId>
-            <artifactId>validation-api</artifactId>
-            <version>${validation.api.version}</version>
-            <optional>true</optional>
-        </dependency>
-        <dependency>
-            <groupId>org.hibernate</groupId>
-            <artifactId>hibernate-validator</artifactId>
-            <version>${hibernate.validator.version}</version>
-            <optional>true</optional>
-        </dependency>
-        <dependency>
-            <groupId>org.glassfish</groupId>
-            <artifactId>javax.el</artifactId>
-            <version>${el.version}</version>
-            <optional>true</optional>
-        </dependency>
 
-        <!-- spring -->
+        <!-- Spring -->
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-context</artifactId>
@@ -217,41 +197,21 @@
             <optional>true</optional>
         </dependency>
 
-        <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-test</artifactId>
-            <version>${spring.version}</version>
-            <scope>test</scope>
-        </dependency>
-
-
-        <!-- MongoBatis -->
-        <dependency>
-            <groupId>org.springframework.data</groupId>
-            <artifactId>spring-data-mongodb</artifactId>
-            <version>${spring.data.mongo.version}</version>
-            <optional>true</optional>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.mongodb</groupId>
-                    <artifactId>mongo-java-driver</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
+        <!-- MongoDB: ToDo upgrade version -->
         <dependency>
             <groupId>org.mongodb</groupId>
             <artifactId>mongodb-driver</artifactId>
             <version>${mongo.version}</version>
             <optional>true</optional>
         </dependency>
-
         <dependency>
-            <groupId>com.alibaba</groupId>
-            <artifactId>druid</artifactId>
-            <version>1.1.23</version>
+            <groupId>org.springframework.data</groupId>
+            <artifactId>spring-data-mongodb</artifactId>
+            <version>${spring.data.mongo.version}</version>
             <optional>true</optional>
         </dependency>
 
+        <!-- MyBatis -->
         <dependency>
             <groupId>org.mybatis</groupId>
             <artifactId>mybatis</artifactId>
@@ -274,36 +234,16 @@
 
         <!-- test -->
         <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-test</artifactId>
+            <version>${spring.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
             <version>${junit.version}</version>
             <scope>test</scope>
-        </dependency>
-
-        <!-- support -->
-        <dependency>
-            <groupId>com.taobao.diamond</groupId>
-            <artifactId>diamond-client</artifactId>
-            <version>${diamond.version}</version>
-            <optional>true</optional>
-        </dependency>
-        <dependency>
-            <groupId>com.taobao.eagleeye</groupId>
-            <artifactId>eagleeye-core</artifactId>
-            <version>${eagleeye.version}</version>
-            <optional>true</optional>
-        </dependency>
-        <dependency>
-            <groupId>com.taobao.csp</groupId>
-            <artifactId>sentinel</artifactId>
-            <version>${sentinel.version}</version>
-            <optional>true</optional>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.springframework</groupId>
-                    <artifactId>spring</artifactId>
-                </exclusion>
-            </exclusions>
         </dependency>
     </dependencies>
 

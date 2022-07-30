@@ -13,7 +13,7 @@ import java.util.Set;
  * @since 2019/9/19 7:57 PM.
  */
 @Data
-public class Routee<T extends MongoBatis> {
+public class Routee<T extends MongoMapper> {
 
     private String id;
 
@@ -23,7 +23,7 @@ public class Routee<T extends MongoBatis> {
 
     private boolean standby;
 
-    public static <T extends MongoBatis> Routee<T> newSlots(String id, Set<String> slots, T target) {
+    public static <T extends MongoMapper> Routee<T> newSlots(String id, Set<String> slots, T target) {
         Preconditions.checkState(StringUtils.isNoneBlank(id));
         Preconditions.checkState(Collections3.isNotEmpty(slots));
         Preconditions.checkState(target != null);
@@ -37,7 +37,7 @@ public class Routee<T extends MongoBatis> {
         return routee;
     }
 
-    public static <T extends MongoBatis> Routee<T> newStandby(String id, T target) {
+    public static <T extends MongoMapper> Routee<T> newStandby(String id, T target) {
         Preconditions.checkState(StringUtils.isNoneBlank(id));
         Preconditions.checkState(target != null);
 

@@ -1,15 +1,9 @@
 package com.github.jbox.caces.service;
 
-import java.util.List;
-
-import javax.validation.Valid;
-import javax.validation.constraints.Max;
-import javax.validation.constraints.Min;
-
 import com.github.jbox.domain.User;
 import com.github.jbox.domain.UserWrapper;
 
-import org.hibernate.validator.constraints.NotEmpty;
+import java.util.List;
 
 /**
  * Created by jifang.zjf
@@ -17,15 +11,15 @@ import org.hibernate.validator.constraints.NotEmpty;
  */
 public interface HelloWorldService {
 
-    String sayHello(@NotEmpty(message = "姓名不能为空啊!!!") String name);
+    String sayHello(String name);
 
-    User user(@Valid User user) throws Exception;
+    User user(User user) throws Exception;
 
-    List<User> users(@Valid List<User> users);
+    List<User> users(List<User> users);
 
     List<String> strs(String[] strs);
 
     void userWrapper(UserWrapper wrapper);
 
-    void limit(@Min(1) int page, @Max(50) int size);
+    void limit(int page, int size);
 }

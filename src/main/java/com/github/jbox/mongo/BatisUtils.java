@@ -62,7 +62,7 @@ public class BatisUtils {
     }
 
 
-    public static void insertInit(MBaseModel object, String collection, SequenceDAO sequenceDAO) {
+    public static void insertInit(MongoEntity object, String collection, SequenceDAO sequenceDAO) {
         // id
         if (object.getId() == null) {
             long id = sequenceDAO.generateId(collection);

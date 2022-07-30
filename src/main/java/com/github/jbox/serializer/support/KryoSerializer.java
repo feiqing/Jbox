@@ -3,7 +3,6 @@ package com.github.jbox.serializer.support;
 import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
-import com.github.jbox.serializer.AbstractSerializer;
 
 import java.io.ByteArrayOutputStream;
 

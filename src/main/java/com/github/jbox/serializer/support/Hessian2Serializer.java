@@ -2,7 +2,6 @@ package com.github.jbox.serializer.support;
 
 import com.caucho.hessian.io.Hessian2Input;
 import com.caucho.hessian.io.Hessian2Output;
-import com.github.jbox.serializer.AbstractSerializer;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;

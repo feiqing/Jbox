@@ -34,7 +34,7 @@ public class JobContext implements Serializable {
     public JobContext() {
     }
 
-    public JobContext(String jobName, List<JobTask> jobTasks) {
+    public JobContext(String jobName, List<JobTask<? extends JobContext>> jobTasks) {
         meta.jobName = jobName;
         meta.jobTasks = jobTasks;
     }

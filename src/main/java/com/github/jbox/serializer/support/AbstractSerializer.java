@@ -1,5 +1,6 @@
-package com.github.jbox.serializer;
+package com.github.jbox.serializer.support;
 
+import com.github.jbox.serializer.ISerializer;
 import lombok.extern.slf4j.Slf4j;
 
 /**

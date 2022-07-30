@@ -26,7 +26,7 @@ import java.util.concurrent.ConcurrentMap;
  * @version 1.0
  * @since 2019/9/19 4:45 PM.
  */
-public class TdmlDbFactory<T extends MongoBatis> implements FactoryBean<T> {
+public class TdmlDbFactory<T extends MongoMapper> implements FactoryBean<T> {
 
     private static final String DEFAULT_STAND_BY_MDC_KEY = "__TDML_PROXY_DB_STAND_BY_MDC_KEY__";
 
@@ -125,7 +125,7 @@ public class TdmlDbFactory<T extends MongoBatis> implements FactoryBean<T> {
                 slots.addAll(routee.getSlots());
             }
 
-            Class<? extends MongoBatis> routeeType = routee.getTarget().getClass();
+            Class<? extends MongoMapper> routeeType = routee.getTarget().getClass();
             if (type != null && type != routeeType) {
                 throw new TdmlException("routee id:[{}] target type:[{}] is not same as before:[{}].", routee.getId(), routeeType.getName(), type.getName());
             }

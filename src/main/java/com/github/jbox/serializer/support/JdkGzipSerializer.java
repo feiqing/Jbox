@@ -1,7 +1,5 @@
 package com.github.jbox.serializer.support;
 
-import com.github.jbox.serializer.AbstractSerializer;
-
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.ObjectInputStream;

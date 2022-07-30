@@ -33,7 +33,7 @@ public class TraceJobContext extends JobContext {
     public TraceJobContext() {
     }
 
-    public TraceJobContext(String jobName, List<JobTask> jobTasks) {
+    public TraceJobContext(String jobName, List<JobTask<? extends JobContext>> jobTasks) {
         super(jobName, jobTasks);
     }
 }

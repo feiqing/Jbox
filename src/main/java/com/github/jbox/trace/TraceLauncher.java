@@ -1,10 +1,8 @@
 package com.github.jbox.trace;
 
 import com.github.jbox.job.JobTask;
-import com.github.jbox.trace.tasks.MethodInvokeTask;
 import com.github.jbox.utils.Jbox;
 import com.google.common.base.Preconditions;
-import lombok.Setter;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
@@ -36,35 +34,24 @@ public class TraceLauncher implements Serializable {
 
     private static final long serialVersionUID = 1383288704716921329L;
 
-    private List<JobTask> tasks;
+    private final List<JobTask<?>> tasks;
 
-    @Setter
-    private boolean useAbstractMethod = false;
+    private final boolean useImplMethod;
 
-    public void setTasks(List<JobTask> tasks) {
+    public TraceLauncher(List<JobTask<?>> tasks) {
+        this(tasks, true);
+    }
+
+    public TraceLauncher(List<JobTask<?>> tasks, boolean useImplMethod) {
         Preconditions.checkArgument(!CollectionUtils.isEmpty(tasks));
-
-        boolean isFoundMethodInvoker = false;
-        for (int i = 0; i < tasks.size(); ++i) {
-            JobTask task = tasks.get(i);
-            Preconditions.checkNotNull(task, "task[" + i + "] is null.");
-
-            if (task instanceof MethodInvokeTask) {
-                isFoundMethodInvoker = true;
-            }
-        }
-
-        if (!isFoundMethodInvoker) {
-            tasks.add(new MethodInvokeTask());
-        }
-        
         this.tasks = new ArrayList<>(tasks);
+        this.useImplMethod = useImplMethod;
     }
 
     @Around("@annotation(com.github.jbox.trace.Trace)")
     public Object emit(final ProceedingJoinPoint joinPoint) throws Throwable {
 
-        Method method = useAbstractMethod ? Jbox.getAbstractMethod(joinPoint) : Jbox.getImplMethod(joinPoint);
+        Method method = useImplMethod ? Jbox.getImplementMethod(joinPoint) : Jbox.getAbstractMethod(joinPoint);
         Class<?> clazz = method.getDeclaringClass();
         Object target = joinPoint.getTarget();
         Object[] args = joinPoint.getArgs();

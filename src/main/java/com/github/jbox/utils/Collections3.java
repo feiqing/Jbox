@@ -10,7 +10,6 @@ import java.util.function.Supplier;
  * @version 1.0
  * @since 2018-05-19 18:32:00.
  */
-@SuppressWarnings("unchecked")
 public class Collections3 {
 
     public static boolean isNotEmpty(Object obj) {
@@ -94,32 +93,29 @@ public class Collections3 {
         }
     }
 
-    public static <Input, Output> Output transfer(Input input, Function<Input, Output> function) {
+    public static <Input, Output> Output transfer(Input input, Function<Input, Output> mapper) {
         if (input == null) {
             return null;
         }
 
-        return function.apply(input);
+        return mapper.apply(input);
     }
 
-    public static <Input, Output> List<Output> transfer(Collection<Input> inputs, Function<Input, Output> function) {
-        return transfer(inputs, function, ArrayList::new);
+    public static <Input, Output> List<Output> transfer(Collection<Input> inputs, Function<Input, Output> mapper) {
+        return transfer(inputs, mapper, ArrayList::new);
     }
 
     public static <Input, Output, T extends Collection<Output>> T transfer(Collection<Input> inputs,
-                                                                           Function<Input, Output> function,
+                                                                           Function<Input, Output> mapper,
                                                                            Supplier<T> supplier) {
-
-        T outputs;
         if (inputs == null || inputs.isEmpty()) {
-            outputs = (T) Collections.emptyList();
+            return supplier.get();
         } else {
-            outputs = supplier.get();
+            T outputs = supplier.get();
             for (Input input : inputs) {
-                outputs.add(function.apply(input));
+                outputs.add(mapper.apply(input));
             }
+            return outputs;
         }
-
-        return outputs;
     }
 }
