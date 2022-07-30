@@ -141,7 +141,7 @@
             <optional>true</optional>
         </dependency>
 
-        <!-- MongoDB -->
+        <!-- MongoDB: https://www.mongodb.com/docs/drivers/java/sync/current/compatibility/ -->
         <dependency>
             <groupId>org.mongodb</groupId>
             <artifactId>mongodb-driver-sync</artifactId>
