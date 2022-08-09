@@ -169,6 +169,12 @@
             <optional>true</optional>
         </dependency>
 
+        <dependency>
+            <groupId>io.jaegertracing</groupId>
+            <artifactId>jaeger-client</artifactId>
+            <version>1.4.0</version>
+        </dependency>
+
         <!-- test -->
         <dependency>
             <groupId>org.springframework</groupId>
