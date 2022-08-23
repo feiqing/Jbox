@@ -32,11 +32,12 @@ public class SequenceRegistry {
 
 
     public static Function<String, ? extends Serializable> getSequence(ProviderContext context, String table) {
-        return sequenceCache
-                .computeIfAbsent(context.getMapperType(), _k -> Optional.ofNullable(selectSequence(context, table)))
-                .orElseThrow(() -> {
-                    throw new IllegalStateException("could not found sequence for table:[" + table + "]");
-                });
+        Optional<Function<String, ? extends Serializable>> optional = sequenceCache.computeIfAbsent(context.getMapperType(), _k -> Optional.ofNullable(selectSequence(context, table)));
+        if (optional.isPresent()) {
+            return optional.get();
+        } else {
+            throw new IllegalStateException("could not found sequence for table:[" + table + "]");
+        }
     }
 
     private static Function<String, ? extends Serializable> selectSequence(ProviderContext context, String table) {

@@ -2,6 +2,7 @@ package com.github.jbox.tracer;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import com.google.common.base.Strings;
 import io.jaegertracing.Configuration;
 import io.jaegertracing.Configuration.ReporterConfiguration;
 import io.jaegertracing.Configuration.SamplerConfiguration;
@@ -13,6 +14,7 @@ import io.opentracing.Tracer;
 import io.opentracing.propagation.Format;
 import io.opentracing.propagation.TextMap;
 import io.opentracing.tag.Tags;
+import io.opentracing.util.GlobalTracer;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.HashMap;
@@ -44,24 +46,29 @@ public class Tracers {
         return tracer.computeIfAbsent(app, _K -> {
             String config = System.getenv(envKey);
             log.info("loaded app:[{}] tracer config: {}", app, config);
-            JSONObject json = JSON.parseObject(config);
+            if (!Strings.isNullOrEmpty(config)) {
+
+                JSONObject json = JSON.parseObject(config);
 
 
-            SenderConfiguration sender = new SenderConfiguration().withEndpoint(json.getString("endpoint"));
+                SenderConfiguration sender = new SenderConfiguration().withEndpoint(json.getString("endpoint"));
 
-            // todo: app-name从配置项里读
-            Configuration configuration = new Configuration(app);
-            configuration.withTraceId128Bit(true);
+                // todo: app-name从配置项里读
+                Configuration configuration = new Configuration(app);
+                configuration.withTraceId128Bit(true);
 
-            // todo: 配置值从common-envs里读
-            configuration.withSampler(new SamplerConfiguration().withType("const").withParam(1));
-            configuration.withReporter(new ReporterConfiguration().withSender(sender).withMaxQueueSize(10000));
+                // todo: 配置值从common-envs里读
+                configuration.withSampler(new SamplerConfiguration().withType("const").withParam(1));
+                configuration.withReporter(new ReporterConfiguration().withSender(sender).withMaxQueueSize(10000));
 
-            return configuration.getTracerBuilder()
-                    .registerInjector(Format.Builtin.TEXT_MAP, TextMapCodec.builder().withSpanContextKey(contextKey).withBaggagePrefix(bagPrefix).withUrlEncoding(true).build())
-                    .registerExtractor(Format.Builtin.TEXT_MAP, TextMapCodec.builder().withSpanContextKey(contextKey).withBaggagePrefix(bagPrefix).withUrlEncoding(true).build())
-                    .withScopeManager(new MDCScopeManager())
-                    .build();
+                return configuration.getTracerBuilder()
+                        .registerInjector(Format.Builtin.TEXT_MAP, TextMapCodec.builder().withSpanContextKey(contextKey).withBaggagePrefix(bagPrefix).withUrlEncoding(true).build())
+                        .registerExtractor(Format.Builtin.TEXT_MAP, TextMapCodec.builder().withSpanContextKey(contextKey).withBaggagePrefix(bagPrefix).withUrlEncoding(true).build())
+                        .withScopeManager(new MDCScopeManager())
+                        .build();
+            } else {
+                return GlobalTracer.get();
+            }
         });
     }
 
