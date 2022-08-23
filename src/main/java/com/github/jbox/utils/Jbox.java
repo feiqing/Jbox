@@ -2,18 +2,17 @@ package com.github.jbox.utils;
 
 import com.alibaba.fastjson.JSON;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.reflect.MethodSignature;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.net.Inet4Address;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.util.Enumeration;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.regex.Pattern;
 
 /**
  * Jbox提供的一些工具方法
@@ -23,6 +22,8 @@ import java.util.concurrent.ConcurrentMap;
  */
 @Slf4j
 public class Jbox {
+
+    private static final Pattern IP_PATTERN = Pattern.compile("\\d{1,3}(\\.\\d{1,3}){3,5}$");
 
     private static final ConcurrentMap<Class<?>, Class<?>> primitives = new ConcurrentHashMap<>();
 
@@ -49,23 +50,36 @@ public class Jbox {
 
     static {
         try {
-            Enumeration<NetworkInterface> networkInterfaces = NetworkInterface.getNetworkInterfaces();
-            while (networkInterfaces.hasMoreElements()) {
-                NetworkInterface networkInterface = networkInterfaces.nextElement();
-                String eth = networkInterface.getName();
-                Enumeration<InetAddress> inetAddresses = networkInterface.getInetAddresses();
-
-                while (inetAddresses.hasMoreElements()) {
-                    InetAddress inetAddress = inetAddresses.nextElement();
-                    if (inetAddress instanceof Inet4Address && StringUtils.equalsAnyIgnoreCase(eth, "eth0"/*Linux*/, "en0"/*Mac*/)) {
-                        ip = inetAddress.getHostAddress();
-                        break;
+            InetAddress localAddress = InetAddress.getLocalHost();
+            if (isValidAddress(localAddress)) {
+                ip = localAddress.getHostAddress();
+            } else {
+                Enumeration<NetworkInterface> interfaces = NetworkInterface.getNetworkInterfaces();
+                if (interfaces != null) {
+                    while (interfaces.hasMoreElements()) {
+                        try {
+                            NetworkInterface network = interfaces.nextElement();
+                            Enumeration<InetAddress> addresses = network.getInetAddresses();
+                            while (addresses.hasMoreElements()) {
+                                try {
+                                    InetAddress address = addresses.nextElement();
+                                    if (isValidAddress(address)) {
+                                        ip = address.getHostAddress();
+                                    }
+                                } catch (Throwable e) {
+                                    log.warn("Failed to retrieving ip address, " + e.getMessage(), e);
+                                }
+                            }
+                        } catch (Throwable e) {
+                            log.warn("Failed to retrieving ip address, " + e.getMessage(), e);
+                        }
                     }
                 }
             }
         } catch (Throwable t) {
             log.error("get local ip addr error.", t);
         }
+
 
         try {
             Enumeration<NetworkInterface> netInterfaces = NetworkInterface.getNetworkInterfaces();
@@ -87,6 +101,15 @@ public class Jbox {
         } catch (Throwable e) {
             log.error("get local mac addr error.", e);
         }
+    }
+
+    private static boolean isValidAddress(InetAddress address) {
+        if (address == null || address.isLoopbackAddress()) {
+            return false;
+        }
+
+        String name = address.getHostAddress();
+        return (name != null && !"0.0.0.0".equals(name) && !"127.0.0.1".equals(name) && IP_PATTERN.matcher(name).matches());
     }
 
     public static String getLocalIp() {

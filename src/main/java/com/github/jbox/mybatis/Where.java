@@ -3,6 +3,7 @@ package com.github.jbox.mybatis;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import lombok.Getter;
+import lombok.Setter;
 
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -10,6 +11,8 @@ import java.util.Map;
 import java.util.Objects;
 
 /**
+ * 注意: 由于IN查询需要写SQL脚本, 因此暂时还不支持, 有需求可以提~
+ *
  * @author jifang.zjf@alibaba-inc.com (FeiQing)
  * @version 1.0
  * @since 2021/3/12 3:46 下午.
@@ -26,6 +29,10 @@ public class Where extends HashMap<String, Object> {
 
     @Getter
     private final Map<String, Boolean> orderBy = new LinkedHashMap<>();
+
+    @Getter
+    @Setter
+    private boolean useNullValueAsIsNull = false;
 
     public static Where where() {
         return new Where();

@@ -12,12 +12,26 @@ import java.lang.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface Column {
 
-    String value() default "";
-
     /**
-     * @return alias as value
+     * 指定: 属性对应的sql列
+     * 默认: #属性名驼峰转下划线#
+     *
+     * @return
      */
     String name() default "";
 
+    /**
+     * Same as name()
+     *
+     * @return
+     */
+    String value() default "";
+
+    /**
+     * 指定: 是否排除当前属性
+     * 默认: 否
+     *
+     * @return
+     */
     boolean exclude() default false;
 }
