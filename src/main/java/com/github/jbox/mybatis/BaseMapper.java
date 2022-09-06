@@ -2,6 +2,7 @@ package com.github.jbox.mybatis;
 
 import com.github.jbox.mybatis.provider._SqlProvider_;
 import com.google.common.annotations.Beta;
+import com.google.common.base.Preconditions;
 import org.apache.ibatis.annotations.*;
 
 import java.io.Serializable;
@@ -29,6 +30,8 @@ public interface BaseMapper<ID extends Serializable, E extends BaseEntity<ID>> {
     E selectOne(Where where);
 
     default E selectById(@Param("id") ID id) {
+        Preconditions.checkArgument(id != null);
+        
         return selectOne(Where.where().is("id", id));
     }
 
@@ -48,6 +51,8 @@ public interface BaseMapper<ID extends Serializable, E extends BaseEntity<ID>> {
     Map<String, Object> selectOneMap(Where where);
 
     default Map<String, Object> selectMapById(@Param("id") ID id) {
+        Preconditions.checkArgument(id != null);
+
         return selectOneMap(Where.where().is("id", id));
     }
 
@@ -82,6 +87,8 @@ public interface BaseMapper<ID extends Serializable, E extends BaseEntity<ID>> {
     Integer update(@Param("entity") E entity, @Param("where") Where where);
 
     default Integer updateById(@Param("entity") E entity) {
+        Preconditions.checkArgument(entity.getId() != null);
+
         return update(entity, Where.where().is("id", entity.getId()));
     }
 
@@ -94,6 +101,8 @@ public interface BaseMapper<ID extends Serializable, E extends BaseEntity<ID>> {
     Integer delete(Where where);
 
     default Integer deleteById(@Param("id") ID id) {
+        Preconditions.checkArgument(id != null);
+
         return delete(Where.where().is("id", id));
     }
 
