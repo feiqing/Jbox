@@ -157,7 +157,7 @@ public class _SqlProvider_ {
         StringBuilder sb = new StringBuilder("UPDATE ").append(table.table);
 
         if (table.useGmtModified) {
-            sb.append(String.format(" SET gmt_modified = %s", entity.getGmtModified() != null ? "#{entity.gmtModified}" : "NOW()"));
+            sb.append(String.format(" SET `gmt_modified` = %s", entity.getGmtModified() != null ? "#{entity.gmtModified}" : "NOW()"));
             entityColumnMap(entity.getClass()).forEach((column, field) -> {
                 sb.append(", ").append("`" + column + "`").append(" = ").append("#{entity." + field + "}");
             });
@@ -186,7 +186,7 @@ public class _SqlProvider_ {
         StringBuilder sb = new StringBuilder("UPDATE ").append(table.table);
 
         if (table.useGmtModified) {
-            sb.append(String.format(" SET gmt_modified = %s", entity.getGmtModified() != null ? "#{entity.gmtModified}" : "NOW()"));
+            sb.append(String.format(" SET `gmt_modified` = %s", entity.getGmtModified() != null ? "#{entity.gmtModified}" : "NOW()"));
             entityColumnMap(entity.getClass()).forEach((column, field) -> {
                 sb.append(", ").append("`" + column + "`").append(" = ").append("#{entity." + field + "}");
             });
@@ -214,7 +214,7 @@ public class _SqlProvider_ {
 
     public static String delete(ProviderContext context, Where where) {
         Preconditions.checkArgument(where != null);
-        
+
         return new StringBuilder("DELETE FROM ")
                 .append(tableAnno(context).table)
                 .append(getWhere(where))
