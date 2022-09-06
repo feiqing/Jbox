@@ -19,7 +19,7 @@ public class Db2Sequence implements Sequence<Long> {
     }
 
     @Override
-    public Long nextVal(String sequenceName) {
-        return jdbcTemplate.queryForObject("values nextval for " + sequenceName, Long.class);
+    public Long nextVal(String sequenceId) {
+        return jdbcTemplate.queryForObject("values nextval for " + sequenceId, Long.class);
     }
 }

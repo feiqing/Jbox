@@ -11,10 +11,10 @@ import java.util.function.Function;
 @FunctionalInterface
 public interface Sequence<ID extends Serializable> extends Function<String, ID> {
 
-    ID nextVal(String sequenceName);
+    ID nextVal(String sequenceId);
 
     @Override
-    default ID apply(String sequenceName) {
-        return nextVal(sequenceName);
+    default ID apply(String sequenceId) {
+        return nextVal(sequenceId);
     }
 }

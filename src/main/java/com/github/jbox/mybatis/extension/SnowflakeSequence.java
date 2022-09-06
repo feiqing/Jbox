@@ -15,6 +15,7 @@ import java.util.concurrent.atomic.AtomicLong;
 import java.util.regex.Pattern;
 
 /**
+ * ToDo: check
  * 基于Twitter的Snowflake算法实现分布式高效有序ID生产黑科技(sequence)——升级版Snowflake
  *
  * <br>
@@ -52,7 +53,7 @@ import java.util.regex.Pattern;
  * @version 3.0
  */
 @Slf4j
-public class XX {
+public class SnowflakeSequence {
 
     /**
      * 时间起始标记点，作为基准，一般取系统的最近时间（一旦确定不能变动）
@@ -72,8 +73,8 @@ public class XX {
      */
     private final long sequenceBits = 12L;
 
-    protected final long maxDatacenterId = -1L ^ (-1L << datacenterIdBits);
-    protected final long maxWorkerId = -1L ^ (-1L << workerIdBits);
+    protected final long maxDatacenterId = ~(-1L << datacenterIdBits);
+    protected final long maxWorkerId = ~(-1L << workerIdBits);
 
     private final long workerIdShift = sequenceBits;
     private final long datacenterIdShift = sequenceBits + workerIdBits;
@@ -82,7 +83,7 @@ public class XX {
      * 时间戳左移动位
      */
     private final long timestampLeftShift = sequenceBits + workerIdBits + datacenterIdBits;
-    private final long sequenceMask = -1L ^ (-1L << sequenceBits);
+    private final long sequenceMask = ~(-1L << sequenceBits);
 
     /**
      * 所属机房id
@@ -105,7 +106,7 @@ public class XX {
     private static volatile InetAddress LOCAL_ADDRESS = null;
     private static final Pattern IP_PATTERN = Pattern.compile("\\d{1,3}(\\.\\d{1,3}){3,5}$");
 
-    public XX() {
+    public SnowflakeSequence() {
         this.datacenterId = getDatacenterId();
         this.workerId = getMaxWorkerId(datacenterId);
     }
@@ -116,7 +117,7 @@ public class XX {
      * @param workerId     工作机器 ID
      * @param datacenterId 序列号
      */
-    public XX(long workerId, long datacenterId) {
+    public SnowflakeSequence(long workerId, long datacenterId) {
         if (workerId > maxWorkerId || workerId < 0) {
             throw new IllegalArgumentException(String.format("Worker Id can't be greater than %d or less than 0", maxWorkerId));
         }

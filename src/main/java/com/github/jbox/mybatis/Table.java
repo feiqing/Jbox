@@ -13,12 +13,12 @@ import java.lang.annotation.*;
 public @interface Table {
 
     /**
-     * 指定: Entity对应的sql表
-     * 默认: #类名驼峰转下划线#
+     * 指定: Entity对应的数据库表
+     * <br>默认: #类名驼峰转下划线#
      *
      * @return
      */
-    String name() default "";
+    String table() default "";
 
     /**
      * Same as name()
@@ -29,38 +29,38 @@ public @interface Table {
 
     /**
      * 指定: Entity的主键Id生成策略
-     * 默认: 使用数据库的AUTO_INCREMENT策略
-     * 可选: 使用外部Sequence实例, 详见: SequenceRegistry.
+     * <br>默认: 使用数据库的AUTO_INCREMENT策略
+     * <br>可选: 使用外部Sequence实例, 详见: SequenceRegistry.
      *
      * @return
      */
     String primaryKey() default PRI_AUTO_INCREMENT;
 
-    String sequence() default "";
-
     /**
-     * 指定: 是否存在`gmt_create`列
-     * 默认: 存在
-     * 策略: insert、upsert时, 若未指定entity.gmtCreate属性值, 默认使用数据库`NOW()` Function.
+     * 指定: Entity的主键Id生成的SequenceId
+     * <br>默认: 与table_name相同.
      *
      * @return
      */
-    boolean gmtCreate() default true;
+    String sequenceId() default "";
+
+    /**
+     * 指定: 是否使用`gmt_create`列
+     * <br>默认: 使用
+     * <br>策略: insert、upsert时, 若未指定entity.gmtCreate属性值, 默认使用数据库`NOW()` Function.
+     *
+     * @return
+     */
+    boolean useGmtCreate() default true;
 
     /**
      * 指定: 是否存在`gmt_modified`列
-     * 默认: 存在
-     * 策略: insert、update、upsert时, 若未指定entity.gmtModified属性值, 默认使用数据库`NOW()` Function.
+     * <br>默认: 存在
+     * <br>策略: insert、update、upsert时, 若未指定entity.gmtModified属性值, 默认使用数据库`NOW()` Function.
      *
      * @return
      */
-    boolean gmtModified() default true;
-
-    String idColumn() default "id";
-
-    String gmtCreateColumn() default "gmt_create";
-
-    String gmtModifiedColumn() default "gmt_modified";
+    boolean useGmtModified() default true;
 
     String PRI_AUTO_INCREMENT = "__AUTO_INCREMENT__";
 

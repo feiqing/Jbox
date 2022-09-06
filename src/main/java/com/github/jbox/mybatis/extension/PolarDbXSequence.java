@@ -6,22 +6,26 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import javax.sql.DataSource;
 
 /**
- * Oracle 序列生成器
+ * 阿里云 PolarDB-X 2.0 序列生成器
  *
  * @author jifang.zjf@alibaba-inc.com (FeiQing)
  * @version 1.0
- * @since 2022/8/18 14:28.
+ * @since 2022/8/18 10:34.
  */
-public class OracleSequence implements Sequence<Long> {
+public class PolarDbXSequence implements Sequence<Long> {
 
     private final JdbcTemplate jdbcTemplate;
 
-    public OracleSequence(DataSource dataSource) {
+    public PolarDbXSequence(DataSource dataSource) {
         this.jdbcTemplate = new JdbcTemplate(dataSource);
     }
 
     @Override
     public Long nextVal(String sequenceId) {
-        return jdbcTemplate.queryForObject("SELECT " + sequenceId + ".NEXTVAL FROM DUAL", Long.class);
+        return jdbcTemplate.queryForObject("SELECT " + sequenceId + ".NEXTVAL", Long.class);
+    }
+
+    public static void main(String[] args) {
+        PolarDbXSequence polarDBXSequence = new PolarDbXSequence(null);
     }
 }

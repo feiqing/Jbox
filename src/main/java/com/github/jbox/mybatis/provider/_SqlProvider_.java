@@ -7,6 +7,7 @@ import com.github.jbox.mybatis.sequence.SequenceRegistry;
 import com.google.common.base.Joiner;
 import com.google.common.base.Preconditions;
 import org.apache.ibatis.builder.annotation.ProviderContext;
+import org.apache.ibatis.jdbc.RuntimeSqlException;
 
 import java.io.Serializable;
 import java.util.*;
@@ -67,24 +68,24 @@ public class _SqlProvider_ {
             columns.add("`id`");
             fields.add("#{id}");
         } else if (table.primaryKey == Table.PRI_SEQUENCE_INSTANCE) {
-            ((BaseEntity) entity).setId(SequenceRegistry.getSequence(context, table.table).apply(table.sequence));
+            ((BaseEntity) entity).setId(SequenceRegistry.getSequence(context, table.table, table.sequenceId).apply(table.sequenceId));
             columns.add("`id`");
             fields.add("#{id}");
         }
 
-        if (table.gmtCreate) {
+        if (table.useGmtCreate) {
             columns.add("`gmt_create`");
             fields.add(entity.getGmtCreate() != null ? "#{gmtCreate}" : "NOW()");
         }
 
-        if (table.gmtModified) {
+        if (table.useGmtModified) {
             columns.add("`gmt_modified`");
             fields.add(entity.getGmtModified() != null ? "#{gmtModified}" : "NOW()");
         }
 
         entityColumnMap(entity.getClass()).forEach((column, field) -> {
-            columns.add(column);
-            fields.add(field);
+            columns.add("`" + column + "`");
+            fields.add("#{" + field + "}");
         });
 
         return new StringBuilder("INSERT INTO ")
@@ -103,17 +104,25 @@ public class _SqlProvider_ {
 
         StringBuilder sb = new StringBuilder("UPDATE ").append(table.table);
 
-        if (table.gmtModified) {
-            sb.append(String.format(" SET gmt_modified = %s", entity.getGmtModified() != null ? "#{gmtModified}" : "NOW()"));
+        if (table.useGmtModified) {
+            sb.append(String.format(" SET gmt_modified = %s", entity.getGmtModified() != null ? "#{entity.gmtModified}" : "NOW()"));
+            entityColumnMap(entity.getClass()).forEach((column, field) -> {
+                sb.append(", ").append("`" + column + "`").append(" = ").append("#{entity." + field + "}");
+            });
         } else {
-            sb.append(" SET ");
+            boolean first = true;
+            for (Map.Entry<String, String> entry : entityColumnMap(entity.getClass()).entrySet()) {
+                if (first) {
+                    sb.append(" SET ");
+                    first = false;
+                } else {
+                    sb.append(", ");
+                }
+                sb.append("`" + entry.getKey() + "`").append(" = ").append("#{entity." + entry.getValue() + "}");
+            }
         }
-        // 注意: 此处不会修改id字段
-        entityColumnMap(entity.getClass()).forEach((col, field) ->
-                sb.append(", ").append(col).append(" = ").append(field)
-        );
 
-        return sb.append(getWhere(where)).toString();
+        return sb.append(getWhere(where, "where")).toString();
     }
 
     public String updateByIds(ProviderContext context, BaseEntity<? extends Serializable> entity, Collection ids) {
@@ -123,15 +132,23 @@ public class _SqlProvider_ {
 
         StringBuilder sb = new StringBuilder("UPDATE ").append(table.table);
 
-        if (table.gmtModified) {
-            sb.append(String.format(" SET gmt_modified = %s", entity.getGmtModified() != null ? "#{gmtModified}" : "NOW()"));
+        if (table.useGmtModified) {
+            sb.append(String.format(" SET gmt_modified = %s", entity.getGmtModified() != null ? "#{entity.gmtModified}" : "NOW()"));
+            entityColumnMap(entity.getClass()).forEach((column, field) -> {
+                sb.append(", ").append("`" + column + "`").append(" = ").append("#{entity." + field + "}");
+            });
         } else {
-            sb.append(" SET ");
+            boolean first = true;
+            for (Map.Entry<String, String> entry : entityColumnMap(entity.getClass()).entrySet()) {
+                if (first) {
+                    sb.append(" SET ");
+                    first = false;
+                } else {
+                    sb.append(", ");
+                }
+                sb.append("`" + entry.getKey() + "`").append(" = ").append("#{entity." + entry.getValue() + "}");
+            }
         }
-        // 注意: 此处不会修改id字段
-        entityColumnMap(entity.getClass()).forEach((col, field) ->
-                sb.append(", ").append(col).append(" = ").append(field)
-        );
 
         return sb
                 .append(" WHERE `id` IN( " + ids.stream().filter(Objects::nonNull).map(id -> "'" + id + "'").collect(joining(", ")) + " )")
@@ -144,12 +161,12 @@ public class _SqlProvider_ {
         List<String> updates = new LinkedList<>();
 
         TableAnno table = tableAnno(entity.getClass());
-        if (table.gmtCreate) {
+        if (table.useGmtCreate) {
             columns.add("`gmt_create`");
             fields.add(entity.getGmtCreate() != null ? "#{gmtCreate}" : "NOW()");
         }
 
-        if (table.gmtModified) {
+        if (table.useGmtModified) {
             columns.add("`gmt_modified`");
             fields.add(entity.getGmtModified() != null ? "#{gmtModified}" : "NOW()");
             updates.add("`gmt_modified`");
@@ -161,10 +178,10 @@ public class _SqlProvider_ {
             updates.add("`id`");
         }
 
-        entityColumnMap(entity.getClass()).forEach((col, field) -> {
-            columns.add(col);
-            fields.add(field);
-            updates.add(col);
+        entityColumnMap(entity.getClass()).forEach((column, field) -> {
+            columns.add("`" + column + "`");
+            fields.add("#{" + field + "}");
+            updates.add("`" + column + "`");
         });
 
         return new StringBuilder("INSERT INTO ")
@@ -179,22 +196,6 @@ public class _SqlProvider_ {
                 .append(updates.stream().map(n -> String.format("%s = VALUES(%s)", n, n)).collect(joining(", ")))
                 .toString();
     }
-
-//    public String updateById(ProviderContext context, BaseEntity<? extends Serializable> entity) {
-//        TableAnno table = tableAnno(entity.getClass());
-//
-//        StringBuilder sb = new StringBuilder("UPDATE ").append(table.table);
-//
-//        if (table.gmtModified) {
-//            sb.append(String.format(" SET gmt_modified = %s", entity.getGmtModified() != null ? "#{gmtModified}" : "NOW()"));
-//        }
-//
-//        entityColumnMap(entity.getClass()).forEach((col, field) ->
-//                sb.append(", ").append(col).append(" = ").append(field)
-//        );
-//
-//        return sb.append(" WHERE `id` = #{id}").toString();
-//    }
 
     public String delete(ProviderContext context, Where where) {
         return new StringBuilder("DELETE FROM ")
@@ -213,9 +214,13 @@ public class _SqlProvider_ {
     }
 
     private String getWhere(Where where) {
+        return getWhere(where, null);
+    }
+
+    private String getWhere(Where where, String prefix) {
         List<String> parts = new LinkedList<>();
-        parts.addAll(getIs(where));
-        parts.addAll(getLike(where));
+        parts.addAll(getIs(where, prefix));
+        parts.addAll(getLike(where, prefix));
 
         if (parts.isEmpty()) {
             return "";
@@ -224,7 +229,7 @@ public class _SqlProvider_ {
         }
     }
 
-    private List<String> getIs(Where where) {
+    private List<String> getIs(Where where, String prefix) {
         if (where.getIs().isEmpty()) {
             return Collections.emptyList();
         }
@@ -237,6 +242,8 @@ public class _SqlProvider_ {
                 .map(entry -> {
                     if (entry.getValue() == null) {
                         return String.format("`%s` IS NULL", hump2line(entry.getKey()));
+                    } else if (prefix != null) {
+                        return String.format("`%s` = #{%s.%s}", hump2line(entry.getKey()), prefix, entry.getKey());
                     } else {
                         return String.format("`%s` = #{%s}", hump2line(entry.getKey()), entry.getKey());
                     }
@@ -245,7 +252,7 @@ public class _SqlProvider_ {
                 .collect(Collectors.toList());
     }
 
-    private List<String> getLike(Where where) {
+    private List<String> getLike(Where where, String prefix) {
         if (where.getLike().isEmpty()) {
             return Collections.emptyList();
         }
@@ -255,14 +262,19 @@ public class _SqlProvider_ {
                 .entrySet()
                 .stream()
                 .filter(entry -> {
-                    // entry.getValue() != null
                     if (entry.getValue() == null) {
-                        throw new RuntimeException("LIKE key `" + entry.getKey() + "`'s value is null.");
+                        throw new RuntimeSqlException("LIKE key `" + entry.getKey() + "`' value is null.");
                     }
 
                     return true;
                 })
-                .map(entry -> "`" + hump2line(entry.getKey()) + "` LIKE '%${" + entry.getKey() + "}%'")
+                .map(entry -> {
+                    if (prefix == null) {
+                        return "`" + hump2line(entry.getKey()) + "` LIKE '%${" + entry.getKey() + "}%'";
+                    } else {
+                        return "`" + hump2line(entry.getKey()) + "` LIKE '%${" + prefix + "." + entry.getKey() + "}%'";
+                    }
+                })
                 .collect(Collectors.toList());
     }
 
@@ -282,7 +294,7 @@ public class _SqlProvider_ {
             return "";
         }
 
-        throw new RuntimeException("un supported");
+        throw new RuntimeSqlException("Unexpected");
     }
 
     private String getOrderBy(Where where) {

@@ -14,6 +14,8 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
+ * ToDo: 其实叫MySQL Sequence更合适
+ *
  * @author jifang.zjf@alibaba-inc.com (FeiQing)
  * @version 1.0
  * @since 2022/8/17 13:38.
@@ -61,13 +63,13 @@ public class JdbcSequence implements Sequence<Long> {
     }
 
     @Override
-    public Long nextVal(String sequenceName) {
-        Long value = getRange(sequenceName).getAndIncrement();
+    public Long nextVal(String sequenceId) {
+        Long value = getRange(sequenceId).getAndIncrement();
 
         if (value == null) {
             synchronized (this) {
-                while ((value = getRange(sequenceName).getAndIncrement()) == null) {
-                    ranges.put(sequenceName, nextRange(sequenceName, 0));
+                while ((value = getRange(sequenceId).getAndIncrement()) == null) {
+                    ranges.put(sequenceId, nextRange(sequenceId, 0));
                 }
             }
         }

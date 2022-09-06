@@ -1,6 +1,7 @@
 package com.github.jbox.mybatis.sequence;
 
 import org.apache.ibatis.builder.annotation.ProviderContext;
+import org.apache.ibatis.jdbc.RuntimeSqlException;
 
 import java.io.Serializable;
 import java.util.Optional;
@@ -15,41 +16,42 @@ import java.util.function.Function;
  */
 public class SequenceRegistry {
 
-    public static final String DEFAULT_TABLE = "_DEFUALT_TABLE_";
+    private static final String DEFAULT_SEQUENCE = "_DEFAULT_SEQUENCE_ID_";
 
-    private static final ConcurrentMap<String, Function<String, ? extends Serializable>> sequenceManager = new ConcurrentHashMap<>();
+    private static final ConcurrentMap<String, Function<String, ? extends Serializable>> manager = new ConcurrentHashMap<>();
 
-    private static final ConcurrentMap<Class<?>, Optional<Function<String, ? extends Serializable>>> sequenceCache = new ConcurrentHashMap<>();
+    private static final ConcurrentMap<Class<?>, Optional<Function<String, ? extends Serializable>>> cache = new ConcurrentHashMap<>();
 
-    // todo 后续可以把注册的name细化
     public static void registerDefault(Function<String, ? extends Serializable> sequence) {
-        register(DEFAULT_TABLE, sequence);
+        register(DEFAULT_SEQUENCE, sequence);
     }
 
-    public static void register(String table, Function<String, ? extends Serializable> sequence) {
-        sequenceManager.put(table, sequence);
+    public static void register(String name, Function<String, ? extends Serializable> sequence) {
+        manager.put(name, sequence);
     }
 
-
-    public static Function<String, ? extends Serializable> getSequence(ProviderContext context, String table) {
-        Optional<Function<String, ? extends Serializable>> optional = sequenceCache.computeIfAbsent(context.getMapperType(), _k -> Optional.ofNullable(selectSequence(context, table)));
+    public static Function<String, ? extends Serializable> getSequence(ProviderContext context, String table, String sequenceId) {
+        Optional<Function<String, ? extends Serializable>> optional = cache.computeIfAbsent(context.getMapperType(), _k -> Optional.ofNullable(selectSequence(context, table, sequenceId)));
         if (optional.isPresent()) {
             return optional.get();
         } else {
-            throw new IllegalStateException("could not found sequence for table:[" + table + "]");
+            throw new RuntimeSqlException("could not found sequence for table:[" + table + "]");
         }
     }
 
-    private static Function<String, ? extends Serializable> selectSequence(ProviderContext context, String table) {
-        Function<String, ? extends Serializable> sequence = sequenceManager.get(context.getMapperType().getName());
+    private static Function<String, ? extends Serializable> selectSequence(ProviderContext context, String table, String sequenceId) {
+        Function<String, ? extends Serializable> sequence = manager.get(context.getMapperType().getName());
         if (sequence == null) {
-            sequence = sequenceManager.get(context.getMapperMethod().getName());
+            sequence = manager.get(context.getMapperMethod().getName());
         }
         if (sequence == null) {
-            sequence = sequenceManager.get(table);
+            sequence = manager.get(table);
         }
         if (sequence == null) {
-            sequence = sequenceManager.get(DEFAULT_TABLE);
+            sequence = manager.get(sequenceId);
+        }
+        if (sequence == null) {
+            sequence = manager.get(DEFAULT_SEQUENCE);
         }
 
         return sequence;

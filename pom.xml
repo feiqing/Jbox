@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xmlns="http://maven.apache.org/POM/4.0.0"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
-         http://maven.apache.org/xsd/maven-4.0.0.xsd">
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
     <modelVersion>4.0.0</modelVersion>
 
@@ -12,7 +11,7 @@
     <version>3.1.0-infra-SNAPSHOT</version>
 
     <name>${project.groupId}:${project.artifactId}</name>
-    <description>Jbox: business utils collection</description>
+    <description>Jbox: business util collection</description>
     <url>https://github.com/feiqing/jbox</url>
     <inceptionYear>2016</inceptionYear>
 
@@ -24,64 +23,22 @@
     <licenses>
         <license>
             <name>The Apache License, Version 2.0</name>
-            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+            <url>https://www.apache.org/licenses/LICENSE-2.0.txt</url>
         </license>
     </licenses>
 
     <developers>
         <developer>
-            <name>feiqing</name>
+            <name>feiqing.zjf</name>
             <email>feiqing.zjf@gmail.com</email>
         </developer>
     </developers>
 
-    <organization>
-        <name>Alibaba Group</name>
-        <url>http://code.alibabatech.com/</url>
-    </organization>
-
-    <!-- 弹内 -->
-    <distributionManagement>
-        <repository>
-            <id>releases</id>
-            <url>http://mvnrepo.alibaba-inc.com/mvn/releases</url>
-        </repository>
-        <snapshotRepository>
-            <id>snapshots</id>
-            <url>http://mvnrepo.alibaba-inc.com/mvn/snapshots</url>
-        </snapshotRepository>
-    </distributionManagement>
-
-    <!-- 弹外 -->
-    <!--    <distributionManagement>-->
-    <!--        <repository>-->
-    <!--            <id>cloud-retail-releases</id>-->
-    <!--            <url>https://packages.aliyun.com/maven/repository/2037694-release-NauJ5L/</url>-->
-    <!--        </repository>-->
-    <!--        <snapshotRepository>-->
-    <!--            <id>cloud-retail-snapshots</id>-->
-    <!--            <url>https://packages.aliyun.com/maven/repository/2037694-snapshot-pUciqp/</url>-->
-    <!--        </snapshotRepository>-->
-    <!--    </distributionManagement>-->
-
     <properties>
-        <javadoc.skip>true</javadoc.skip>
-        <gpg.skip>true</gpg.skip>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
     <dependencies>
-        <dependency>
-            <groupId>org.apache.skywalking</groupId>
-            <artifactId>storage-elasticsearch-plugin</artifactId>
-            <version>9.1.0</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.skywalking</groupId>
-            <artifactId>storage-elasticsearch7-plugin</artifactId>
-            <version>8.7.0</version>
-        </dependency>
-
         <!-- commons -->
         <dependency>
             <groupId>org.projectlombok</groupId>
@@ -185,13 +142,7 @@
             <optional>true</optional>
         </dependency>
 
-        <dependency>
-            <groupId>com.baomidou</groupId>
-            <artifactId>mybatis-plus</artifactId>
-            <version>3.5.2</version>
-        </dependency>
-
-
+        <!-- Trace -->
         <dependency>
             <groupId>io.jaegertracing</groupId>
             <artifactId>jaeger-client</artifactId>
@@ -246,18 +197,6 @@
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-jar-plugin</artifactId>
-                <version>3.0.0</version>
-                <configuration>
-                    <archive>
-                        <manifestEntries>
-                            <Premain-Class>com.github.jbox.utils.SizeOf</Premain-Class>
-                        </manifestEntries>
-                    </archive>
-                </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.3</version>
                 <configuration>
@@ -271,5 +210,17 @@
             </plugin>
         </plugins>
     </build>
+
+    <!-- 弹内 -->
+    <distributionManagement>
+        <repository>
+            <id>releases</id>
+            <url>http://mvnrepo.alibaba-inc.com/mvn/releases</url>
+        </repository>
+        <snapshotRepository>
+            <id>snapshots</id>
+            <url>http://mvnrepo.alibaba-inc.com/mvn/snapshots</url>
+        </snapshotRepository>
+    </distributionManagement>
 
 </project>

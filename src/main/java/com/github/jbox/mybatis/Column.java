@@ -13,12 +13,12 @@ import java.lang.annotation.*;
 public @interface Column {
 
     /**
-     * 指定: 属性对应的sql列
-     * 默认: #属性名驼峰转下划线#
+     * 指定: 属性对应的数据表列名
+     * <br>默认: #属性名驼峰转下划线#
      *
      * @return
      */
-    String name() default "";
+    String column() default "";
 
     /**
      * Same as name()
@@ -29,7 +29,7 @@ public @interface Column {
 
     /**
      * 指定: 是否排除当前属性
-     * 默认: 否
+     * <br>默认: 否
      *
      * @return
      */

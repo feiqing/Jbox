@@ -12,7 +12,7 @@ import java.util.UUID;
 public class UuidSequence implements Sequence<String> {
 
     @Override
-    public String nextVal(String sequenceName) {
+    public String nextVal(String sequenceId) {
         return UUID.randomUUID().toString().replace("-", "").toUpperCase();
     }
 }

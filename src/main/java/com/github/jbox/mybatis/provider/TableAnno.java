@@ -11,9 +11,9 @@ class TableAnno {
 
     String primaryKey;
 
-    String sequence;
+    String sequenceId;
 
-    boolean gmtCreate;
+    boolean useGmtCreate;
 
-    boolean gmtModified;
+    boolean useGmtModified;
 }

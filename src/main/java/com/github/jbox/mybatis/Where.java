@@ -11,7 +11,10 @@ import java.util.Map;
 import java.util.Objects;
 
 /**
- * 注意: 由于IN查询需要写SQL脚本, 因此暂时还不支持, 有需求可以提~
+ * 注意-目前尚不支持:
+ * 1. IN查询: 由于需要写SQL脚本, 较为复杂, 因此暂时还不支持, 有需求可以提~
+ * 2. BETWEEN查询
+ * 3. >, >=, <, <=查询
  *
  * @author jifang.zjf@alibaba-inc.com (FeiQing)
  * @version 1.0

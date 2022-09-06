@@ -23,14 +23,12 @@ public interface BaseMapper<ID extends Serializable, E extends BaseEntity<ID>> {
     @SelectProvider(type = _SqlProvider_.class, method = "select")
     List<E> select(Where where);
 
-    // todo: 测试
     @SelectProvider(type = _SqlProvider_.class, method = "select")
     List<Map<String, Object>> selectMap(Where where);
 
     @SelectProvider(type = _SqlProvider_.class, method = "selectOne")
     E selectOne(Where where);
 
-    // todo: 测试
     @SelectProvider(type = _SqlProvider_.class, method = "selectOne")
     Map<String, Object> selectOneMap(Where where);
 
@@ -44,7 +42,6 @@ public interface BaseMapper<ID extends Serializable, E extends BaseEntity<ID>> {
     @SelectProvider(type = _SqlProvider_.class, method = "count")
     Long count(Where where);
 
-    // todo: 测试
     default boolean exists(Where where) {
         Long count = count(where);
         return count != null && count > 0;
@@ -54,24 +51,20 @@ public interface BaseMapper<ID extends Serializable, E extends BaseEntity<ID>> {
     @Options(useGeneratedKeys = true)
     Integer insert(E entity);
 
-    // todo: 测试
+    // 注意: 此处不会修改id字段
     @UpdateProvider(type = _SqlProvider_.class, method = "update")
-    Integer update(E entity, Where where);
+    Integer update(@Param("entity") E entity, @Param("where") Where where);
 
-    // todo: 测试
-    default Integer updateById(E entity) {
+    default Integer updateById(@Param("entity") E entity) {
         return update(entity, Where.where().is("id", entity.getId()));
     }
 
-    // todo: 测试
+    // 注意: 此处不会修改id字段
     @UpdateProvider(type = _SqlProvider_.class, method = "updateByIds")
-    Integer updateByIds(E entity, Where where);
+    Integer updateByIds(@Param("entity") E entity, @Param("ids") Collection<ID> ids);
 
-//    @UpdateProvider(type = _SqlProvider.class, method = "updateById")
-//    Integer updateById(E entity);
-
-    // 目前仅适配了MySQL的语法
     @Beta
+    // 目前仅适配了MySQL的语法
     @InsertProvider(type = _SqlProvider_.class, method = "upsert")
     @Options(useGeneratedKeys = true)
     Integer upsert(E entity);
@@ -83,7 +76,6 @@ public interface BaseMapper<ID extends Serializable, E extends BaseEntity<ID>> {
         return delete(Where.where().is("id", id));
     }
 
-    // todo: 测试
     @DeleteProvider(type = _SqlProvider_.class, method = "deleteByIds")
     Integer deleteByIds(@Param("ids") Collection<ID> ids);
 }

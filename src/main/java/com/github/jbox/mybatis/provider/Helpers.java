@@ -60,11 +60,11 @@ class Helpers {
                     Table annotation = clazz.getAnnotation(Table.class);
                     TableAnno tableAnno = new TableAnno();
                     if (annotation != null) {
-                        tableAnno.table = Strings.isNullOrEmpty(annotation.name()) ? annotation.value() : annotation.name();
+                        tableAnno.table = Strings.isNullOrEmpty(annotation.table()) ? annotation.value() : annotation.table();
                         tableAnno.primaryKey = annotation.primaryKey();
-                        tableAnno.sequence = annotation.sequence();
-                        tableAnno.gmtCreate = annotation.gmtCreate();
-                        tableAnno.gmtModified = annotation.gmtModified();
+                        tableAnno.sequenceId = annotation.sequenceId();
+                        tableAnno.useGmtCreate = annotation.useGmtCreate();
+                        tableAnno.useGmtModified = annotation.useGmtModified();
                     }
 
                     if (!Strings.isNullOrEmpty(tableAnno.table)) {
@@ -82,8 +82,8 @@ class Helpers {
 
                     tableAnno.table = hump2line(String.valueOf(entityName.charAt(0)).toLowerCase() + StringUtils.substring(entityName, 1));
 
-                    if (Strings.isNullOrEmpty(tableAnno.sequence)) {
-                        tableAnno.sequence = tableAnno.table;
+                    if (Strings.isNullOrEmpty(tableAnno.sequenceId)) {
+                        tableAnno.sequenceId = tableAnno.table;
                     }
 
                     return tableAnno;
@@ -114,14 +114,14 @@ class Helpers {
 
             String columnName = null;
             if (annotation != null) {
-                columnName = Strings.isNullOrEmpty(annotation.name()) ? annotation.value() : annotation.name();
+                columnName = Strings.isNullOrEmpty(annotation.column()) ? annotation.value() : annotation.column();
             }
 
             if (Strings.isNullOrEmpty(columnName)) {
                 columnName = hump2line(field.getName());
             }
 
-            columnMap.put("`" + columnName + "`", "#{" + field.getName() + "}");
+            columnMap.put(columnName, field.getName());
         }
 
         return columnMap;

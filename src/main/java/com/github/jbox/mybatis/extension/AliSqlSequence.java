@@ -22,7 +22,7 @@ public class AliSqlSequence implements Sequence<Long> {
     }
 
     @Override
-    public Long nextVal(String sequenceName) {
-        return jdbcTemplate.queryForObject("SELECT " + sequenceName + ".NEXTVAL FROM DUAL", Long.class);
+    public Long nextVal(String sequenceId) {
+        return jdbcTemplate.queryForObject("SELECT " + sequenceId + ".NEXTVAL FROM DUAL", Long.class);
     }
 }
