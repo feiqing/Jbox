@@ -14,6 +14,7 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
+import static com.github.jbox.mybatis.Table.PRI_AUTO_INCREMENT;
 import static org.apache.commons.lang3.reflect.FieldUtils.getAllFieldsList;
 
 /**
@@ -34,7 +35,6 @@ class Helpers {
     private static final List<String> ENTITY_SUFFIX = new LinkedList<>();
 
     private static final Set<String> EXCLUDE_FIELDS = Sets.newHashSet("id", "gmtCreate", "gmtModified");
-
 
     public static void addSuffix(String suffix) {
         ENTITY_SUFFIX.add(suffix);
@@ -57,30 +57,39 @@ class Helpers {
     static TableAnno tableAnno(Class<?> entityType) {
         return entityType2tableAnno
                 .computeIfAbsent(entityType, clazz -> {
-                    Table annotation = clazz.getAnnotation(Table.class);
                     TableAnno tableAnno = new TableAnno();
-                    if (annotation != null) {
-                        tableAnno.table = Strings.isNullOrEmpty(annotation.table()) ? annotation.value() : annotation.table();
-                        tableAnno.primaryKey = annotation.primaryKey();
-                        tableAnno.sequenceId = annotation.sequenceId();
-                        tableAnno.useGmtCreate = annotation.useGmtCreate();
-                        tableAnno.useGmtModified = annotation.useGmtModified();
+
+                    Table table = clazz.getAnnotation(Table.class);
+                    if (table == null) {
+                        tableAnno.table = "";
+                        tableAnno.primaryKey = PRI_AUTO_INCREMENT;
+                        tableAnno.sequenceId = "";
+                        tableAnno.useGmtCreate = true;
+                        tableAnno.useGmtModified = true;
+                    } else {
+                        tableAnno.table = !Strings.isNullOrEmpty(table.table()) ? table.table() : table.value();
+                        tableAnno.primaryKey = table.primaryKey();
+                        tableAnno.sequenceId = table.sequenceId();
+                        tableAnno.useGmtCreate = table.useGmtCreate();
+                        tableAnno.useGmtModified = table.useGmtModified();
                     }
 
-                    if (!Strings.isNullOrEmpty(tableAnno.table)) {
-                        return tableAnno;
-                    }
+                    if (Strings.isNullOrEmpty(tableAnno.table)) {
+                        boolean founded = false;
+                        String entityTypeName = entityType.getSimpleName();
+                        for (String suffix : ENTITY_SUFFIX) {
+                            int idx = StringUtils.indexOfIgnoreCase(entityTypeName, suffix);
+                            if (idx != -1) {
+                                tableAnno.table = hump2line(String.valueOf(entityTypeName.charAt(0)).toLowerCase() + StringUtils.substring(entityTypeName, 1, idx));
+                                founded = true;
+                                break;
+                            }
+                        }
 
-                    String entityName = entityType.getSimpleName();
-                    for (String suffix : ENTITY_SUFFIX) {
-                        int idx = StringUtils.indexOfIgnoreCase(entityName, suffix);
-                        if (idx != -1) {
-                            tableAnno.table = hump2line(String.valueOf(entityName.charAt(0)).toLowerCase() + StringUtils.substring(entityName, 1, idx));
-                            return tableAnno;
+                        if (!founded) {
+                            tableAnno.table = hump2line(String.valueOf(entityTypeName.charAt(0)).toLowerCase() + StringUtils.substring(entityTypeName, 1));
                         }
                     }
-
-                    tableAnno.table = hump2line(String.valueOf(entityName.charAt(0)).toLowerCase() + StringUtils.substring(entityName, 1));
 
                     if (Strings.isNullOrEmpty(tableAnno.sequenceId)) {
                         tableAnno.sequenceId = tableAnno.table;
@@ -126,7 +135,6 @@ class Helpers {
 
         return columnMap;
     }
-
 
     static String hump2line(String hump) {
         return hump2line.computeIfAbsent(hump, _k -> hump.replaceAll("[A-Z]", "_$0").toLowerCase());

@@ -16,6 +16,8 @@ import java.util.Map;
  */
 public interface BaseMapper<ID extends Serializable, E extends BaseEntity<ID>> {
 
+    /* select */
+
     default List<E> selectAll() {
         return select(Where.where());
     }
@@ -24,13 +26,7 @@ public interface BaseMapper<ID extends Serializable, E extends BaseEntity<ID>> {
     List<E> select(Where where);
 
     @SelectProvider(type = _SqlProvider_.class, method = "select")
-    List<Map<String, Object>> selectMap(Where where);
-
-    @SelectProvider(type = _SqlProvider_.class, method = "selectOne")
     E selectOne(Where where);
-
-    @SelectProvider(type = _SqlProvider_.class, method = "selectOne")
-    Map<String, Object> selectOneMap(Where where);
 
     default E selectById(@Param("id") ID id) {
         return selectOne(Where.where().is("id", id));
@@ -38,6 +34,27 @@ public interface BaseMapper<ID extends Serializable, E extends BaseEntity<ID>> {
 
     @SelectProvider(type = _SqlProvider_.class, method = "selectByIds")
     List<E> selectByIds(@Param("ids") Collection<ID> ids);
+
+    /* selectMap */
+
+    default List<Map<String, Object>> selectAllMap() {
+        return selectMap(Where.where());
+    }
+
+    @SelectProvider(type = _SqlProvider_.class, method = "select")
+    List<Map<String, Object>> selectMap(Where where);
+
+    @SelectProvider(type = _SqlProvider_.class, method = "select")
+    Map<String, Object> selectOneMap(Where where);
+
+    default Map<String, Object> selectMapById(@Param("id") ID id) {
+        return selectOneMap(Where.where().is("id", id));
+    }
+
+    @SelectProvider(type = _SqlProvider_.class, method = "selectByIds")
+    List<Map<String, Object>> selectMapByIds(@Param("ids") Collection<ID> ids);
+
+    /* count、exists */
 
     @SelectProvider(type = _SqlProvider_.class, method = "count")
     Long count(Where where);
@@ -47,11 +64,20 @@ public interface BaseMapper<ID extends Serializable, E extends BaseEntity<ID>> {
         return count != null && count > 0;
     }
 
+    /* insert、upsert */
+
     @InsertProvider(type = _SqlProvider_.class, method = "insert")
     @Options(useGeneratedKeys = true)
     Integer insert(E entity);
 
-    // 注意: 此处不会修改id字段
+    @Beta // 目前仅适配了MySQL的语法
+    @InsertProvider(type = _SqlProvider_.class, method = "upsert")
+    @Options(useGeneratedKeys = true)
+    Integer upsert(E entity);
+
+    /* update */
+
+    // 注意: update方法不会修改`id`字段
     @UpdateProvider(type = _SqlProvider_.class, method = "update")
     Integer update(@Param("entity") E entity, @Param("where") Where where);
 
@@ -59,15 +85,10 @@ public interface BaseMapper<ID extends Serializable, E extends BaseEntity<ID>> {
         return update(entity, Where.where().is("id", entity.getId()));
     }
 
-    // 注意: 此处不会修改id字段
     @UpdateProvider(type = _SqlProvider_.class, method = "updateByIds")
     Integer updateByIds(@Param("entity") E entity, @Param("ids") Collection<ID> ids);
 
-    @Beta
-    // 目前仅适配了MySQL的语法
-    @InsertProvider(type = _SqlProvider_.class, method = "upsert")
-    @Options(useGeneratedKeys = true)
-    Integer upsert(E entity);
+    /* delete */
 
     @DeleteProvider(type = _SqlProvider_.class, method = "delete")
     Integer delete(Where where);

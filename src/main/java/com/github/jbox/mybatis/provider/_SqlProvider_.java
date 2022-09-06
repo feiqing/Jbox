@@ -24,16 +24,9 @@ import static java.util.stream.Collectors.joining;
 @SuppressWarnings("all")
 public class _SqlProvider_ {
 
-    public String select(ProviderContext context, Where where) {
-        return new StringBuilder("SELECT * FROM ")
-                .append(tableAnno(context).table)
-                .append(getWhere(where))
-                .append(getOrderBy(where))
-                .append(getLimit(where))
-                .toString();
-    }
+    /* select */
 
-    public String selectOne(ProviderContext context, Where where) {
+    public String select(ProviderContext context, Where where) {
         return new StringBuilder("SELECT * FROM ")
                 .append(tableAnno(context).table)
                 .append(getWhere(where))
@@ -51,12 +44,16 @@ public class _SqlProvider_ {
                 .toString();
     }
 
+    /* count */
+
     public String count(ProviderContext context, Where where) {
         return new StringBuilder("SELECT COUNT(*) FROM ")
                 .append(tableAnno(context).table)
                 .append(getWhere(where))
                 .toString();
     }
+
+    /* insert、upsert */
 
     public String insert(ProviderContext context, BaseEntity<? extends Serializable> entity) {
         List<String> columns = new LinkedList<>();
@@ -98,6 +95,50 @@ public class _SqlProvider_ {
                 .append(")")
                 .toString();
     }
+
+    public String upsert(ProviderContext context, BaseEntity<?> entity) {
+        List<String> columns = new LinkedList<>();
+        List<String> fields = new LinkedList<>();
+        List<String> updates = new LinkedList<>();
+
+        TableAnno table = tableAnno(entity.getClass());
+        if (table.useGmtCreate) {
+            columns.add("`gmt_create`");
+            fields.add(entity.getGmtCreate() != null ? "#{gmtCreate}" : "NOW()");
+        }
+
+        if (table.useGmtModified) {
+            columns.add("`gmt_modified`");
+            fields.add(entity.getGmtModified() != null ? "#{gmtModified}" : "NOW()");
+            updates.add("`gmt_modified`");
+        }
+
+        if (entity.getId() != null) {
+            columns.add("`id`");
+            fields.add("#{id}");
+            updates.add("`id`");
+        }
+
+        entityColumnMap(entity.getClass()).forEach((column, field) -> {
+            columns.add("`" + column + "`");
+            fields.add("#{" + field + "}");
+            updates.add("`" + column + "`");
+        });
+
+        return new StringBuilder("INSERT INTO ")
+                .append(table.table)
+                .append("(")
+                .append(Joiner.on(", ").join(columns))
+                .append(") ")
+                .append("VALUES(")
+                .append(Joiner.on(", ").join(fields))
+                .append(")")
+                .append(" ON DUPLICATE KEY UPDATE ")
+                .append(updates.stream().map(n -> String.format("%s = VALUES(%s)", n, n)).collect(joining(", ")))
+                .toString();
+    }
+
+    /* update */
 
     public String update(ProviderContext context, BaseEntity<? extends Serializable> entity, Where where) {
         TableAnno table = tableAnno(entity.getClass());
@@ -155,47 +196,9 @@ public class _SqlProvider_ {
                 .toString();
     }
 
-    public String upsert(ProviderContext context, BaseEntity<?> entity) {
-        List<String> columns = new LinkedList<>();
-        List<String> fields = new LinkedList<>();
-        List<String> updates = new LinkedList<>();
 
-        TableAnno table = tableAnno(entity.getClass());
-        if (table.useGmtCreate) {
-            columns.add("`gmt_create`");
-            fields.add(entity.getGmtCreate() != null ? "#{gmtCreate}" : "NOW()");
-        }
 
-        if (table.useGmtModified) {
-            columns.add("`gmt_modified`");
-            fields.add(entity.getGmtModified() != null ? "#{gmtModified}" : "NOW()");
-            updates.add("`gmt_modified`");
-        }
-
-        if (entity.getId() != null) {
-            columns.add("`id`");
-            fields.add("#{id}");
-            updates.add("`id`");
-        }
-
-        entityColumnMap(entity.getClass()).forEach((column, field) -> {
-            columns.add("`" + column + "`");
-            fields.add("#{" + field + "}");
-            updates.add("`" + column + "`");
-        });
-
-        return new StringBuilder("INSERT INTO ")
-                .append(table.table)
-                .append("(")
-                .append(Joiner.on(", ").join(columns))
-                .append(") ")
-                .append("VALUES(")
-                .append(Joiner.on(", ").join(fields))
-                .append(")")
-                .append(" ON DUPLICATE KEY UPDATE ")
-                .append(updates.stream().map(n -> String.format("%s = VALUES(%s)", n, n)).collect(joining(", ")))
-                .toString();
-    }
+    /* delete */
 
     public String delete(ProviderContext context, Where where) {
         return new StringBuilder("DELETE FROM ")
@@ -212,6 +215,8 @@ public class _SqlProvider_ {
                 .append(" WHERE `id` IN( " + ids.stream().filter(Objects::nonNull).map(id -> "'" + id + "'").collect(joining(", ")) + " )")
                 .toString();
     }
+
+    /* helper */
 
     private String getWhere(Where where) {
         return getWhere(where, null);
