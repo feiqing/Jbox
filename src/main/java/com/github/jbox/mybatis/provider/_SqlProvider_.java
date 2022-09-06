@@ -26,7 +26,9 @@ public class _SqlProvider_ {
 
     /* select */
 
-    public String select(ProviderContext context, Where where) {
+    public static String select(ProviderContext context, Where where) {
+        Preconditions.checkArgument(where != null);
+
         return new StringBuilder("SELECT * FROM ")
                 .append(tableAnno(context).table)
                 .append(getWhere(where))
@@ -35,7 +37,7 @@ public class _SqlProvider_ {
                 .toString();
     }
 
-    public String selectByIds(ProviderContext context, Collection<Object> ids) {
+    public static String selectByIds(ProviderContext context, Collection<Object> ids) {
         Preconditions.checkArgument(ids != null && !ids.isEmpty());
 
         return new StringBuilder("SELECT * FROM ")
@@ -46,7 +48,9 @@ public class _SqlProvider_ {
 
     /* count */
 
-    public String count(ProviderContext context, Where where) {
+    public static String count(ProviderContext context, Where where) {
+        Preconditions.checkArgument(where != null);
+
         return new StringBuilder("SELECT COUNT(*) FROM ")
                 .append(tableAnno(context).table)
                 .append(getWhere(where))
@@ -55,7 +59,9 @@ public class _SqlProvider_ {
 
     /* insert、upsert */
 
-    public String insert(ProviderContext context, BaseEntity<? extends Serializable> entity) {
+    public static String insert(ProviderContext context, BaseEntity<? extends Serializable> entity) {
+        Preconditions.checkArgument(entity != null);
+
         List<String> columns = new LinkedList<>();
         List<String> fields = new LinkedList<>();
 
@@ -96,7 +102,9 @@ public class _SqlProvider_ {
                 .toString();
     }
 
-    public String upsert(ProviderContext context, BaseEntity<?> entity) {
+    public static String upsert(ProviderContext context, BaseEntity<? extends Serializable> entity) {
+        Preconditions.checkArgument(entity != null);
+
         List<String> columns = new LinkedList<>();
         List<String> fields = new LinkedList<>();
         List<String> updates = new LinkedList<>();
@@ -140,7 +148,10 @@ public class _SqlProvider_ {
 
     /* update */
 
-    public String update(ProviderContext context, BaseEntity<? extends Serializable> entity, Where where) {
+    public static String update(ProviderContext context, BaseEntity<? extends Serializable> entity, Where where) {
+        Preconditions.checkArgument(entity != null);
+        Preconditions.checkArgument(where != null);
+
         TableAnno table = tableAnno(entity.getClass());
 
         StringBuilder sb = new StringBuilder("UPDATE ").append(table.table);
@@ -166,7 +177,8 @@ public class _SqlProvider_ {
         return sb.append(getWhere(where, "where")).toString();
     }
 
-    public String updateByIds(ProviderContext context, BaseEntity<? extends Serializable> entity, Collection ids) {
+    public static String updateByIds(ProviderContext context, BaseEntity<? extends Serializable> entity, Collection<Object> ids) {
+        Preconditions.checkArgument(entity != null);
         Preconditions.checkArgument(ids != null && !ids.isEmpty());
 
         TableAnno table = tableAnno(entity.getClass());
@@ -200,14 +212,16 @@ public class _SqlProvider_ {
 
     /* delete */
 
-    public String delete(ProviderContext context, Where where) {
+    public static String delete(ProviderContext context, Where where) {
+        Preconditions.checkArgument(where != null);
+        
         return new StringBuilder("DELETE FROM ")
                 .append(tableAnno(context).table)
                 .append(getWhere(where))
                 .toString();
     }
 
-    public String deleteByIds(ProviderContext context, Collection<Object> ids) {
+    public static String deleteByIds(ProviderContext context, Collection<Object> ids) {
         Preconditions.checkArgument(ids != null && !ids.isEmpty());
 
         return new StringBuilder("DELETE FROM ")
@@ -218,11 +232,11 @@ public class _SqlProvider_ {
 
     /* helper */
 
-    private String getWhere(Where where) {
+    private static String getWhere(Where where) {
         return getWhere(where, null);
     }
 
-    private String getWhere(Where where, String prefix) {
+    private static String getWhere(Where where, String prefix) {
         List<String> parts = new LinkedList<>();
         parts.addAll(getIs(where, prefix));
         parts.addAll(getLike(where, prefix));
@@ -234,7 +248,7 @@ public class _SqlProvider_ {
         }
     }
 
-    private List<String> getIs(Where where, String prefix) {
+    private static List<String> getIs(Where where, String prefix) {
         if (where.getIs().isEmpty()) {
             return Collections.emptyList();
         }
@@ -257,7 +271,7 @@ public class _SqlProvider_ {
                 .collect(Collectors.toList());
     }
 
-    private List<String> getLike(Where where, String prefix) {
+    private static List<String> getLike(Where where, String prefix) {
         if (where.getLike().isEmpty()) {
             return Collections.emptyList();
         }
@@ -283,7 +297,7 @@ public class _SqlProvider_ {
                 .collect(Collectors.toList());
     }
 
-    private String getLimit(Where where) {
+    private static String getLimit(Where where) {
         Object offset = where.get("offset");
         Object limit = where.get("limit");
 
@@ -302,7 +316,7 @@ public class _SqlProvider_ {
         throw new RuntimeSqlException("Unexpected");
     }
 
-    private String getOrderBy(Where where) {
+    private static String getOrderBy(Where where) {
         if (where.getOrderBy().isEmpty()) {
             return "";
         }
