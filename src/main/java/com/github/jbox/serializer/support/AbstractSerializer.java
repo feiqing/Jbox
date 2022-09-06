@@ -9,7 +9,7 @@ import lombok.extern.slf4j.Slf4j;
  * @since 2018-07-01 21:41:00.
  */
 @Slf4j(topic = "com.github.jbox.serializer")
-public abstract class AbstractSerializer implements ISerializer {
+abstract class AbstractSerializer implements ISerializer {
 
     protected abstract byte[] _serialize(Object obj) throws Throwable;
 

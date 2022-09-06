@@ -110,7 +110,7 @@ class Helpers {
         for (Field field : fields) {
             if (field == null
                     || Modifier.isStatic(field.getModifiers())
-                    || Modifier.isFinal(field.getModifiers()) // todo ?
+                    // || Modifier.isFinal(field.getModifiers()) todo ?
                     || EXCLUDE_FIELDS.contains(field.getName())
             ) {
                 continue;
