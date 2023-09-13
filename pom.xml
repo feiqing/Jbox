@@ -8,7 +8,6 @@
     <groupId>com.alibaba.jbox</groupId>
     <artifactId>jbox</artifactId>
     <packaging>jar</packaging>
-
     <version>3.1.0-infra-SNAPSHOT</version>
 
     <name>${project.groupId}:${project.artifactId}</name>
