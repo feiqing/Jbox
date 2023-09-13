@@ -28,13 +28,13 @@
     <!--</bean>-->
     <!--</property>-->
 
-    <bean id="ipoTraceAspect" class="com.github.jbox.trace.TraceLauncher">
+    <bean id="ipoTraceAspect" class="com.alibaba.jbox.trace.TraceLauncher">
 
     </bean>
 
     <aop:config proxy-target-class="true">
         <aop:pointcut id="ipoProxyPt" expression="
-                    execution(* com.github.jbox.caces.service.impl.HelloWorldServiceImpl.*(..)))                        "/>
+                    execution(* com.alibaba.jbox.caces.service.impl.HelloWorldServiceImpl.*(..)))                        "/>
         <aop:aspect ref="ipoTraceAspect">
             <aop:around method="emit" pointcut-ref="ipoProxyPt"/>
         </aop:aspect>

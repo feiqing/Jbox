@@ -9,7 +9,7 @@
 
     <!--<import resource="spring/applicationTLogComposite.xml"/>-->
 
-    <bean id="ipoTraceAspect" class="com.github.jbox.trace.TraceLauncher">
+    <bean id="ipoTraceAspect" class="com.alibaba.jbox.trace.TraceLauncher">
         <property name="tasks">
             <list>
                 <bean class="com.github.jbox.trace.tasks.EagleEyeTask"/>
@@ -22,7 +22,7 @@
 
     <aop:config proxy-target-class="true">
         <aop:pointcut id="ipoProxyPt" expression="
-                    execution(* com.github.jbox.caces.service.impl.HelloWorldServiceImpl.*(..)))                        "/>
+                    execution(* com.alibaba.jbox.caces.service.impl.HelloWorldServiceImpl.*(..)))                        "/>
         <aop:aspect ref="ipoTraceAspect">
             <aop:around method="emit" pointcut-ref="ipoProxyPt"/>
         </aop:aspect>
@@ -30,7 +30,7 @@
 
     <context:component-scan base-package="com.github.jbox"/>
 
-    <bean class="com.github.jbox.caces.service.impl.HelloWorldServiceImpl"/>
+    <bean class="com.alibaba.jbox.caces.service.impl.HelloWorldServiceImpl"/>
 
     <bean class="com.github.jbox.h2.TestDAO">
         <constructor-arg name="h2path" value="/Users/jifang.zjf/Downloads/test/tt"/>

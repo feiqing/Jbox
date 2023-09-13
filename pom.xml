@@ -5,7 +5,7 @@
 
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>com.github.jbox</groupId>
+    <groupId>com.alibaba.jbox</groupId>
     <artifactId>jbox</artifactId>
     <packaging>jar</packaging>
     <version>3.1.0-infra-SNAPSHOT</version>
@@ -139,14 +139,6 @@
             <groupId>redis.clients</groupId>
             <artifactId>jedis</artifactId>
             <version>3.6.3</version>
-            <optional>true</optional>
-        </dependency>
-
-        <!-- Trace -->
-        <dependency>
-            <groupId>io.jaegertracing</groupId>
-            <artifactId>jaeger-client</artifactId>
-            <version>1.4.0</version>
             <optional>true</optional>
         </dependency>
 

@@ -44,8 +44,10 @@
 
 - 最佳示例
 > 配置
+
 ```xml
-<bean id="ipoTraceAspect" class="com.github.jbox.trace.TraceLauncher">
+
+<bean id="ipoTraceAspect" class="com.alibaba.jbox.trace.TraceLauncher">
     <property name="tasks">
         <list>
             <bean class="com.github.jbox.trace.tasks.EagleEyeTask"/>
