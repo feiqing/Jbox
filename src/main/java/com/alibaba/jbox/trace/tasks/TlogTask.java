@@ -19,7 +19,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  */
 @Data
 @Slf4j
-public class TlogTask implements JobTask<TraceJobContext> {
+public class TlogTask implements JobTask<TraceJobContext, String> {
 
     private static final long serialVersionUID = -3619644271378328443L;
 
@@ -28,7 +28,7 @@ public class TlogTask implements JobTask<TraceJobContext> {
     private String configKeyPattern = "%s:%s";
 
     @Override
-    public void invoke(TraceJobContext context) throws Throwable {
+    public String invoke(TraceJobContext context) throws Throwable {
         LogEvent logEvent = new LogEvent();
         try {
             logEvent.setMethod(context.getMethod());
@@ -38,10 +38,12 @@ public class TlogTask implements JobTask<TraceJobContext> {
             logEvent.setArgs(context.getArgs());
 
             logEvent.setStartTime(System.currentTimeMillis());
-            context.next();
+            String next = context.next();
             logEvent.setRt(System.currentTimeMillis() - logEvent.getStartTime());
 
-            logEvent.setResult(context.getResult());
+            logEvent.setResult(next);
+
+            return next;
         } catch (Throwable t) {
             logEvent.setException(t);
             throw t;

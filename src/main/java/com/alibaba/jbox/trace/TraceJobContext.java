@@ -1,13 +1,12 @@
 package com.alibaba.jbox.trace;
 
-import com.alibaba.jbox.job.JobTask;
 import com.alibaba.jbox.job.JobContext;
+import com.alibaba.jbox.job.JobTask;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.aspectj.lang.ProceedingJoinPoint;
 
 import java.lang.reflect.Method;
-import java.util.List;
 
 /**
  * @author jifang.zjf@alibaba-inc.com (FeiQing)
@@ -16,7 +15,7 @@ import java.util.List;
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
-public class TraceJobContext extends JobContext {
+public class TraceJobContext extends JobContext<String> {
 
     private static final long serialVersionUID = 3545382785877769347L;
 
@@ -31,9 +30,10 @@ public class TraceJobContext extends JobContext {
     private Object[] args;
 
     public TraceJobContext() {
+        super(null, null);
     }
 
-    public TraceJobContext(String jobName, List<JobTask<? extends JobContext>> jobTasks) {
+    public TraceJobContext(String jobName, JobTask[] jobTasks) {
         super(jobName, jobTasks);
     }
 }
