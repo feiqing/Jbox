@@ -5,11 +5,11 @@ package com.alibaba.jbox.job;
  * @version 1.0
  * @since 2018-09-28 20:57:00.
  */
-public interface JobTask<Input extends JobContext<Output>, Output> {
+public interface JobTask<T extends JobContext<R>, R> {
 
-    Output invoke(Input context) throws Throwable;
+    R invoke(T context) throws Throwable;
 
-    default String desc(Input context) {
+    default String desc(T context) {
         return this.getClass().getName();
     }
 }

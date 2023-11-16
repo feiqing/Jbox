@@ -11,9 +11,9 @@ import java.util.Map;
  * @version 1.0
  * @since 2018-09-28 20:58:00.
  */
-@SuppressWarnings({"rawtypes", "unchecked"})
 @Slf4j(topic = "JobFramework")
-public abstract class JobContext<T> implements Serializable {
+@SuppressWarnings({"rawtypes", "unchecked"})
+public abstract class JobContext<R> implements Serializable {
 
     private static final long serialVersionUID = 6258054189501546389L;
 
@@ -25,7 +25,7 @@ public abstract class JobContext<T> implements Serializable {
         meta.idx = -1;
     }
 
-    public T next() throws Throwable {
+    public R next() throws Throwable {
         // 已经到达终点
         if (!(++meta.idx < meta.tasks.length)) {
             throw new IllegalStateException("task has already been invoked.");
@@ -36,7 +36,7 @@ public abstract class JobContext<T> implements Serializable {
 
         try {
             meta.setAttribute(desc, System.currentTimeMillis());
-            return (T) task.invoke(this);
+            return (R) task.invoke(this);
         } catch (Throwable t) {
             log.error("[TASK] {} occur exception.", desc, t);
             throw t;
