@@ -22,13 +22,12 @@ public abstract class JobContext<R> implements Serializable {
     protected JobContext(String name, JobTask[] tasks) {
         meta.name = name;
         meta.tasks = tasks;
-        meta.idx = -1;
     }
 
     public R next() throws Throwable {
         // 已经到达终点
         if (!(++meta.idx < meta.tasks.length)) {
-            throw new IllegalStateException("task has already been invoked.");
+            throw new IllegalStateException("tasks has already reach end !");
         }
 
         JobTask task = meta.tasks[meta.idx];
@@ -42,8 +41,8 @@ public abstract class JobContext<R> implements Serializable {
             throw t;
         } finally {
             long total = System.currentTimeMillis() - (long) meta.removeAttribute(desc);
-            if (meta.traceExit && log.isTraceEnabled()) {
-                log.trace("[TASK] {} cost '{}'.", desc, total - meta.cost);
+            if (meta.traceExit && log.isInfoEnabled()) {
+                log.info("[TASK] {} cost '{}'.", desc, total - meta.cost);
             }
             meta.cost = total;
         }
@@ -55,9 +54,9 @@ public abstract class JobContext<R> implements Serializable {
 
         public String name;
 
-        public int idx;
-
         public JobTask[] tasks;
+
+        public int idx = -1;
 
         public long cost = 0;
 
