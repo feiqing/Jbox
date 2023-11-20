@@ -17,11 +17,18 @@ public abstract class JobContext<R> implements Serializable {
 
     private static final long serialVersionUID = 6258054189501546389L;
 
-    protected Meta meta = new Meta();
+    private static final ThreadLocal<JobContext> context = new ThreadLocal<>();
+
+    protected final Meta meta = new Meta();
 
     protected JobContext(String name, JobTask[] tasks) {
         meta.name = name;
         meta.tasks = tasks;
+        context.set(this);
+    }
+
+    public static <T extends JobContext<R>, R> T get() {
+        return (T) context.get();
     }
 
     public R next() throws Throwable {
@@ -31,7 +38,7 @@ public abstract class JobContext<R> implements Serializable {
         }
 
         JobTask task = meta.tasks[meta.idx];
-        String desc = String.format("%s[%s/%s]('%s')", meta.name, meta.idx, meta.tasks.length, task.desc(this));
+        String desc = String.format("%s[%s/%s]('%s')", meta.name, meta.idx + 1, meta.tasks.length, task.desc(this));
 
         try {
             meta.setAttribute(desc, System.currentTimeMillis());
@@ -41,8 +48,8 @@ public abstract class JobContext<R> implements Serializable {
             throw t;
         } finally {
             long total = System.currentTimeMillis() - (long) meta.removeAttribute(desc);
-            if (meta.traceExit && log.isInfoEnabled()) {
-                log.info("[TASK] {} cost '{}'.", desc, total - meta.cost);
+            if (meta.trace && log.isInfoEnabled()) {
+                log.trace("[TASK] {} cost '{}', total '{}'.", desc, total - meta.cost, total);
             }
             meta.cost = total;
         }
@@ -60,7 +67,7 @@ public abstract class JobContext<R> implements Serializable {
 
         public long cost = 0;
 
-        public boolean traceExit = true;
+        public boolean trace = true;
 
         private Map<String, Object> attributes;
 
@@ -71,20 +78,16 @@ public abstract class JobContext<R> implements Serializable {
             return this.attributes;
         }
 
+        public void setAttribute(String key, Object value) {
+            getAttributes().put(key, value);
+        }
+
         public Object getAttribute(String key) {
             return getAttributes().get(key);
         }
 
         public Object removeAttribute(String key) {
-            if (attributes == null) {
-                return null;
-            }
-
-            return attributes.remove(key);
-        }
-
-        public void setAttribute(String key, Object value) {
-            getAttributes().put(key, value);
+            return getAttributes().remove(key);
         }
     }
 }
