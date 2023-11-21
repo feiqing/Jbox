@@ -120,23 +120,6 @@ public class Jbox {
         return mac;
     }
 
-    public static Method getAbstractMethod(JoinPoint pjp) {
-        return ((MethodSignature) pjp.getSignature()).getMethod();
-    }
-
-    public static Method getImplementMethod(JoinPoint pjp) {
-        try {
-            MethodSignature ms = (MethodSignature) pjp.getSignature();
-            Method method = ms.getMethod();
-            if (method.getDeclaringClass().isInterface()) {
-                method = pjp.getTarget().getClass().getDeclaredMethod(ms.getName(), method.getParameterTypes());
-            }
-            return method;
-        } catch (NoSuchMethodException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
     public static <T> T toObj(String val, Class<T> type) {
         Object instance;
         Class<?> primitiveType = primitives.get(type);

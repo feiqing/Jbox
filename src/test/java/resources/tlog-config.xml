@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<traces xmlns="http://www.github.com/jbox/trace"
+<traces xmlns="https://www.alibaba.com/jbox/trace"
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-        xsi:schemaLocation="http://www.github.com/jbox/trace
+        xsi:schemaLocation="https://www.alibaba.com/jbox/trace
        http://localhost:8080/jbox/trace.xsd">
 
     <define name="service" value="com.cainiao.webapp.service.impl.HelloWorldServiceImpl"/>

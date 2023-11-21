@@ -8,7 +8,7 @@ package com.alibaba.jbox.utils;
 public class YamlTester {
 
     public static void main(String[] args) {
-        System.out.println(String.format("%-20s, hh", "com.github.jbox:TaskScheduler"));
+        System.out.println(String.format("%-20s, hh", "com.alibaba.jbox:TaskScheduler"));
         System.out.println(String.format("%-20s, hh", "sss"));
     }
 }

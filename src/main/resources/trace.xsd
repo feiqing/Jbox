@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<xsd:schema xmlns="http://www.github.com/jbox/trace"
+<xsd:schema xmlns="https://www.alibaba.com/jbox/trace"
             xmlns:xsd="http://www.w3.org/2001/XMLSchema"
-            targetNamespace="http://www.github.com/jbox/trace"
+            targetNamespace="https://www.alibaba.com/jbox/trace"
             elementFormDefault="qualified">
 
     <!-- traces root config -->

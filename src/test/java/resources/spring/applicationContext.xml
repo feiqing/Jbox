@@ -1,38 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-       xmlns:context="http://www.springframework.org/schema/context"
-       xmlns:aop="http://www.springframework.org/schema/aop"
        xsi:schemaLocation="http://www.springframework.org/schema/beans
-       http://www.springframework.org/schema/beans/spring-beans.xsd
-          http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd">
+       http://www.springframework.org/schema/beans/spring-beans.xsd">
 
     <!--<import resource="spring/applicationTLogComposite.xml"/>-->
 
-    <bean id="ipoTraceAspect" class="com.alibaba.jbox.trace.TraceLauncher">
-        <property name="tasks">
-            <list>
-                <bean class="com.github.jbox.trace.tasks.EagleEyeTask"/>
-                <bean class="com.github.jbox.trace.tasks.ArgValidateTask"/>
-                <bean class="com.github.jbox.trace.tasks.LogRootErrorTask"/>
-                <bean class="com.github.jbox.trace.tasks.MethodInvokeTask"/>
-            </list>
-        </property>
-    </bean>
-
-    <aop:config proxy-target-class="true">
-        <aop:pointcut id="ipoProxyPt" expression="
-                    execution(* com.alibaba.jbox.caces.service.impl.HelloWorldServiceImpl.*(..)))                        "/>
-        <aop:aspect ref="ipoTraceAspect">
-            <aop:around method="emit" pointcut-ref="ipoProxyPt"/>
-        </aop:aspect>
-    </aop:config>
-
-    <context:component-scan base-package="com.github.jbox"/>
 
     <bean class="com.alibaba.jbox.caces.service.impl.HelloWorldServiceImpl"/>
 
-    <bean class="com.github.jbox.h2.TestDAO">
-        <constructor-arg name="h2path" value="/Users/jifang.zjf/Downloads/test/tt"/>
-    </bean>
 </beans>
