@@ -13,22 +13,19 @@ import java.util.Map;
  */
 @Slf4j(topic = "JobFramework")
 @SuppressWarnings({"rawtypes", "unchecked"})
-public abstract class JobContext<R> implements Serializable {
-
-    private static final long serialVersionUID = 6258054189501546389L;
-
-    private static final ThreadLocal<JobContext> context = new ThreadLocal<>();
+public abstract class JobContext<R> {
+    private static final ThreadLocal<JobContext> ctx = new ThreadLocal<>();
 
     protected final Meta meta = new Meta();
 
     protected JobContext(String name, JobTask[] tasks) {
         meta.name = name;
         meta.tasks = tasks;
-        context.set(this);
+        ctx.set(this);
     }
 
     public static <T extends JobContext<R>, R> T get() {
-        return (T) context.get();
+        return (T) ctx.get();
     }
 
     public R next() throws Throwable {
@@ -48,7 +45,7 @@ public abstract class JobContext<R> implements Serializable {
             throw t;
         } finally {
             long total = System.currentTimeMillis() - (long) meta.removeAttribute(desc);
-            if (meta.trace && log.isInfoEnabled()) {
+            if (meta.trace && log.isTraceEnabled()) {
                 log.trace("[TASK] {} cost '{}', total '{}'.", desc, total - meta.cost, total);
             }
             meta.cost = total;
